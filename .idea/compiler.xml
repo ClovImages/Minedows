@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="21" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Minedows.1.21.8-fabric" options="&quot;-AoutRefMapFile=E:\IdeaProjects\Minedows\versions\1.21.8-fabric\build\classes\java\main\Minedows 98-fabric-1.21.8-fabric-refmap.json&quot; -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=E:\IdeaProjects\Minedows\versions\1.21.8-fabric\build\loom-cache\mixin-map-loom.mappings.1_21_8.layered+hash.40545-v2.main.tiny -AinMapFileNamedIntermediary=C:\Users\pavvv\.gradle\caches\fabric-loom\1.21.8\loom.mappings.1_21_8.layered+hash.40545-v2\mappings.tiny" />
+      <module name="Minedows.1.21.8-fabric.main" options="&quot;-AoutRefMapFile=E:\IdeaProjects\Minedows\versions\1.21.8-fabric\build\classes\java\main\Minedows 98-fabric-1.21.8-fabric-refmap.json&quot; -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=E:\IdeaProjects\Minedows\versions\1.21.8-fabric\build\loom-cache\mixin-map-loom.mappings.1_21_8.layered+hash.40545-v2.main.tiny -AinMapFileNamedIntermediary=C:\Users\pavvv\.gradle\caches\fabric-loom\1.21.8\loom.mappings.1_21_8.layered+hash.40545-v2\mappings.tiny" />
+      <module name="Minedows.1.21.8-fabric.test" options="&quot;-AoutRefMapFile=E:\IdeaProjects\Minedows\versions\1.21.8-fabric\build\classes\java\test\test-Minedows 98-fabric-1.21.8-fabric-refmap.json&quot; -AdefaultObfuscationEnv=named:intermediary -Aquiet=true -AoutMapFileNamedIntermediary=E:\IdeaProjects\Minedows\versions\1.21.8-fabric\build\loom-cache\mixin-map-loom.mappings.1_21_8.layered+hash.40545-v2.test.tiny -AinMapFileNamedIntermediary=C:\Users\pavvv\.gradle\caches\fabric-loom\1.21.8\loom.mappings.1_21_8.layered+hash.40545-v2\mappings.tiny" />
+    </option>
+  </component>
+</project>

@@ -1,0 +1,63 @@
+plugins {
+    id 'maven-publish'
+    id "com.modrinth.minotaur" version "2.+"
+    id "io.github.goooler.shadow" version "8.1.7" apply false
+    id "dev.architectury.loom" version "1.11-SNAPSHOT" apply false
+    id "io.github.p03w.machete" version "2.+" apply false
+
+    // https://github.com/ReplayMod/preprocessor
+    // https://github.com/Fallen-Breath/preprocessor
+    id 'com.replaymod.preprocess' version 'ce1aeb2b'
+
+    // https://github.com/Fallen-Breath/yamlang
+    id 'me.fallenbreath.yamlang' version '1.3.1' apply false
+}
+
+preprocess {
+    def mc1218_fabric = createNode('1.21.8-fabric', 1_21_08, '')
+    mc1218_fabric.link(mc1218_fabric, null)
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "Kel_Cuprum_Repository"
+            url = "https://repo.kelcuprum.ru/test"
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+}
+
+tasks.register('modrinthAll') {
+    subprojects {
+        dependsOn project.tasks.named('modrinth').get()
+    }
+}
+
+tasks.register('buildAndGather') {
+    subprojects {
+        dependsOn project.tasks.named('build').get()
+    }
+    doFirst {
+        println 'Gathering builds'
+        def buildLibs = {
+            p -> p.buildDir.toPath().resolve('libs')
+        }
+        delete fileTree(buildLibs(rootProject)) {
+            include '*'
+        }
+        subprojects {
+            copy {
+                from(buildLibs(project)) {
+                    include '*.jar'
+                    exclude '*-dev.jar', '*-sources.jar', '*-all.jar'
+                }
+                into buildLibs(rootProject)
+                duplicatesStrategy DuplicatesStrategy.INCLUDE
+            }
+        }
+    }
+}

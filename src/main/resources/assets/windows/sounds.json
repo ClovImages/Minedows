@@ -1,0 +1,7 @@
+{
+  "windows_startup": {
+    "sounds": [
+      "windows:startup"
+    ]
+  }
+}

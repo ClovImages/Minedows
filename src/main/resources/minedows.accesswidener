@@ -1,0 +1,8 @@
+accessWidener	v1	named
+accessible method net/minecraft/client/gui/components/AbstractSliderButton setValue (D)V
+accessible field net/minecraft/client/gui/components/EditBox font Lnet/minecraft/client/gui/Font;
+accessible field net/minecraft/client/gui/components/EditBox formatter Ljava/util/function/BiFunction;
+accessible field net/minecraft/client/gui/components/EditBox displayPos I
+accessible field net/minecraft/client/gui/components/AbstractScrollArea scrollAmount D
+accessible field net/minecraft/client/gui/screens/multiplayer/ServerSelectionList SCANNING_LABEL Lnet/minecraft/network/chat/Component;
+accessible method net/minecraft/client/gui/screens/Screen rebuildWidgets ()V

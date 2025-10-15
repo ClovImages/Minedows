@@ -1,0 +1,36 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ru.kelcu.windows.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "ru.kelcu.windows.mixin.MinedowsMixinPlugin",
+  "client": [
+    "ExampleTextureMixin",
+    "FramerateLimitTrackerMixin",
+    "LoadingOverlayMixin",
+    "MinecraftScreen",
+    "ScreenMixin",
+    "WinScreenMixin",
+    "components.AbstractWidgetMixin",
+    "components.ClientTextTooltipMixin",
+    "components.LANHeaderMixin",
+    "components.ScreenMixin",
+    "components.TooltipRenderUtilMixin",
+    "components.elemets.ColoredRectangleRenderStateMixin",
+    "components.elemets.PictureInPictureRenderStateMixin",
+    "screens.DeathScreenMixin"
+  ],
+  "noactive": [
+    "components.AbstractButtonMixin",
+    "components.AbstractSliderButtonMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "figura.UIHelperMixin",
+    "lamb.RandomPrideFlagBackgroundMixin",
+    "mcef.CefClientMixin",
+    "screens.ConfigScreenBuilderMixin"
+  ]
+}
