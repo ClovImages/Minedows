@@ -2,10 +2,13 @@ package ru.kelcu.windows;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import ru.kelcu.windows.style.MinedowsStyle;
@@ -56,6 +59,9 @@ public class Windows implements ClientModInitializer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+        });
+        FabricLoader.getInstance().getModContainer("minedows").ifPresent(container -> {
+            ResourceManagerHelper.registerBuiltinResourcePack(GuiUtils.getResourceLocation("minedows","windows_sound"), container, Component.translatable("resourcePack.windows_sound"), ResourcePackActivationType.NORMAL);
         });
         GuiUtils.registerStyle(minedowsStyle);
         ClientLifecycleEvents.CLIENT_FULL_STARTED.register((s) -> {

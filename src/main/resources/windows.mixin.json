@@ -18,7 +18,8 @@
     "components.TooltipRenderUtilMixin",
     "components.elemets.ColoredRectangleRenderStateMixin",
     "components.elemets.PictureInPictureRenderStateMixin",
-    "screens.DeathScreenMixin"
+    "screens.DeathScreenMixin",
+    "screens.TitleScreenMixin"
   ],
   "noactive": [
     "components.AbstractButtonMixin",

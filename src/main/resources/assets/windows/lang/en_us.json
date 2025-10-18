@@ -108,5 +108,7 @@
 
   "minedows.wallpaper.city": "Urban environment",
 
-  "minedows.please_wait": "Please wait%s"
+  "minedows.please_wait": "Please wait%s",
+
+  "resourcePack.windows_sound": "Windows 98 Sounds"
 }

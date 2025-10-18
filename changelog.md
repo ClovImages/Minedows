@@ -1,1 +1,4 @@
 - Fixed open disconnect screen
+- Fixed more bugs
+- Added label "Minecraft Menu" (Open Title/Pause Screen)
+- Added Windows 98 Sounds

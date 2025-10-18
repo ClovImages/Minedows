@@ -101,5 +101,7 @@
 
   "minedows.wallpaper.city": "Городская среда",
 
-  "minedows.please_wait": "Пожалуйста подождите%s"
+  "minedows.please_wait": "Пожалуйста подождите%s",
+
+  "resourcePack.windows_sound": "Звуки Windows 98"
 }
