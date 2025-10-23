@@ -39,21 +39,21 @@ public abstract class ScreenMixin {
 
     @Inject(method = "renderBlurredBackground", at=@At("HEAD"), cancellable = true)
     public void renderBackground(GuiGraphics guiGraphics, CallbackInfo ci){
-        if((Screen) (Object) this instanceof DesktopScreen || Minecraft.getInstance().screen instanceof DesktopScreen) ci.cancel();
+        if((Screen) (Object) this instanceof DesktopScreen || Minecraft.getInstance().screen instanceof DesktopScreen || DesktopScreen.currentRenderedWindow != null) ci.cancel();
     }
     @Inject(method = "renderMenuBackground(Lnet/minecraft/client/gui/GuiGraphics;)V", at=@At("HEAD"), cancellable = true)
     public void renderMenuBackgroundTexture(GuiGraphics guiGraphics, CallbackInfo ci){
         if((Screen) (Object) this instanceof DesktopScreen) return;
-        else if(Minecraft.getInstance().screen instanceof DesktopScreen) ci.cancel();
+        else if(Minecraft.getInstance().screen instanceof DesktopScreen || DesktopScreen.currentRenderedWindow != null) ci.cancel();
     }
     @Inject(method = "renderMenuBackground(Lnet/minecraft/client/gui/GuiGraphics;IIII)V", at=@At("HEAD"), cancellable = true)
     public void renderMenuBackgroundTexture(GuiGraphics guiGraphics, int i, int j, int k, int l, CallbackInfo ci){
         if((Screen) (Object) this instanceof DesktopScreen) return;
-        else if(Minecraft.getInstance().screen instanceof DesktopScreen) ci.cancel();
+        else if(Minecraft.getInstance().screen instanceof DesktopScreen || DesktopScreen.currentRenderedWindow != null) ci.cancel();
     }
     @Inject(method = "renderPanorama", at=@At("HEAD"), cancellable = true)
     public void renderPanorama(GuiGraphics guiGraphics, float f, CallbackInfo ci){
         if(!((Screen) (Object) this instanceof DesktopScreen) && AlinLib.MINECRAFT.screen instanceof DesktopScreen) ci.cancel();
-        if(Minecraft.getInstance().screen instanceof DesktopScreen && Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() != 2) ci.cancel();
+        if((Minecraft.getInstance().screen instanceof DesktopScreen && Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() != 2) || DesktopScreen.currentRenderedWindow != null) ci.cancel();
     }
 }

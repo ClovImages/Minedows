@@ -86,6 +86,7 @@ dependencies {
         modCompileOnly("io.github.queerbric:pridelib:${pridelib_version}")
         modCompileOnly("dev.lambdaurora.lambdynamiclights:lambdynamiclights-runtime:${lambdynamiclights}")
         modCompileOnly("maven.modrinth:figura:${figura}")
+        modCompileOnly("maven.modrinth:flashback:${project.flashback_version}")
         modImplementation "ru.kelcuprum:AlinLib-fabric:${rootProject.alinlib}+mc${project.alinlib_minecraft_version == null ? project.minecraft_version : project.alinlib_minecraft_version}"
     }
 
@@ -167,11 +168,10 @@ modrinth {
     else loaders = [mod_brand]
     dependencies {
         required.project "alinlib"
-//        required.version "mJtSihVH"
         if(mod_brand == "fabric"){
             required.project "fabric-api"
             optional.project "modmenu"
         }
-        optional.project "litematica"
+        optional.project "mcef"
     }
 }

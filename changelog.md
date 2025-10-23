@@ -1,4 +1,5 @@
-- Fixed open disconnect screen
-- Fixed more bugs
-- Added label "Minecraft Menu" (Open Title/Pause Screen)
-- Added Windows 98 Sounds
+- Fixed Container Screens
+- Added config for open PauseScreen
+- Added window pinning (CTRL+P)
+- Added support for Flashback
+- Added tooltip in Volume Mixer

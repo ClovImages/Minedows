@@ -2,6 +2,10 @@ package ru.kelcu.windows.mixin;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
+import net.minecraft.client.gui.screens.inventory.BlastFurnaceScreen;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import org.jetbrains.annotations.Nullable;
@@ -11,7 +15,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Window;
+import ru.kelcu.windows.components.builders.WindowBuilder;
+import ru.kelcu.windows.screens.DebugScreen;
 import ru.kelcu.windows.screens.DesktopScreen;
 import ru.kelcu.windows.utils.WindowUtils;
 
@@ -30,6 +37,7 @@ public abstract class MinecraftScreen{
 
     @Inject(method = "setScreen", at=@At("HEAD"), cancellable = true)
     public void setScreen(Screen screen, CallbackInfo ci){
+        if(screen instanceof AbstractContainerScreen || screen instanceof AbstractFurnaceScreen) return;
         if(this.screen instanceof DesktopScreen){
             if(System.currentTimeMillis() - DesktopScreen.lastClosedWindow <= 200) {
                 DesktopScreen.lastClosedWindow = 0;
@@ -69,13 +77,14 @@ public abstract class MinecraftScreen{
                 currentWindow.screen.init((Minecraft) (Object) this, (int) currentWindow.width-6, (int) currentWindow.height-22);
             }
             ci.cancel();
-        } else if(screen instanceof TitleScreen || screen instanceof PauseScreen || screen instanceof WinScreen || screen instanceof DeathScreen || screen instanceof DisconnectedScreen){
+        } else if(screen instanceof TitleScreen || (screen instanceof PauseScreen && !Windows.config.getBoolean("ENABLE_PAUSE_SCREEN", false)) || screen instanceof WinScreen || screen instanceof DeathScreen || screen instanceof DisconnectedScreen){
             setScreen(new DesktopScreen());
             try {
                 for(Window window : DesktopScreen.windows){
                     if((window.screen instanceof TitleScreen || window.screen instanceof PauseScreen || window.screen instanceof WinScreen || window.screen instanceof DeathScreen || window.screen instanceof ReceivingLevelScreen))
                         DesktopScreen.removeWindow(window);
                 }
+                if(Windows.config.getBoolean("OPEN_PAUSE_SCREEN", false) && (screen instanceof PauseScreen)) DesktopScreen.addWindow(new WindowBuilder().setScreen(screen).build());
             } catch (Exception ignored){}
             if(screen instanceof WinScreen || screen instanceof DeathScreen || screen instanceof DisconnectedScreen){
                 DesktopScreen.addWindow(WindowUtils.getBuilderByScreen(screen).build());

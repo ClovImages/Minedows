@@ -60,6 +60,7 @@
   "minedows.start.debug": "DebugScreen.exe",
   "minedows.start.browser": "Clovium",
   "minedows.start.about": "About System",
+  "minedows.start.volume": "Volume: %s",
 
   "minedows.paint": "Clovisoft Paint",
   "minedows.paint.marker_size": "Brush Width",
@@ -96,10 +97,20 @@
   "minedows.system_options.other": "Other",
   "minedows.system_options.other.disable_warn_text": "Disable Warning Text",
   "minedows.system_options.other.fix_smooth_menu": "Smooth menu",
+  "minedows.system_options.other.enable_pause_screen": "Enable Pause Screen",
+  "minedows.system_options.other.open_pause_screen": "Open the Pause Window if the top configuration is turned off",
 
   "minedows.sound_mixer": "Volume Mixer",
   "minedows.calc": "Calculator",
 
+  "minedows.window.pinned": "Окно закреплёно!",
+  "minedows.window.unpinned": "Окно больше не закреплёно!",
+
+  "minedows.flashback.start": "Start Recording",
+  "minedows.flashback.finish": "Finish Recording",
+  "minedows.flashback.cancel": "Cancel Recording",
+  "minedows.flashback.pause": "Pause Recording",
+  "minedows.flashback.unpause": "Unpause Recording",
 
   "minedows.theme.default": "Default",
   "minedows.theme.dark": "Dark",

@@ -30,6 +30,7 @@ import ru.kelcu.windows.components.Cursor;
 import ru.kelcu.windows.components.Window;
 import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.mods.CatalogueActions;
+import ru.kelcu.windows.mods.FlashbackActions;
 import ru.kelcu.windows.mods.ModMenuActions;
 import ru.kelcu.windows.screens.apps.BrowserScreen;
 import ru.kelcu.windows.screens.apps.CalcScreen;
@@ -42,6 +43,7 @@ import ru.kelcu.windows.utils.*;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.config.Config;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
+import ru.kelcuprum.alinlib.gui.toast.ToastBuilder;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -121,6 +123,7 @@ public class DesktopScreen extends Screen {
 //        }
 //        addRenderableWidget(new LabelWidget(5, 5, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world.png"), new DebugScreen())));
 //        addRenderableWidget(new LabelWidget(50, 5, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("title.multiplayer.realms"), GuiUtils.getResourceLocation("windows", "textures/start/icons/realms.png"), new RealmsMainScreen(null))));
+//        int ta = taskbarSize*getTaskbarActions().size();
         if(verticalConfigureScrolWidget == null){
             verticalConfigureScrolWidget = new VerticalConfigureScrolWidget(xWindowTask, height, width-taskbarSize-xWindowTask-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))), 3, Component.empty(), (scroller) -> {
                 scroller.innerHeight = 0;
@@ -138,7 +141,7 @@ public class DesktopScreen extends Screen {
         } else {
             verticalConfigureScrolWidget.innerHeight = 0;
             verticalConfigureScrolWidget.setScrollAmount(0);
-            verticalConfigureScrolWidget.setWidth(width-taskbarSize-xWindowTask-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))));
+            verticalConfigureScrolWidget.setWidth(width-taskbarSize-xWindowTask-4-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))));
             verticalConfigureScrolWidget.setPosition(xWindowTask, height);
         }
         for(Window window : windows){
@@ -162,6 +165,27 @@ public class DesktopScreen extends Screen {
             }
         }
     }
+    public static ArrayList<Action> getTaskbarActions(){
+        float sound = AlinLib.MINECRAFT.options.getFinalSoundSourceVolume(SoundSource.MASTER);
+        ArrayList<Action> actions = new ArrayList<>();
+        actions.add(new Action(() -> {
+            for(Window window : windows){
+                if(window.screen instanceof SoundMixerScreen){
+                    windows.getLast().active = false;
+                    windows.remove(window);
+                    window.active = true;
+                    windows.addLast(window);
+                    return;
+                }
+            }
+            addWindow(new WindowBuilder().setSize(460, 200).setPosition(AlinLib.MINECRAFT.screen.width-460, AlinLib.MINECRAFT.screen.height-220).setIcon(GuiUtils.getResourceLocation("windows", "textures/sound_mixer/main.png")).setResizable(false).setScreen(new SoundMixerScreen()).build());
+        }, Component.translatable("minedows.start.volume", (int) (sound * 100) +"%"), WinColors.getLightIcon(String.format("textures/start/volume_%s",
+                sound == 0 ? "muted" : sound <= 0.1 ? "low" : sound <= 0.8 ? "ok" : "max"))));
+        if(FabricLoader.getInstance().isModLoaded("flashback")){
+            actions.addAll(FlashbackActions.getActions());
+        }
+        return actions;
+    }
 
     @Override
     public void rebuildWidgets() {
@@ -176,10 +200,11 @@ public class DesktopScreen extends Screen {
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
         if(FabricLoader.getInstance().isModLoaded("mcef")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
-        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 220).setScreen(new ControlPanelScreen())));
-        apps.add(new Action(() -> {
-            addWindow(new WindowBuilder().setScreen(AlinLib.MINECRAFT.level != null ? new PauseScreen(true) : new TitleScreen()).build());
-        }, Component.literal("Minecraft Menu"), GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png")));
+        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
+        apps.add(new Action(() ->
+            addWindow(new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png"))
+                    .setScreen(AlinLib.MINECRAFT.level != null ? new PauseScreen(true) : new TitleScreen()).build()),
+                Component.literal("Minecraft Menu"), GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png")));
         return apps;
     }
 
@@ -268,7 +293,7 @@ public class DesktopScreen extends Screen {
         config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.accessibility"), GuiUtils.getResourceLocation("windows", "textures/start/icons/accessibility.png"), new AccessibilityOptionsScreen(null, minecraft.options)));
         config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.language"), GuiUtils.getResourceLocation("windows", "textures/start/icons/language.png"), new LanguageSelectScreen(null, minecraft.options, minecraft.getLanguageManager())));
         config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.options"), GuiUtils.getResourceLocation("windows", "textures/start/icons/options.png"), new OptionsScreen(null, minecraft.options)));
-        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 220).setScreen(new ControlPanelScreen())));
+        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
         links.put("1", config);
         ArrayList<Action> title = new ArrayList<>();
         if(Minecraft.getInstance().level != null) {
@@ -392,7 +417,7 @@ public class DesktopScreen extends Screen {
         guiGraphics.fill(x, y, x + 1, height-3, hcolors[1]);
         x += 6;
         xWindowTask = x;
-        verticalConfigureScrolWidget.setWidth(width-taskbarSize-xWindowTask-4-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))));
+        verticalConfigureScrolWidget.setWidth(width-(taskbarSize*getTaskbarActions().size())-xWindowTask-4-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))));
         verticalConfigureScrolWidget.setPosition(xWindowTask, height);
         int xW = xWindows;
         guiGraphics.enableScissor(xWindowTask, height-startMenuHeight, xWindowTask+verticalConfigureScrolWidget.getWidth(), height);
@@ -410,9 +435,16 @@ public class DesktopScreen extends Screen {
             xW+= (2 + 8 + font.width(title) + 2);
         }
         guiGraphics.disableScissor();
-        float sound = AlinLib.MINECRAFT.options.getFinalSoundSourceVolume(SoundSource.MASTER);
-        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(String.format("textures/start/volume_%s",
-                sound == 0 ? "muted" : sound <= 0.1 ? "low" : sound <= 0.8 ? "ok" : "max")), xWindowTask+verticalConfigureScrolWidget.getWidth(), height-taskbarSize+3, 0 ,0, 16, 16, 16, 16);
+        int xA = xWindowTask+verticalConfigureScrolWidget.getWidth()+5+(taskbarSize*Math.max(0, getTaskbarActions().size()-1));
+        for(Action action : getTaskbarActions()){
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, xA, height-taskbarSize+4, 0 ,0, 14, 14, 14, 14);
+            if(xA < mouseX && mouseX < xA+14 && height-taskbarSize+4 < mouseY && mouseY < height-taskbarSize+18)
+                guiGraphics.setTooltipForNextFrame(action.title, mouseX, mouseY);
+            xA-=taskbarSize;
+        }
+//        float sound = AlinLib.MINECRAFT.options.getFinalSoundSourceVolume(SoundSource.MASTER);
+//        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(String.format("textures/start/volume_%s",
+//                sound == 0 ? "muted" : sound <= 0.1 ? "low" : sound <= 0.8 ? "ok" : "max")), xWindowTask+verticalConfigureScrolWidget.getWidth()+1, height-taskbarSize+4, 0 ,0, 14, 14, 14, 14);
         // -=-=-=- Right Elements
         String time = AlinLib.localization.getParsedText("{time}");
         guiGraphics.fill(width - 2, height - (taskbarSize-3), width - (2 + 9 + font.width(time)), height - 1, colors[3]);
@@ -611,7 +643,12 @@ public class DesktopScreen extends Screen {
         if(windows.isEmpty()) return super.keyPressed(i, j, k);
         else for(Window window : DesktopScreen.windows){
             if(window.active && window.visible) {
-                if(window.y < 0 && i == GLFW.GLFW_KEY_TAB) {
+                if(i == GLFW.GLFW_KEY_P && hasControlDown()){
+                  window.changePin();
+                  String title = window.screen.getTitle().getString();
+                  if(title.isEmpty()) title = window.screen.getClass().getSimpleName()+".exe";
+                  new ToastBuilder().setTitle(Component.literal(title)).setMessage(Component.translatable(String.format("minedows.window.%s", window.pinned ? "pinned" : "unpinned"))).setStyle(Windows.minedowsStyle).buildAndShow();
+                } else if(window.y < 0 && i == GLFW.GLFW_KEY_TAB) {
                     window.setPosition(0, 0);
                     return true;
                 } else return window.screen.keyPressed(i, j, k);
@@ -738,19 +775,22 @@ public class DesktopScreen extends Screen {
                 }
                 xW+= (2 + 8 + xAdditional + font.width(title) + 2);
             }
-        } else if(xWindowTask+verticalConfigureScrolWidget.getWidth() < d && d < xWindowTask+verticalConfigureScrolWidget.getWidth()+16
-        && height-taskbarSize < e && e < height){
-            for(Window window : windows){
-                if(window.screen instanceof SoundMixerScreen){
-                    windows.getLast().active = false;
-                    windows.remove(window);
-                    window.active = true;
-                    windows.addLast(window);
+        } else {
+            int xA = xWindowTask+verticalConfigureScrolWidget.getWidth()+5+(taskbarSize*Math.max(0, getTaskbarActions().size()-1));
+            for(Action action : getTaskbarActions()){
+                if(xA < d && d < xA+14 && height-taskbarSize+4 < e && e < height-taskbarSize+18) {
+                    SoundUtils.click();
+                    switch (action.type){
+                        case STOP_GAME -> Minecraft.getInstance().stop();
+                        case UNPAUSE_GAME -> Minecraft.getInstance().setScreen(null);
+                        case DISCONNECT -> PauseScreen.disconnectFromWorld(this.minecraft, ClientLevel.DEFAULT_QUIT_MESSAGE);
+                        case OPEN_SCREEN -> addWindow(action.getWindow());
+                        case EXECUTE_ACTION -> action.execute.execute();
+                    }
                     return true;
                 }
+                xA-=taskbarSize;
             }
-            addWindow(new WindowBuilder().setSize(460, 200).setPosition(width-460, height-taskbarSize-200).setIcon(GuiUtils.getResourceLocation("windows", "textures/sound_mixer/main.png")).setResizable(false).setScreen(new SoundMixerScreen()).build());
-            return true;
         }
         int yS = height - (taskbarSize-3) - startMenuHeight;
         if(startMenuShowed && 0 < d && d < startMenuWidth && yS < e && e < yS+startMenuHeight){

@@ -61,6 +61,7 @@
   "minedows.start.debug": "DebugScreen.exe",
   "minedows.start.browser": "Clovium",
   "minedows.start.about": "О системе",
+  "minedows.start.volume": "Громкость: %s",
 
   "minedows.paint": "Clovisoft Paint",
   "minedows.paint.marker_size": "Ширина кисти",
@@ -95,9 +96,20 @@
   "minedows.system_options.other": "Вы не поняли, это другое",
   "minedows.system_options.other.disable_warn_text": "Отключить предупреждающий текст",
   "minedows.system_options.other.fix_smooth_menu": "Плавное меню",
+  "minedows.system_options.other.enable_pause_screen": "Включить меню паузы",
+  "minedows.system_options.other.open_pause_screen": "Открыть окно паузы, если верхний конфиг выключен",
 
   "minedows.sound_mixer": "Звуковой микшер",
   "minedows.calc": "Калькулятор",
+
+  "minedows.window.pinned": "Окно закреплёно!",
+  "minedows.window.unpinned": "Окно больше не закреплёно!",
+
+  "minedows.flashback.start": "Начать запись",
+  "minedows.flashback.finish": "Завершить",
+  "minedows.flashback.cancel": "Отменить запись",
+  "minedows.flashback.pause": "Приостановить запись",
+  "minedows.flashback.unpause": "Снять запись с паузы",
 
   "minedows.wallpaper.city": "Городская среда",
 

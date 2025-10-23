@@ -11,6 +11,8 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import ru.kelcu.windows.components.Window;
+import ru.kelcu.windows.screens.DesktopScreen;
 import ru.kelcu.windows.style.MinedowsStyle;
 import ru.kelcu.windows.utils.Perlin2D;
 import ru.kelcu.windows.utils.ThemeManager;
@@ -18,6 +20,7 @@ import ru.kelcu.windows.utils.WallpaperUtil;
 import ru.kelcu.windows.utils.WinColors;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.api.events.client.ClientLifecycleEvents;
+import ru.kelcuprum.alinlib.api.events.client.GuiRenderEvents;
 import ru.kelcuprum.alinlib.config.Config;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 
@@ -58,6 +61,13 @@ public class Windows implements ClientModInitializer {
                 generatePerlin(AlinLib.MINECRAFT.getWindow().getGuiScaledWidth() / 2, AlinLib.MINECRAFT.getWindow().getGuiScaledHeight() / 2);
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+        });
+        GuiRenderEvents.RENDER.register((guiGraphics, tick) -> {
+            for(Window window : DesktopScreen.windows){
+                if(window.pinned && window.visible){
+                    DesktopScreen.renderWindow(guiGraphics, window, guiGraphics.guiWidth()/2, guiGraphics.guiHeight()/2, tick);
+                }
             }
         });
         FabricLoader.getInstance().getModContainer("minedows").ifPresent(container -> {

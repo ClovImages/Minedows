@@ -34,6 +34,8 @@ public class VolumeComponent extends AbstractSliderButton {
         int y = (int) (getY()+getHeight()-(getHeight()*value));
         Windows.minedowsStyle.renderBackground$widget(guiGraphics, getX()+(getWidth()/2)-(w/2), y-5, w, 10, active, isHoveredOrFocused());
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED,getSpeakerVolumeIcon(), getX()+(getWidth()/2)-7, getBottom()+3, 0f, 0f, 14, 14, 14, 14);
+        if(isHovered())
+            guiGraphics.setTooltipForNextFrame(Component.literal((int) (value*100)+"%"), i, j);
     }
 
     public ResourceLocation getSpeakerVolumeIcon(){

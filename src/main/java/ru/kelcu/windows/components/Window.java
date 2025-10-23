@@ -24,6 +24,7 @@ public class Window {
     public boolean isDragging;
     public boolean isResized;
     public boolean isScreenDragging;
+    public boolean pinned = false;
 
     public int buttons = 0;
     public boolean visible = true;
@@ -80,6 +81,9 @@ public class Window {
     }
     public void setScreenDragging(boolean isScreenDragging){
         this.isScreenDragging = isScreenDragging;
+    }
+    public void changePin(){
+        this.pinned = !this.pinned;
     }
 
     public void setPosition(double x, double y){

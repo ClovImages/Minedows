@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.options;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -41,7 +42,7 @@ public class ControlPanelScreen extends Screen {
         widgets = new ArrayList<>();
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.minecraft"), GuiUtils.getResourceLocation("windows","textures/start/icons/shutdown.png"), new WindowBuilder().setScreen(new OptionsScreen(null, Minecraft.getInstance().options)))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("alinlib"), GuiUtils.getResourceLocation("alinlib","icon.png"), new WindowBuilder().setScreen(DesignScreen.build(null)))));
-        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.browser.options"), GuiUtils.getResourceLocation("windows","textures/browser/icon.png"), new WindowBuilder().setScreen(getBrowserOption()).setSize(450, 200))));
+        if(FabricLoader.getInstance().isModLoaded("mcef")) widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.browser.options"), GuiUtils.getResourceLocation("windows","textures/browser/icon.png"), new WindowBuilder().setScreen(getBrowserOption()).setSize(450, 200))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.system_options"), GuiUtils.getResourceLocation("windows","textures/start/icons/options.png"), new WindowBuilder().setScreen(getSystemOption()))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.background"), GuiUtils.getResourceLocation("windows","textures/start/icons/background.png"), new WindowBuilder().setScreen(new BackgroundSettings()).setSize(325, 320).setResizable(false).setButtons(1).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/background.png")))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.label"), GuiUtils.getResourceLocation("windows","textures/start/icons/empty.png"), new WindowBuilder().setScreen(new LabelsPanelScreen()).setSize(325, 320).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/empty.png")))));
@@ -188,7 +189,9 @@ public class ControlPanelScreen extends Screen {
                 .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_end")).setColor(-14644786).setConfig(Windows.config, "TITLE.GRADIENT.END").setStyle(Windows.minedowsStyle))
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.other")).setStyle(LabelsPanelScreen.nothingStyle));
         if(Windows.isDeveloperPreview()) builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.disable_warn_text"), false).setConfig(Windows.config, "DISABLE_WARN_TEXT").setStyle(Windows.minedowsStyle));
-        builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.fix_smooth_menu"), false).setConfig(Windows.config, "FIXES.SMOOTH_MENU").setStyle(Windows.minedowsStyle));
+        builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.fix_smooth_menu"), false).setConfig(Windows.config, "FIXES.SMOOTH_MENU").setStyle(Windows.minedowsStyle))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_pause_screen"), false).setConfig(Windows.config, "ENABLE_PAUSE_SCREEN").setStyle(Windows.minedowsStyle))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.open_pause_screen"), false).setConfig(Windows.config, "OPEN_PAUSE_SCREEN").setStyle(Windows.minedowsStyle));
         return new SystemOptionsScreen(builder);
     }
 
