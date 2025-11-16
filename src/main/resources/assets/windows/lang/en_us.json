@@ -34,7 +34,7 @@
   "minedows.control.background.select.short": "Change Wallpaper",
   "minedows.control.background.select.filter_description": "Picture",
 
-  "minedows.control.label": "Dekstop Icons",
+  "minedows.control.label": "Desktop Icons",
   "minedows.control.label.description": "You can customize your favorite shortcuts :)",
   "minedows.control.label.description.empty": "You could set up your favorite shortcuts here, but nobody came.",
   "minedows.control.label.dark_text": "Dark Text",
@@ -94,6 +94,8 @@
   "minedows.control.title": "Title",
   "minedows.control.title.color_start": "Initial Color",
   "minedows.control.title.color_end": "Final Color",
+  "minedows.system_options.ui": "UI",
+  "minedows.system_options.other.enable_new_ui": "Enable new Game UI",
   "minedows.system_options.other": "Other",
   "minedows.system_options.other.disable_warn_text": "Disable Warning Text",
   "minedows.system_options.other.fix_smooth_menu": "Smooth menu",
@@ -115,11 +117,32 @@
   "minedows.theme.default": "Default",
   "minedows.theme.dark": "Dark",
   "minedows.theme.city": "Urban environment",
+  "minedows.theme.sky": "Sky",
   "minedows.theme.user": "Custom Theme",
 
   "minedows.wallpaper.city": "Urban environment",
+  "minedows.wallpaper.sky": "Sky",
+  "minedows.wallpaper.bliss": "Bliss",
+  "minedows.wallpaper.factory_town": "Factory town",
+  "minedows.wallpaper.error": "ERROR",
 
   "minedows.please_wait": "Please wait%s",
+
+  "minedows.activate": "§lActivate Minecraft§r",
+  "minedows.activate.description": "Follow the link minecraft.net to buy the game!",
+
+  "minedows.notepad": "Notepad",
+  "minedows.notepad.save": "Save Text File",
+  "minedows.notepad.save.filter_description": "Text File",
+
+  "minedows.explorer": "File Explorer",
+  "minedows.explorer.user_folder": "Home Directory",
+
+  "minedows.bsod.back": "Press any key to continue%s",
+
+  "minedows.control.auto_run": "Auto-start",
+  "minedows.control.auto_run.description": "Here you can set up the autorun of your frequently used programs!",
+  "minedows.control.auto_run.description.empty": "You can't set up autorun of your frequently used programs here! Since your place is empty",
 
   "resourcePack.windows_sound": "Windows 98 Sounds"
 }

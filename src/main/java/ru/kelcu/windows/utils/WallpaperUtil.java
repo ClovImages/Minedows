@@ -22,6 +22,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class WallpaperUtil {
     public static final WallpaperData CITY = new WallpaperData("city", Component.translatable("minedows.wallpaper.city"), GuiUtils.getResourceLocation("windows", "textures/wallpaper/city.png"), 1920, 1080);
+    public static final WallpaperData SKY = new WallpaperData("sky", Component.translatable("minedows.wallpaper.sky"), GuiUtils.getResourceLocation("windows", "textures/wallpaper/sky.png"), 1920, 1080);
+    public static final WallpaperData BLISS = new WallpaperData("bliss", Component.translatable("minedows.wallpaper.bliss"), GuiUtils.getResourceLocation("windows", "textures/wallpaper/bliss.png"), 300, 241);
+    public static final WallpaperData FACTORY_TOWN = new WallpaperData("factory_town", Component.translatable("minedows.wallpaper.factory_town"), GuiUtils.getResourceLocation("windows", "textures/wallpaper/factory_town.png"), 1751, 512);
+    public static final WallpaperData ERROR = new WallpaperData("error", Component.translatable("minedows.wallpaper.error"), GuiUtils.getResourceLocation("windows", "textures/wallpaper/error.png"), 1920, 1080);
     public static final WallpaperData FLUFFY = new WallpaperData("fluffy_forever", Component.translatable("minedows.wallpaper.fluffy"), GuiUtils.getResourceLocation("windows", "textures/wallpaper/fluffy.png"), 1280, 834);
     public static ResourceLocation location = GuiUtils.getResourceLocation("minedows", "wallpaper");
     public static int width = 0;
@@ -60,6 +64,10 @@ public class WallpaperUtil {
     public static HashMap<String, WallpaperData> wallpapers = new HashMap<>();
     public static void registerDefaultWallpapers(){
         registerWallpaper(CITY);
+        registerWallpaper(SKY);
+        registerWallpaper(BLISS);
+        registerWallpaper(FACTORY_TOWN);
+        registerWallpaper(ERROR);
     }
     public static void registerWallpaper(WallpaperData wallpaperData){
         wallpapers.put(wallpaperData.id, wallpaperData);

@@ -1,5 +1,12 @@
-- Fixed Container Screens
-- Added config for open PauseScreen
-- Added window pinning (CTRL+P)
-- Added support for Flashback
-- Added tooltip in Volume Mixer
+- Fixed #2 (Open EditSignScreen)
+- Fixed render entity state
+- Added new theme - Sky
+- Added new wallpapers - Sky, Bliss, Factory town, ERROR
+- Added Auto-start
+- Added text "Activate Minecraft"
+- Fixed label text color in world
+- Fixed Dekstop (localization)
+- Added new programs - Notepad, Explorer
+- Added new Game UI (Disabled by default)
+- OutOfMemoryScreen -> Blue Screen of Death
+- ![ээ](https://cdn.7tv.app/emote/01JYZZBKQB1Y9NCTCT612N0A8F/4x.gif)

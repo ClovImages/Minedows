@@ -93,6 +93,8 @@
   "minedows.control.title": "Заголовок",
   "minedows.control.title.color_start": "Начало градиента",
   "minedows.control.title.color_end": "Конец градиента",
+  "minedows.system_options.ui": "Пользовательский интерфейс",
+  "minedows.system_options.other.enable_new_ui": "Включить новый игровой интерфейс",
   "minedows.system_options.other": "Вы не поняли, это другое",
   "minedows.system_options.other.disable_warn_text": "Отключить предупреждающий текст",
   "minedows.system_options.other.fix_smooth_menu": "Плавное меню",
@@ -112,8 +114,30 @@
   "minedows.flashback.unpause": "Снять запись с паузы",
 
   "minedows.wallpaper.city": "Городская среда",
+  "minedows.wallpaper.sky": "Небо",
+  "minedows.wallpaper.bliss": "Безмятежность",
+  "minedows.wallpaper.factory_town": "Фабричный городок",
+  "minedows.wallpaper.error": "БЛЯТЬ",
 
   "minedows.please_wait": "Пожалуйста подождите%s",
+
+
+  "minedows.activate": "§lАктивируйте Minecraft§r",
+  "minedows.activate.description": "Купите игру на minecraft.net или в PWGood Store!",
+
+
+  "minedows.notepad": "Блокнот",
+  "minedows.notepad.save": "Сохранить текстовый файл",
+  "minedows.notepad.save.filter_description": "Текстовый файл",
+
+  "minedows.explorer": "Проводник",
+  "minedows.explorer.user_folder": "Домашняя папка",
+
+  "minedows.bsod.back": "Нажмите любую клавишу, чтобы продолжить%s",
+
+  "minedows.control.auto_run": "Автозапуск",
+  "minedows.control.auto_run.description": "Здесь вы можете настроить автозапуск часто используемых вами программ!",
+  "minedows.control.auto_run.description.empty": "Вы не можете настроить автозапуск часто используемых вами программ здесь! Так как ваше место пустует",
 
   "resourcePack.windows_sound": "Звуки Windows 98"
 }

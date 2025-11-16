@@ -1,5 +1,6 @@
 package ru.kelcu.windows.mixin;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -65,6 +66,7 @@ public class LoadingOverlayMixin {
                 }
             }
         } else {
+            if(FabricLoader.getInstance().isModLoaded("pplhelper_april")) return;
             if(isFirstFrame){
                 isFirstFrame = false;
                 startLoading = System.currentTimeMillis();

@@ -2,10 +2,7 @@ package ru.kelcu.windows.mixin;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.*;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
-import net.minecraft.client.gui.screens.inventory.BlastFurnaceScreen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.gui.screens.inventory.*;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Window;
 import ru.kelcu.windows.components.builders.WindowBuilder;
-import ru.kelcu.windows.screens.DebugScreen;
 import ru.kelcu.windows.screens.DesktopScreen;
 import ru.kelcu.windows.utils.WindowUtils;
 
@@ -37,7 +33,7 @@ public abstract class MinecraftScreen{
 
     @Inject(method = "setScreen", at=@At("HEAD"), cancellable = true)
     public void setScreen(Screen screen, CallbackInfo ci){
-        if(screen instanceof AbstractContainerScreen || screen instanceof AbstractFurnaceScreen) return;
+        if(isNotLegalScreen(screen)) return;
         if(this.screen instanceof DesktopScreen){
             if(System.currentTimeMillis() - DesktopScreen.lastClosedWindow <= 200) {
                 DesktopScreen.lastClosedWindow = 0;
@@ -91,5 +87,9 @@ public abstract class MinecraftScreen{
             }
             ci.cancel();
         }
+    }
+    @Unique
+    public boolean isNotLegalScreen(Screen screen){
+        return screen instanceof AbstractContainerScreen || screen instanceof AbstractFurnaceScreen || screen instanceof AbstractSignEditScreen || screen instanceof BookEditScreen || screen instanceof AbstractCommandBlockEditScreen || screen instanceof OutOfMemoryScreen;
     }
 }

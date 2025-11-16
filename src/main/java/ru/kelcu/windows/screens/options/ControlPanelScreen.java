@@ -27,6 +27,7 @@ import ru.kelcuprum.alinlib.gui.components.builder.text.HorizontalRuleBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.text.TextBuilder;
 import ru.kelcuprum.alinlib.gui.config.DesignScreen;
 import ru.kelcuprum.alinlib.gui.screens.ConfigScreenBuilder;
+import ru.kelcuprum.alinlib.info.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class ControlPanelScreen extends Screen {
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.system_options"), GuiUtils.getResourceLocation("windows","textures/start/icons/options.png"), new WindowBuilder().setScreen(getSystemOption()))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.background"), GuiUtils.getResourceLocation("windows","textures/start/icons/background.png"), new WindowBuilder().setScreen(new BackgroundSettings()).setSize(325, 320).setResizable(false).setButtons(1).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/background.png")))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.label"), GuiUtils.getResourceLocation("windows","textures/start/icons/empty.png"), new WindowBuilder().setScreen(new LabelsPanelScreen()).setSize(325, 320).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/empty.png")))));
+        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.auto_run"), GuiUtils.getResourceLocation("windows","textures/start/icons/executable.png"), new WindowBuilder().setScreen(new AutoRunPanelScreen()).setSize(325, 320).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/executable.png")))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.about"), GuiUtils.getResourceLocation("windows", "textures/start/icons/500.png"), new WindowBuilder().setScreen(new WindowsVersion()).setSize(325, 220).setResizable(false).setButtons(1).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/500.png")))));
     }
 
@@ -187,11 +189,15 @@ public class ControlPanelScreen extends Screen {
                 .addWidget(new TextBuilder(Component.translatable("minedows.control.title")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
                 .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_start")).setColor(-16777088).setConfig(Windows.config, "TITLE.GRADIENT.START").setStyle(Windows.minedowsStyle))
                 .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_end")).setColor(-14644786).setConfig(Windows.config, "TITLE.GRADIENT.END").setStyle(Windows.minedowsStyle))
+                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.ui")).setStyle(LabelsPanelScreen.nothingStyle))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_new_ui"), false).setConfig(Windows.config, "ENABLE_NEW_UI").setStyle(Windows.minedowsStyle))
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.other")).setStyle(LabelsPanelScreen.nothingStyle));
         if(Windows.isDeveloperPreview()) builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.disable_warn_text"), false).setConfig(Windows.config, "DISABLE_WARN_TEXT").setStyle(Windows.minedowsStyle));
         builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.fix_smooth_menu"), false).setConfig(Windows.config, "FIXES.SMOOTH_MENU").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_pause_screen"), false).setConfig(Windows.config, "ENABLE_PAUSE_SCREEN").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.open_pause_screen"), false).setConfig(Windows.config, "OPEN_PAUSE_SCREEN").setStyle(Windows.minedowsStyle));
+        if(Player.isLicenseAccount() || FabricLoader.getInstance().isDevelopmentEnvironment())
+            builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.activate"), false).setConfig(Windows.config, "ALWAYS_ACTIVATE_MINECRAFT").setStyle(Windows.minedowsStyle));
         return new SystemOptionsScreen(builder);
     }
 

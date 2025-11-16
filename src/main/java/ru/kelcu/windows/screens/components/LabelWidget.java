@@ -60,6 +60,7 @@ public class LabelWidget extends AbstractWidget {
         guiGraphics.pose().scale(0.75f);
         int y = 0;
         int color = Windows.config.getBoolean("LABEL.DARK_TEXT", false) || isBlackDuck ? 0xFF000000 : -1;
+        if(!isBlackDuck && AlinLib.MINECRAFT.level != null) color = -1;
         for(FormattedCharSequence formattedCharSequence : list){
             if(pw == max) break;
             guiGraphics.drawString(AlinLib.MINECRAFT.font, formattedCharSequence, (int) ((getWidth()/1.5)-(AlinLib.MINECRAFT.font.width(formattedCharSequence)*0.5)), y, color, false);
@@ -73,17 +74,7 @@ public class LabelWidget extends AbstractWidget {
     @Override
     public boolean mouseClicked(double d, double e, int i) {
         if(System.currentTimeMillis() - lastClick < 300 && !isDragged){
-            switch (action.type){
-                case STOP_GAME -> Minecraft.getInstance().stop();
-                case UNPAUSE_GAME -> Minecraft.getInstance().setScreen(null);
-                case DISCONNECT -> PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
-                case OPEN_SCREEN -> {
-                    if(AlinLib.MINECRAFT.screen instanceof DesktopScreen)
-                        AlinLib.MINECRAFT.screen.rebuildWidgets();
-                    DesktopScreen.addWindow(action.getWindow());
-                }
-                case EXECUTE_ACTION -> action.execute.execute();
-            }
+            Windows.executeAction(action);
             setFocused(false);
             return true;
         }

@@ -4,9 +4,12 @@ import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import ru.kelcu.windows.screens.AbstractWindowedScreen;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 
 import java.util.UUID;
+
+import static java.lang.Integer.MAX_VALUE;
 
 public class Window {
     public double x;
@@ -49,6 +52,12 @@ public class Window {
         this.visible = visible;
         this.icon = icon;
         this.title = title;
+        if(screen instanceof AbstractWindowedScreen){
+            this.resizable = ((AbstractWindowedScreen) screen).resizable();
+            if(!this.resizable){
+                setSize(((AbstractWindowedScreen) screen).width(), ((AbstractWindowedScreen) screen).height());
+            }
+        }
     }
     public void setResizable(boolean resizable){
         this.resizable = resizable;
@@ -82,6 +91,12 @@ public class Window {
     public void setScreenDragging(boolean isScreenDragging){
         this.isScreenDragging = isScreenDragging;
     }
+    public boolean isResizable(){
+        if(screen instanceof AbstractWindowedScreen){
+            return ((AbstractWindowedScreen) screen).resizable();
+        }
+        return resizable;
+    }
     public void changePin(){
         this.pinned = !this.pinned;
     }
@@ -90,9 +105,21 @@ public class Window {
         this.x = x; this.y = y;
     }
     public void setSize(double width, double height){
-        if(width < 200) width = 200;
-        if(height < 50) height = 50;
+        int minW = 200;
+        int minH = 50;
+        int maxW = MAX_VALUE;
+        int maxH = MAX_VALUE;
+        if(screen instanceof AbstractWindowedScreen){
+            minW = ((AbstractWindowedScreen) screen).minWidth(); minH = ((AbstractWindowedScreen) screen).minHeight();
+            maxW = ((AbstractWindowedScreen) screen).maxWidth(); maxH = ((AbstractWindowedScreen) screen).maxHeight();
+        }
+        if(width <= minW) width = minW; if(maxW <= width) width = maxW;
+        if(height <= minH) height = minH; if(maxH <= height) height = maxH;
         this.width = width; this.height = height;
+    }
+    public int getButtons(){
+        if(screen instanceof AbstractWindowedScreen) return ((AbstractWindowedScreen) screen).getWindowType();
+        return buttons;
     }
 
     public Screen lastScreen = null;

@@ -1,28 +1,37 @@
 package ru.kelcu.windows;
 
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.components.Window;
+import ru.kelcu.windows.mods.ModMenuActions;
 import ru.kelcu.windows.screens.DesktopScreen;
+import ru.kelcu.windows.screens.components.LabelConfWidget;
 import ru.kelcu.windows.style.MinedowsStyle;
 import ru.kelcu.windows.utils.Perlin2D;
 import ru.kelcu.windows.utils.ThemeManager;
 import ru.kelcu.windows.utils.WallpaperUtil;
 import ru.kelcu.windows.utils.WinColors;
+import ru.kelcu.windows.utils.overlay.OverlayHandler;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.api.events.client.ClientLifecycleEvents;
 import ru.kelcuprum.alinlib.api.events.client.GuiRenderEvents;
+import ru.kelcuprum.alinlib.api.events.client.ScreenEvents;
 import ru.kelcuprum.alinlib.config.Config;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
+import ru.kelcuprum.alinlib.info.Player;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,9 +40,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.lang.Thread.sleep;
+import static ru.kelcu.windows.screens.DesktopScreen.getLabelActions;
 import static ru.kelcuprum.alinlib.gui.GuiUtils.interpolate;
 
 public class Windows implements ClientModInitializer {
@@ -89,8 +100,37 @@ public class Windows implements ClientModInitializer {
                 }
             });
             perlinNoises.start();
+            for(Action action : getLabelActions()){
+                Config config = new Config(Windows.config.getJsonObject("auto_run."+action.title.toString(), new JsonObject()));
+                if(config.getBoolean("enable", false)) executeAction(action);
+            }
+            if(Windows.isModMenuInstalled()){
+                ArrayList<ModMenuActions.ModInfo> mods = ModMenuActions.getMods();
+                for(ModMenuActions.ModInfo mod : mods){
+                    Config config = new Config(Windows.config.getJsonObject("auto_run."+mod.id(), new JsonObject()));
+                    if(config.getBoolean("enable", false))
+                        executeAction(new Action(Action.Type.OPEN_SCREEN, Component.literal(mod.name()), mod.icon(), mod.screen()));
+                }
+            }
         });
         ClientLifecycleEvents.CLIENT_STOPPING.register((s) -> {if(perlinNoises != null) perlinNoises.interrupt();});
+        OverlayHandler hud = new OverlayHandler();
+        ScreenEvents.SCREEN_RENDER.register(hud);
+        GuiRenderEvents.RENDER.register(hud);
+    }
+
+    public static void executeAction(Action action){
+        switch (action.type){
+            case STOP_GAME -> Minecraft.getInstance().stop();
+            case UNPAUSE_GAME -> Minecraft.getInstance().setScreen(null);
+            case DISCONNECT -> PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
+            case OPEN_SCREEN -> {
+                if(AlinLib.MINECRAFT.screen instanceof DesktopScreen)
+                    AlinLib.MINECRAFT.screen.rebuildWidgets();
+                DesktopScreen.addWindow(action.getWindow());
+            }
+            case EXECUTE_ACTION -> action.execute.execute();
+        }
     }
 
     public static Perlin2D perlin = null;

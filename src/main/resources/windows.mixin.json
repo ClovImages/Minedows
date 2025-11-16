@@ -17,8 +17,14 @@
     "components.ScreenMixin",
     "components.TooltipRenderUtilMixin",
     "components.elemets.ColoredRectangleRenderStateMixin",
+    "components.elemets.GuiSkinRenderStateMixin",
     "components.elemets.PictureInPictureRenderStateMixin",
+    "game_ui.GuiMixin",
+    "game_ui.bars.ExperienceBarRendererMixin",
+    "game_ui.bars.JumpableVehicleBarRendererMixin",
+    "game_ui.bars.LocatorBarRendererMixin",
     "screens.DeathScreenMixin",
+    "screens.OutOfMemoryScreenMixin",
     "screens.TitleScreenMixin"
   ],
   "noactive": [

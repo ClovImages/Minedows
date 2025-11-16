@@ -2,6 +2,7 @@ package ru.kelcu.windows.screens;
 
 import com.google.gson.JsonObject;
 import com.mojang.realmsclient.RealmsMainScreen;
+import com.sun.jna.platform.win32.COM.COMBindingBaseObject;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -32,11 +33,10 @@ import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.mods.CatalogueActions;
 import ru.kelcu.windows.mods.FlashbackActions;
 import ru.kelcu.windows.mods.ModMenuActions;
-import ru.kelcu.windows.screens.apps.BrowserScreen;
-import ru.kelcu.windows.screens.apps.CalcScreen;
-import ru.kelcu.windows.screens.apps.PaintScreen;
+import ru.kelcu.windows.screens.apps.*;
 import ru.kelcu.windows.screens.components.LabelWidget;
 import ru.kelcu.windows.screens.components.VerticalConfigureScrolWidget;
+import ru.kelcu.windows.screens.dialogs.DialogScreen;
 import ru.kelcu.windows.screens.options.ControlPanelScreen;
 import ru.kelcu.windows.screens.options.SoundMixerScreen;
 import ru.kelcu.windows.utils.*;
@@ -64,7 +64,7 @@ public class DesktopScreen extends Screen {
     public boolean isPauseScreen() {
         boolean b = true;
         for(Window window : windows){
-            if (window.screen instanceof ReceivingLevelScreen || window.screen instanceof LevelLoadingScreen) {
+            if (window.screen != null && !window.screen.isPauseScreen()) {
                 b = false;
                 break;
             }
@@ -118,12 +118,6 @@ public class DesktopScreen extends Screen {
                 }
             }
         }
-//        if(windows.isEmpty()){
-//            addWindow(new WindowBuilder().setScreen(new BrowserScreen()).build());
-//        }
-//        addRenderableWidget(new LabelWidget(5, 5, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world.png"), new DebugScreen())));
-//        addRenderableWidget(new LabelWidget(50, 5, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("title.multiplayer.realms"), GuiUtils.getResourceLocation("windows", "textures/start/icons/realms.png"), new RealmsMainScreen(null))));
-//        int ta = taskbarSize*getTaskbarActions().size();
         if(verticalConfigureScrolWidget == null){
             verticalConfigureScrolWidget = new VerticalConfigureScrolWidget(xWindowTask, height, width-taskbarSize-xWindowTask-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))), 3, Component.empty(), (scroller) -> {
                 scroller.innerHeight = 0;
@@ -149,7 +143,7 @@ public class DesktopScreen extends Screen {
                 window.setSize(width, height-taskbarSize);
                 window.screen.resize(this.minecraft, (int) window.width - 6, (int) window.height - 22);
             } else {
-                if(window.resizable && (height < window.height || width < window.width)){
+                if(window.isResizable() && (height < window.height || width < window.width)){
                     int wi = 0;
                     int he = 0;
                     if(height < window.height) he = (int) (height*0.75);
@@ -187,20 +181,14 @@ public class DesktopScreen extends Screen {
         return actions;
     }
 
-    @Override
-    public void rebuildWidgets() {
-        super.rebuildWidgets();
-        for(Window window : windows){
-            window.screen.rebuildWidgets();
-        }
-    }
-
     public static ArrayList<Action> getLabelActions(){
         ArrayList<Action> apps = new ArrayList<>();
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
         if(FabricLoader.getInstance().isModLoaded("mcef")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
+        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.notepad"), GuiUtils.getResourceLocation("windows", "textures/start/icons/notepad.png"), new WindowBuilder().setSize(325, 240).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/notepad.png")).setScreen(new NotepadScreen())));
+        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
         apps.add(new Action(() ->
             addWindow(new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png"))
                     .setScreen(AlinLib.MINECRAFT.level != null ? new PauseScreen(true) : new TitleScreen()).build()),
@@ -276,7 +264,7 @@ public class DesktopScreen extends Screen {
         }
     }
 
-    int taskbarSize = 20;
+    public int taskbarSize = 20;
     int startMenuWidth = 150;
     int startMenuHeight = 150;
     public HashMap<String, ArrayList<Action>> getActionsMainMenu(){
@@ -312,6 +300,7 @@ public class DesktopScreen extends Screen {
         }
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
+        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
         if(FabricLoader.getInstance().isModLoaded("mcef")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
         if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
             apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new DebugScreen()));
@@ -485,7 +474,7 @@ public class DesktopScreen extends Screen {
         currentRenderedWindow = window;
         //
         WindowUtils.renderPanel(guiGraphics,x, y, x + width, y + height);
-        if(window.resizable && !window.maximize){
+        if(window.isResizable() && !window.maximize){
             guiGraphics.fill(x+width-4, y+height-4, x+width-3, y+height-3, 0xFF1e1e1e);
             guiGraphics.fill(x+width-4, y+height-6, x+width-3, y+height-5, 0xFF1e1e1e);
             guiGraphics.fill(x+width-4, y+height-8, x+width-3, y+height-7, 0xFF1e1e1e);
@@ -510,13 +499,13 @@ public class DesktopScreen extends Screen {
         }
         int xb = x+width-5-buttonSize;
         int buttonsSizes = 0;
-        if(window.buttons < 2){
+        if(window.getButtons() < 2){
             WindowUtils.renderPanel(guiGraphics, xb, y+5, xb+buttonSize,y+5+buttonSize);
             guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon("textures/window/close"), xb, y+5, 0,0,buttonSize, buttonSize, buttonSize, buttonSize);
             if(xb < mouseX && mouseX < xb+buttonSize && y+5 < mouseY && mouseY < y+5+buttonSize) guiGraphics.fill(xb, y+5, xb+buttonSize, y+5+buttonSize, BLACK_ALPHA);
             buttonsSizes +=buttonSize+2;
             xb -= (2+buttonSize);
-            if(window.buttons == 0 && window.resizable){
+            if(window.getButtons() == 0 && window.isResizable()){
                 WindowUtils.renderPanel(guiGraphics, xb, y+5, xb+buttonSize,y+5+buttonSize);
                 guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(window.maximize ? "textures/window/window" : "textures/window/maximaze"), xb, y+5, 0,0,buttonSize, buttonSize, buttonSize, buttonSize);
                 if(xb < mouseX && mouseX < xb+buttonSize && y+5 < mouseY && mouseY < y+5+buttonSize) guiGraphics.fill(xb, y+5, xb+buttonSize, y+5+buttonSize, BLACK_ALPHA);
@@ -555,8 +544,8 @@ public class DesktopScreen extends Screen {
         guiGraphics.pose().popMatrix();
 //        guiGraphics.drawString(AlinLib.MINECRAFT.font, String.format("moved = %s", window.isDragging), x, y-12, -1);
         if((x+width-14 < mouseX && mouseX < x+width+6
-        && y+height-14 < mouseY && mouseY < y+height+6 && window.resizable && !window.maximize) || window.isResized) Cursor.setDragging();
-        else Cursor.reset();
+        && y+height-14 < mouseY && mouseY < y+height+6 && window.isResizable() && !window.maximize) || window.isResized) Cursor.setDragging(guiGraphics);
+        else Cursor.reset(guiGraphics);
         currentRenderedWindow = null;
     }
 
@@ -606,7 +595,7 @@ public class DesktopScreen extends Screen {
                     window.setDragging(true);
                     window.setPosition(window.x+dragX, window.y+dragY);
                     ret = true;
-                } else if(window.resizable && !window.maximize
+                } else if(window.isResizable() && !window.maximize
                         && window.x+window.width-14 < mouseX && mouseX < window.x + window.width+6
                 && window.y+window.height-14 < mouseY && mouseY < window.y + window.height+6){
                     window.setResized(true);
@@ -780,13 +769,7 @@ public class DesktopScreen extends Screen {
             for(Action action : getTaskbarActions()){
                 if(xA < d && d < xA+14 && height-taskbarSize+4 < e && e < height-taskbarSize+18) {
                     SoundUtils.click();
-                    switch (action.type){
-                        case STOP_GAME -> Minecraft.getInstance().stop();
-                        case UNPAUSE_GAME -> Minecraft.getInstance().setScreen(null);
-                        case DISCONNECT -> PauseScreen.disconnectFromWorld(this.minecraft, ClientLevel.DEFAULT_QUIT_MESSAGE);
-                        case OPEN_SCREEN -> addWindow(action.getWindow());
-                        case EXECUTE_ACTION -> action.execute.execute();
-                    }
+                    Windows.executeAction(action);
                     return true;
                 }
                 xA-=taskbarSize;
@@ -812,13 +795,7 @@ public class DesktopScreen extends Screen {
                     if(x < d && d < startMenuWidth-4 && yA < e && e < yA+20){
                         SoundUtils.click();
                         startMenuShowed = false;
-                        switch (action.type){
-                            case STOP_GAME -> Minecraft.getInstance().stop();
-                            case UNPAUSE_GAME -> Minecraft.getInstance().setScreen(null);
-                            case DISCONNECT -> PauseScreen.disconnectFromWorld(this.minecraft, ClientLevel.DEFAULT_QUIT_MESSAGE);
-                            case OPEN_SCREEN -> addWindow(action.getWindow());
-                            case EXECUTE_ACTION -> action.execute.execute();
-                        }
+                        Windows.executeAction(action);
                         return true;
                     }
                 }
@@ -832,7 +809,7 @@ public class DesktopScreen extends Screen {
                 int width = (int) window.width;
                 windows.getLast().active = false;
                 window.active = true;
-                if(window.buttons < 2 && j == GLFW.GLFW_MOUSE_BUTTON_LEFT){
+                if(window.getButtons() < 2 && j == GLFW.GLFW_MOUSE_BUTTON_LEFT){
                     int xb = x+width-5-buttonSize;
                     if(xb < d && d < xb+buttonSize && y+5 < e && e < y+5+buttonSize) {
                         removeWindow(window);
@@ -841,7 +818,7 @@ public class DesktopScreen extends Screen {
                         return true;
                     }
                     xb -= (2+buttonSize);
-                    if(window.buttons == 0 && window.resizable){
+                    if(window.getButtons() == 0 && window.isResizable()){
                         if(xb < d && d < xb+buttonSize && y+5 < e && e < y+5+buttonSize) {
                             window.changeMax(this.width, this.height-taskbarSize);
                             window.screen.resize(this.minecraft, (int) window.width - 6, (int) window.height - 22);

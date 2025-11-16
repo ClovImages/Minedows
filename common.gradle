@@ -173,5 +173,6 @@ modrinth {
             optional.project "modmenu"
         }
         optional.project "mcef"
+        incompatible.project "capes"
     }
 }

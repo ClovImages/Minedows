@@ -1,18 +1,19 @@
 package ru.kelcu.windows.components;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import org.lwjgl.glfw.GLFW;
 
 public class Cursor {
     private static boolean isDragging;
 
-    public static void setDragging() {
+    public static void setDragging(GuiGraphics guiGraphics) {
         if (isDragging) return;
         isDragging = true;
         GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR));
     }
 
-    public static void reset() {
+    public static void reset(GuiGraphics guiGraphics) {
         if (!isDragging) return;
         isDragging = false;
         GLFW.glfwSetCursor(Minecraft.getInstance().getWindow().getWindow(), GLFW.glfwCreateStandardCursor(GLFW.GLFW_ARROW_CURSOR));

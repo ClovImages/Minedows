@@ -18,6 +18,7 @@ public class ThemeManager {
         registerTheme(new Theme("default", Component.translatable("minedows.theme.default"),0xFFcbcbcb, 0xFFcbcbcb, -16777088, -14644786, -14644786, -16777088));
         registerTheme(new Theme("dark", Component.translatable("minedows.theme.dark"),0xff1e1e1e, 0xff0f6573, -16777088, -14644786, -14644786, -16777088));
         registerTheme(new Theme("city", Component.translatable("minedows.theme.city"),0xff0e1835, 0xff0f6573, 0xff65ceb7, 0xff0f6573, 0xff0f6573, 0xff65ceb7));
+        registerTheme(new Theme("sky", Component.translatable("minedows.theme.sky"),0xff4c1e7e, 0xffa745ff, 0xffa13eff, 0xfff3b8ff, 0xffa13eff, 0xfff3b8ff));
     }
 
     public static String[] getThemesID(){
