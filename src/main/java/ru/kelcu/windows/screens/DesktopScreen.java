@@ -193,6 +193,7 @@ public class DesktopScreen extends Screen {
             addWindow(new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png"))
                     .setScreen(AlinLib.MINECRAFT.level != null ? new PauseScreen(true) : new TitleScreen()).build()),
                 Component.literal("Minecraft Menu"), GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png")));
+        apps.addAll(ModManager.getActions(false));
         return apps;
     }
 
@@ -305,6 +306,7 @@ public class DesktopScreen extends Screen {
         if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
             apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new DebugScreen()));
         }
+        apps.addAll(ModManager.getActions(true));
         links.put("3", apps);
         return links;
     }

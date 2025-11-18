@@ -191,11 +191,14 @@ public class ControlPanelScreen extends Screen {
                 .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_end")).setColor(-14644786).setConfig(Windows.config, "TITLE.GRADIENT.END").setStyle(Windows.minedowsStyle))
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.ui")).setStyle(LabelsPanelScreen.nothingStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_new_ui"), false).setConfig(Windows.config, "ENABLE_NEW_UI").setStyle(Windows.minedowsStyle))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.death"), true).setConfig(Windows.config, "DEATH").setStyle(Windows.minedowsStyle))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.death.hardcore"), true).setConfig(Windows.config, "DEATH.HARDCORE").setStyle(Windows.minedowsStyle))
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.other")).setStyle(LabelsPanelScreen.nothingStyle));
         if(Windows.isDeveloperPreview()) builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.disable_warn_text"), false).setConfig(Windows.config, "DISABLE_WARN_TEXT").setStyle(Windows.minedowsStyle));
         builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.fix_smooth_menu"), false).setConfig(Windows.config, "FIXES.SMOOTH_MENU").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_pause_screen"), false).setConfig(Windows.config, "ENABLE_PAUSE_SCREEN").setStyle(Windows.minedowsStyle))
-                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.open_pause_screen"), false).setConfig(Windows.config, "OPEN_PAUSE_SCREEN").setStyle(Windows.minedowsStyle));
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.open_pause_screen"), false).setConfig(Windows.config, "OPEN_PAUSE_SCREEN").setStyle(Windows.minedowsStyle))
+                .addWidget(new EditBoxBuilder(Component.translatable("minedows.system_options.other.explorer.home_page")).setValue(System.getProperty("user.home")).setConfig(Windows.config, "EXPLORER.DEFAULT_PAGE").setStyle(Windows.minedowsStyle));
         if(Player.isLicenseAccount() || FabricLoader.getInstance().isDevelopmentEnvironment())
             builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.activate"), false).setConfig(Windows.config, "ALWAYS_ACTIVATE_MINECRAFT").setStyle(Windows.minedowsStyle));
         return new SystemOptionsScreen(builder);

@@ -95,11 +95,14 @@
   "minedows.control.title.color_end": "Конец градиента",
   "minedows.system_options.ui": "Пользовательский интерфейс",
   "minedows.system_options.other.enable_new_ui": "Включить новый игровой интерфейс",
+  "minedows.system_options.other.death": "Включить редизайн экрана смерти",
+  "minedows.system_options.other.death.hardcore": "Включить красный экран смерти в хардкоре",
   "minedows.system_options.other": "Вы не поняли, это другое",
   "minedows.system_options.other.disable_warn_text": "Отключить предупреждающий текст",
   "minedows.system_options.other.fix_smooth_menu": "Плавное меню",
   "minedows.system_options.other.enable_pause_screen": "Включить меню паузы",
   "minedows.system_options.other.open_pause_screen": "Открыть окно паузы, если верхний конфиг выключен",
+  "minedows.system_options.other.explorer.home_page": "Домашняя страница Проводника",
 
   "minedows.sound_mixer": "Звуковой микшер",
   "minedows.calc": "Калькулятор",
@@ -134,6 +137,8 @@
   "minedows.explorer.user_folder": "Домашняя папка",
 
   "minedows.bsod.back": "Нажмите любую клавишу, чтобы продолжить%s",
+  "minedows.bsod.hardcore.spectate": "[S] %s",
+  "minedows.bsod.hardcore.title": "[T] %s",
 
   "minedows.control.auto_run": "Автозапуск",
   "minedows.control.auto_run.description": "Здесь вы можете настроить автозапуск часто используемых вами программ!",

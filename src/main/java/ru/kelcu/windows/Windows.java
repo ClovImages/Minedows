@@ -16,14 +16,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.components.Window;
+import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.mods.ModMenuActions;
 import ru.kelcu.windows.screens.DesktopScreen;
+import ru.kelcu.windows.screens.apps.ExplorerScreen;
 import ru.kelcu.windows.screens.components.LabelConfWidget;
 import ru.kelcu.windows.style.MinedowsStyle;
-import ru.kelcu.windows.utils.Perlin2D;
-import ru.kelcu.windows.utils.ThemeManager;
-import ru.kelcu.windows.utils.WallpaperUtil;
-import ru.kelcu.windows.utils.WinColors;
+import ru.kelcu.windows.utils.*;
 import ru.kelcu.windows.utils.overlay.OverlayHandler;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.api.events.client.ClientLifecycleEvents;
@@ -73,6 +72,8 @@ public class Windows implements ClientModInitializer {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+//        ModManager.registerModAction(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"))), false);
+//        ModManager.registerModAction(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"))), true);
         });
         GuiRenderEvents.RENDER.register((guiGraphics, tick) -> {
             for(Window window : DesktopScreen.windows){

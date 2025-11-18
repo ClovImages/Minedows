@@ -31,7 +31,7 @@ import java.util.List;
 public class ExplorerScreen extends Screen {
     public String path;
     public ExplorerScreen(){
-        this(System.getProperty("user.home"));
+        this(Windows.config.getString("EXPLORER.DEFAULT_PAGE", System.getProperty("user.home")));
     }
     public ExplorerScreen(String path) {
         super(Component.translatable("minedows.explorer"));
@@ -62,7 +62,7 @@ public class ExplorerScreen extends Screen {
             forward();
         }).setSprite(WinColors.getLightIcon("textures/browser/forward")).setSize(20, 20).setPosition(22, 1).setStyle(Windows.minedowsStyle).build());
         addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.browser.home"), (s) -> {
-            changePath(System.getProperty("user.home"));
+            changePath(Windows.config.getString("EXPLORER.DEFAULT_PAGE", System.getProperty("user.home")));
         }).setSprite(WinColors.getLightIcon("textures/browser/home")).setSize(20, 20).setPosition(46, 1).setStyle(Windows.minedowsStyle).build());
         addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.browser.reload"), (s) -> {
             rebuildWidgets();

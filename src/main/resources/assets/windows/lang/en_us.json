@@ -96,11 +96,14 @@
   "minedows.control.title.color_end": "Final Color",
   "minedows.system_options.ui": "UI",
   "minedows.system_options.other.enable_new_ui": "Enable new Game UI",
+  "minedows.system_options.other.death": "Enable redesign for Death Screen",
+  "minedows.system_options.other.death.hardcore": "Enable RSOD for Hardcore",
   "minedows.system_options.other": "Other",
   "minedows.system_options.other.disable_warn_text": "Disable Warning Text",
   "minedows.system_options.other.fix_smooth_menu": "Smooth menu",
   "minedows.system_options.other.enable_pause_screen": "Enable Pause Screen",
   "minedows.system_options.other.open_pause_screen": "Open the Pause Window if the top configuration is turned off",
+  "minedows.system_options.other.explorer.home_page": "Explorer Home Page",
 
   "minedows.sound_mixer": "Volume Mixer",
   "minedows.calc": "Calculator",
@@ -139,6 +142,8 @@
   "minedows.explorer.user_folder": "Home Directory",
 
   "minedows.bsod.back": "Press any key to continue%s",
+  "minedows.bsod.hardcore.spectate": "[S] %s",
+  "minedows.bsod.hardcore.title": "[T] %s",
 
   "minedows.control.auto_run": "Auto-start",
   "minedows.control.auto_run.description": "Here you can set up the autorun of your frequently used programs!",

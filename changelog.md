@@ -1,13 +1,4 @@
-- Fixed #2 (Open EditSignScreen)
-- Fixed render entity state
-- Added new theme - Sky
-- Added new wallpapers - Sky, Bliss, Factory town, ERROR
-- Added Auto-start
-- Added text "Activate Minecraft"
-- Fixed label text color in world
-- Fixed Dekstop (localization)
-- Added new programs - Notepad, Explorer
-> **!!!!! FOR NOTEPAD TO WORK, YOU NEED TO UPDATE ALINLIB TO 2.0.0-BETA.5. !!!!!!**
-- Added new Game UI (Disabled by default)
-- OutOfMemoryScreen -> Blue Screen of Death
-- ![ээ](https://cdn.7tv.app/emote/01JYZZBKQB1Y9NCTCT612N0A8F/4x.gif)
+- Rewritten DeathScreen for Hardcore
+- Added config for this fucking shit
+- Added config for Home Page on Explorer
+- Added API for adding custom labels in Desktop and Start Menu
