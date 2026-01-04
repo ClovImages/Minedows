@@ -4,6 +4,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12110
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.PointerBuffer;
@@ -17,6 +20,7 @@ import ru.kelcu.windows.style.MinedowsStyle;
 import ru.kelcu.windows.utils.WallpaperUtil;
 import ru.kelcu.windows.utils.WinColors;
 import ru.kelcu.windows.utils.WindowUtils;
+import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
 import ru.kelcuprum.alinlib.gui.components.ImageWidget;
@@ -121,7 +125,11 @@ public class BackgroundSettings extends Screen {
             y+=20;
         }
         widgets.add(new ButtonBuilder(Component.translatable("minedows.control.background.wallpaper.image"), (s) -> {
-            if(hasShiftDown()){
+            if(
+                    //#if MC >= 12110
+                    AlinLib.MINECRAFT.
+                    //#endif
+                    hasShiftDown()){
                 WallpaperUtil.fluffy();
                 Windows.config.setString("WALLPAPER.FILE", "fluffy_forever");
             } else {
@@ -215,10 +223,34 @@ public class BackgroundSettings extends Screen {
         guiGraphics.drawString(font, Component.translatable("minedows.control.background.wallpaper"), x+10, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+5;
         int[] colors = WinColors.getHorizontalRuleColors();
-        guiGraphics.renderOutline(x, y, width-20, height-180, colors[0]);
-        guiGraphics.renderOutline(x+1, y+1, width-22, height-182, colors[0]);
-        guiGraphics.renderOutline(x, y, width-20, height-180, colors[0]);
-        guiGraphics.renderOutline(x, y, width-21, height-181, colors[1]);
+        guiGraphics.
+                //#if MC < 12110
+                //$$renderOutline
+                //#else
+                        submitOutline
+                //#endif
+                        (x, y, width-20, height-180, colors[0]);
+        guiGraphics.
+                //#if MC < 12110
+                //$$renderOutline
+                //#else
+                        submitOutline
+                //#endif
+                        (x+1, y+1, width-22, height-182, colors[0]);
+        guiGraphics.
+                //#if MC < 12110
+                //$$renderOutline
+                //#else
+                        submitOutline
+                //#endif
+                        (x, y, width-20, height-180, colors[0]);
+        guiGraphics.
+                //#if MC < 12110
+                //$$renderOutline
+                //#else
+                        submitOutline
+                //#endif
+                        (x, y, width-21, height-181, colors[1]);
         y+=8;
         guiGraphics.drawString(font, Component.translatable("minedows.control.background.wallpaper.select"), x+10, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+5;
@@ -235,7 +267,16 @@ public class BackgroundSettings extends Screen {
         guiGraphics.disableScissor();
     }
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(
+            //#if MC < 12110
+            //$$ double d, double e, int i){
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean b
+    ) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        double i = mouseButtonEvent.button();
+        //#endif
         boolean st = true;
         GuiEventListener selected = null;
         int x = 10;
@@ -243,12 +284,24 @@ public class BackgroundSettings extends Screen {
         for (GuiEventListener guiEventListener : this.children()) {
             if (scroller != null && scroller.widgets.contains(guiEventListener)) {
                 if ((d >= x && d <= x + ((width-40)/2)) && e >= y && e <= height-25)
-                    if (guiEventListener.mouseClicked(d, e, i)) {
+                    if (guiEventListener.mouseClicked(
+                            //#if MC >= 12110
+                            mouseButtonEvent, b
+                            //#else
+                            //$$ d, e, i
+                            //#endif
+                    )) {
                         st = false;
                         selected = guiEventListener;
                         break;
                     }
-            } else if (guiEventListener.mouseClicked(d, e, i)) {
+            } else if (guiEventListener.mouseClicked(
+                    //#if MC >= 12110
+                    mouseButtonEvent, b
+                    //#else
+                    //$$ d, e, i
+                    //#endif
+            )) {
                 st = false;
                 selected = guiEventListener;
                 break;

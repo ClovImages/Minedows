@@ -6,6 +6,7 @@ import com.sun.jna.platform.win32.COM.COMBindingBaseObject;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.render.state.GuiRenderState;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.achievement.StatsScreen;
@@ -15,6 +16,11 @@ import net.minecraft.client.gui.screens.options.AccessibilityOptionsScreen;
 import net.minecraft.client.gui.screens.options.LanguageSelectScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+//#if MC >= 12110
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -336,7 +342,6 @@ public class DesktopScreen extends Screen {
     public int xWindowTask = 0;
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, getMouseForLabels(mouseX, mouseY)[0], getMouseForLabels(mouseX, mouseY)[1], partialTick);
         if(Windows.isDeveloperPreview() && !Windows.config.getBoolean("DISABLE_WARN_TEXT", false)){
             Component warn = Component.translatable("minedows.warn.development.build");
             List<FormattedCharSequence> warning = font.split(warn, width/2);
@@ -353,6 +358,14 @@ public class DesktopScreen extends Screen {
             guiGraphics.drawString(font, copy, width-5- font.width(copy), yG, -1);
         }
         // Window
+        for(Renderable renderable : this.renderables) {
+            renderable.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
+        //#if MC > 12110
+        guiGraphics.renderDeferredElements();
+        guiGraphics.deferredOutlines.clear();
+        guiGraphics.deferredTooltip = null;
+        //#endif
         for (Window window : windows) {
             if(window.visible) renderWindow(guiGraphics, window, mouseX, mouseY, partialTick);
         }
@@ -540,8 +553,28 @@ public class DesktopScreen extends Screen {
         window.screen.renderBackground(guiGraphics, mouseXforScreen, mouseYforScreen, tick);
         guiGraphics.nextStratum();
         window.screen.render(guiGraphics, mouseXforScreen, mouseYforScreen, tick);
+        //#if MC >= 12110
+        if (!guiGraphics.deferredOutlines.isEmpty()) {
+            guiGraphics.nextStratum();
+
+            for(GuiGraphics.OutlineBox outlineBox : guiGraphics.deferredOutlines) {
+                outlineBox.render(guiGraphics);
+            }
+
+            guiGraphics.deferredOutlines.clear();
+        }
+        //#endif
         guiGraphics.disableScissor();
-        guiGraphics.renderDeferredTooltip();
+        //#if MC < 12110
+        //$$guiGraphics.renderDeferredTooltip();
+        //#else
+        if (guiGraphics.deferredTooltip != null) {
+            guiGraphics.nextStratum();
+            guiGraphics.deferredTooltip.run();
+            guiGraphics.deferredTooltip = null;
+        }
+        guiGraphics.renderDeferredElements();
+        //#endif
         guiGraphics.pose().translate(-x-3, -y-19);
         guiGraphics.pose().popMatrix();
 //        guiGraphics.drawString(AlinLib.MINECRAFT.font, String.format("moved = %s", window.isDragging), x, y-12, -1);
@@ -571,13 +604,26 @@ public class DesktopScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    //#if MC < 12110
+    //$$public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+    //#else
+    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double dragX, double dragY) {
+        double mouseX = mouseButtonEvent.x();
+        double mouseY = mouseButtonEvent.y();
+        int button = mouseButtonEvent.button();
+    //#endif
         if(!windows.isEmpty()){
             Window window = windows.getLast();
             if(window.isScreenDragging){
                 int x = (int) window.x;
                 int y = (int) window.y;
-                window.screen.mouseDragged(mouseX-(x+3), mouseY-(y+19), button, dragX, dragY);
+                window.screen.mouseDragged(
+                        //#if MC < 12110
+                        //$$mouseX-(x+3), mouseY-(y+19), button
+                        //#else
+                        new MouseButtonEvent(mouseX-(x+3), mouseY-(y+19), mouseButtonEvent.buttonInfo())
+                        //#endif
+                        , dragX, dragY);
                 return true;
             } else if(window.isDragging) {
                 window.setPosition(window.x + dragX, window.y + dragY);
@@ -609,7 +655,13 @@ public class DesktopScreen extends Screen {
                     int x = (int) window.x;
                     int y = (int) window.y;
 //                    AlinLib.LOG.log("drag %s | x:%s  y: %s dx: %s dy: %s", window.screen.getTitle().getString(), mouseX, mouseY, dragX, dragY);
-                    ret = window.screen.mouseDragged(mouseX-(x+3), mouseY-(y+19), button, dragX, dragY);
+                    ret = window.screen.mouseDragged(
+                            //#if MC < 12110
+                            //$$mouseX-(x+3), mouseY-(y+19), button
+                            //#else
+                            new MouseButtonEvent(mouseX-(x+3), mouseY-(y+19), mouseButtonEvent.buttonInfo())
+                            //#endif
+                            , dragX, dragY);
                 }
                 windows.getLast().active = false;
                 window.active = true;
@@ -618,7 +670,12 @@ public class DesktopScreen extends Screen {
                 return ret;
             }
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        //#if MC < 12110
+        //$$return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        //#else
+        return super.mouseDragged(mouseButtonEvent, dragX, dragY);
+        //#endif
+
     }
     @Override
     public void onFilesDrop(List<Path> list) {
@@ -630,11 +687,29 @@ public class DesktopScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int i, int j, int k) {
-        if(windows.isEmpty()) return super.keyPressed(i, j, k);
+
+    //#if MC < 12110
+    //$$public boolean keyPressed(int i, int j, int k) {
+    //#else
+    public boolean keyPressed(KeyEvent keyEvent) {
+        int i = keyEvent.key();
+        int j = keyEvent.scancode();
+        int k = keyEvent.modifiers();
+        //#endif
+        if(windows.isEmpty()) return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
         else for(Window window : DesktopScreen.windows){
             if(window.active && window.visible) {
-                if(i == GLFW.GLFW_KEY_P && hasControlDown()){
+                if(i == GLFW.GLFW_KEY_P &&
+                        //#if MC >= 12110
+                        keyEvent.
+                        //#endif
+                        hasControlDown()){
                   window.changePin();
                   String title = window.screen.getTitle().getString();
                   if(title.isEmpty()) title = window.screen.getClass().getSimpleName()+".exe";
@@ -642,32 +717,91 @@ public class DesktopScreen extends Screen {
                 } else if(window.y < 0 && i == GLFW.GLFW_KEY_TAB) {
                     window.setPosition(0, 0);
                     return true;
-                } else return window.screen.keyPressed(i, j, k);
+                } else return window.screen.keyPressed(
+                        //#if MC < 12110
+                        //$$i, j, k
+                        //#else
+                        keyEvent
+                        //#endif
+                );
             }
         }
-        return super.keyPressed(i, j, k);
+        return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
-    @Override
-    public boolean keyReleased(int i, int j, int k) {
-        if(windows.isEmpty()) return super.keyReleased(i, j, k);
-        else for(Window window : DesktopScreen.windows){
-            if(window.active && window.visible) {
-                return window.screen.keyReleased(i, j, k);
-            }
-        }
-        return super.keyReleased(i, j, k);
-    }
 
     @Override
-    public boolean charTyped(char c, int i) {
-        if(windows.isEmpty()) return super.charTyped(c, i);
+
+    //#if MC < 12110
+    //$$public boolean keyReleased(int i, int j, int k) {
+    //#else
+    public boolean keyReleased(KeyEvent keyEvent) {
+        //#endif
+        if(windows.isEmpty()) return super.keyReleased(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+                );
         else for(Window window : DesktopScreen.windows){
             if(window.active && window.visible) {
-                return window.screen.charTyped(c, i);
+                return window.screen.keyReleased(
+                        //#if MC < 12110
+                        //$$i, j, k
+                        //#else
+                        keyEvent
+                        //#endif
+                );
             }
         }
-        return super.charTyped(c, i);
+        return super.keyReleased(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
+    }
+
+
+    @Override
+    //#if MC < 12110
+    //$$public boolean charTyped(char c, int i) {
+    //#else
+    public boolean charTyped(CharacterEvent characterEvent) {
+        //#endif
+        if(windows.isEmpty()) return super.charTyped(
+                //#if MC < 12110
+                //$$c, i
+                //#else
+                characterEvent
+                //#endif
+        );
+        else for(Window window : DesktopScreen.windows){
+            if(window.active && window.visible) {
+                return window.screen.charTyped(
+                        //#if MC < 12110
+                        //$$c, i
+                        //#else
+                        characterEvent
+                        //#endif
+                );
+            }
+        }
+        return super.charTyped(
+                //#if MC < 12110
+                //$$c, i
+                //#else
+                characterEvent
+                //#endif
+        );
     }
 
     @Override
@@ -686,7 +820,14 @@ public class DesktopScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int j) {
+    //#if MC < 12110
+    //$$public boolean mouseReleased(double d, double e, int j) {
+    //#else
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        int j = mouseButtonEvent.button();
+        //#endif
         for(int i = windows.size()-1; i>=0; i--){
             Window window = windows.get(i);
             if (j == 0) {
@@ -697,10 +838,20 @@ public class DesktopScreen extends Screen {
             if(window.x < d && d < window.x+window.width && window.y < e && e < window.y+window.height && window.visible && window.active){
                 int x = (int) window.x;
                 int y = (int) window.y;
-                window.screen.mouseReleased(d-(x+3), e-(y+19), j);
+                window.screen.mouseReleased(
+                        //#if MC < 12110
+                        //$$d-(x+3), e-(y+19), j
+                        //#else
+                        new MouseButtonEvent(d-(x+3), e-(y+19), mouseButtonEvent.buttonInfo())
+                        //#endif
+                        );
             }
         }
-        return super.mouseReleased(d, e, j);
+        //#if MC < 12110
+        //$$return super.mouseReleased(d, e, j);
+        //#else
+        return super.mouseReleased(mouseButtonEvent);
+        //#endif
     }
 
     @Override
@@ -725,12 +876,18 @@ public class DesktopScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int j
-                                //#if MC >= 12109
-                                //$$, boolean b
+    public boolean mouseClicked(
+                                //#if MC < 12110
+                                //$$double d, double e, int j
+                                //#else
+                                MouseButtonEvent mouseButtonEvent, boolean b
                                 //#endif
     ) {
-
+        //#if MC >= 12110
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        int j = mouseButtonEvent.button();
+        //#endif
         if(2 < d && d < 2 + 8 + font.width(startComponent) && height-(taskbarSize-3) < e && e < height-1 && j == GLFW.GLFW_MOUSE_BUTTON_LEFT){
             if(Windows.config.getString("WALLPAPER.FILE", "").equals("fluffy_forever") && Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() == 3)
                 AlinLib.MINECRAFT.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT, 1f, 1f));
@@ -841,11 +998,23 @@ public class DesktopScreen extends Screen {
                 windows.remove(i);
                 windows.addLast(window);
 //                AlinLib.LOG.log("click %s | x:%s  y: %s", window.screen.getTitle().getString(), d, e);
-                return window.screen.mouseClicked(d-(x+3), e-(y+19), j);
+                return window.screen.mouseClicked(
+                        //#if MC < 12110
+                        //$$d-(x+3), e-(y+19), j
+                        //#else
+                        new MouseButtonEvent(d-(x+3), e-(y+19), mouseButtonEvent.buttonInfo()), b
+                        //#endif
+                        );
             }
         }
         if(!windows.isEmpty()) windows.getLast().active = false;
-        return super.mouseClicked(d, e, j);
+        return super.mouseClicked(
+                //#if MC < 12110
+                //$$d, e, j
+                //#else
+                mouseButtonEvent, b
+                //#endif
+        );
     }
 
     @Override

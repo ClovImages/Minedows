@@ -2,7 +2,7 @@ plugins {
     id 'maven-publish'
     id "com.modrinth.minotaur" version "2.+"
     id "io.github.goooler.shadow" version "8.1.7" apply false
-    id "dev.architectury.loom" version "1.11-SNAPSHOT" apply false
+    id "fabric-loom" version "1.13+" apply false
     id "io.github.p03w.machete" version "2.+" apply false
 
     // https://github.com/ReplayMod/preprocessor
@@ -15,7 +15,9 @@ plugins {
 
 preprocess {
     def mc1218_fabric = createNode('1.21.8-fabric', 1_21_08, '')
-    mc1218_fabric.link(mc1218_fabric, null)
+    def mc12110_fabric = createNode('1.21.10-fabric', 1_21_10, '')
+    mc1218_fabric.link(mc12110_fabric, null)
+    mc12110_fabric.link(mc12110_fabric, null)
 }
 
 publishing {

@@ -272,7 +272,14 @@ public abstract class GuiMixin {
         }
         if(isSelected){
             guiGraphics.fill(x, y, x+20, y+20, 0x3e0000F3);
-            guiGraphics.renderOutline(x, y, 20, 20, 0x3e0000F3);
+
+            guiGraphics.
+            //#if MC < 12110
+            //$$renderOutline
+            //#else
+            submitOutline
+            //#endif
+            (x, y, 20, 20, 0x3e0000F3);
         }
         if (!itemStack.isEmpty()) {
             float g = (float) itemStack.getPopTime() - deltaTracker.getGameTimeDeltaTicks();

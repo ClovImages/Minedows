@@ -84,7 +84,11 @@ public abstract class MinecraftScreen{
             setScreen(new DesktopScreen());
             try {
                 for(Window window : DesktopScreen.windows){
-                    if((window.screen instanceof TitleScreen || window.screen instanceof PauseScreen || window.screen instanceof WinScreen || isWindowedDeathScreen(window.screen) || window.screen instanceof ReceivingLevelScreen))
+                    if((window.screen instanceof TitleScreen || window.screen instanceof PauseScreen || window.screen instanceof WinScreen || isWindowedDeathScreen(window.screen)
+                            //#if MC < 12110
+                            //$$|| window.screen instanceof ReceivingLevelScreen
+                            //#endif
+                    ))
                         DesktopScreen.removeWindow(window);
                 }
                 if(Windows.config.getBoolean("OPEN_PAUSE_SCREEN", false) && (screen instanceof PauseScreen)) DesktopScreen.addWindow(new WindowBuilder().setScreen(screen).build());

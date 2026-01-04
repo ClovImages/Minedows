@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.info;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -38,7 +39,7 @@ public class WindowsVersion extends Screen {
         x = 60; y = 15;
         guiGraphics.drawString(font, Component.translatable("minedows.winver.title"), x, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+3;
-        guiGraphics.drawString(font, Component.translatable("minedows.winver.name"), x, y, WinColors.getTextColorWithMainColor(), false);
+        guiGraphics.drawString(font, Component.translatable("minedows.winver.name", FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion().getFriendlyString()), x, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+3;
         guiGraphics.drawString(font, Component.translatable("minedows.winver.copyright"), x, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+3;

@@ -7,6 +7,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12110
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
@@ -64,15 +68,15 @@ public class PaintScreen extends Screen {
         widgets = new ArrayList<>();
         int y = 0;
         addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.pen"), (s) -> {
-            isPanMode = true; isWihxhxMode = false;
+            isPanMode = true; isWihxhxMode = false; isPickMode = false;
         })
                 .setSprite(GuiUtils.getResourceLocation("windows", "textures/paint/pan.png")).setSize(20, 20).setPosition(0, y)
                 .setStyle(minedowsStyle).build());
-        addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.brush"), (s) -> isPanMode = isWihxhxMode = false)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.brush"), (s) -> {isPanMode = isWihxhxMode =  isPickMode = false;})
                 .setSprite(GuiUtils.getResourceLocation("windows", "textures/paint/brush.png")).setSize(20, 20).setPosition(20, y)
                 .setStyle(minedowsStyle).build());
         y+=20;
-        addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.eraser"), (s) -> isWihxhxMode =  true)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.eraser"), (s) -> isWihxhxMode = true)
                 .setSprite(GuiUtils.getResourceLocation("windows", "textures/paint/wihxhx.png")).setSize(20, 20).setPosition(0, y)
                 .setStyle(minedowsStyle).build());
         addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.pick_color"), (s) -> {
@@ -103,15 +107,15 @@ public class PaintScreen extends Screen {
 
         addRenderableWidget(new SliderBuilder(Component.translatable("minedows.paint.marker_size"), (s) -> {
             this.markerSize = (int) (1 + (19*s));
-        }).setDefaultValue(markerSize).setMin(1).setMax(20).setSize(120, 16).setPosition(2, height-16).setStyle(new AirStyle()).build());
+        }).setDefaultValue(markerSize).setMin(1).setMax(20).setSize(120, 16).setPosition(20, height-16).setStyle(new AirStyle()).build());
 
         addRenderableWidget(new SliderBuilder(Component.translatable("minedows.paint.eraser_size"), (s) -> {
             this.eraserSize = (int) (1 + (19*s));
-        }).setDefaultValue(markerSize).setMin(1).setMax(20).setSize(120, 16).setPosition(124, height-16).setStyle(new AirStyle()).build());
+        }).setDefaultValue(markerSize).setMin(1).setMax(20).setSize(120, 16).setPosition(142, height-16).setStyle(new AirStyle()).build());
         color = addRenderableWidget(new EditBox(new EditBoxBuilder(Component.translatable("minedows.paint.color"))
                 .setColor(panColor).setResponder((s)->{
                     AlinLib.LOG.log(s);
-                    setColor((int)Long.parseLong(s.toUpperCase(), 16));}).setSize(120, 16).setPosition(246, height-16).setStyle(new AirStyle())));
+                    setColor((int)Long.parseLong(s.toUpperCase(), 16));}).setSize(120, 16).setPosition(264, height-16).setStyle(new AirStyle())));
 
         int x = 44;
         int finalX = x;
@@ -309,16 +313,27 @@ public class PaintScreen extends Screen {
             if (FabricLoader.getInstance().isDevelopmentEnvironment())
                 guiGraphics.drawString(font, String.format("%sx%s %s", xm, ym, isDragging()), i + 2, j - 9, 0xFF000000, false);
             guiGraphics.fill(i - (getMarkerSize()-1), j - (getMarkerSize()-1), i + (getMarkerSize()+1), j + (getMarkerSize()+1), 0xFF000000);
-            if(isWihxhxMode) guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/wihxhx.png"), i-3, j-10, 0, 0, 16, 16, 16, 16);
-            else if(isPickMode) guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/pick.png"), i-3, j-10, 0, 0, 16, 16, 16, 16);
-            else if(isPanMode) guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/pan.png"), i-3, j-10, 0, 0, 16, 16, 16, 16);
         }
         WindowUtils.welcomeToWhiteSpace(guiGraphics, 2, height-58, 40, 40);
         guiGraphics.fill(3, height-57, 41, height-19, panColor);
+
+        if(isWihxhxMode) guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/wihxhx.png"), 2, height-16, 0, 0, 16, 16, 16, 16);
+        else if(isPickMode) guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/pick.png"), 2, height-16, 0, 0, 16, 16, 16, 16);
+        else if(isPanMode) guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/pan.png"), 2, height-16, 0, 0, 16, 16, 16, 16);
+        else guiGraphics.blit(RenderPipelines.GUI_TEXTURED,  GuiUtils.getResourceLocation("windows", "textures/paint/brush.png"), 2, height-16, 0, 0, 16, 16, 16, 16);
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(
+            //#if MC < 12110
+            //$$ double d, double e, int i){
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean b
+    ) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        double i = mouseButtonEvent.button();
+        //#endif
         int xm = (int) (d-x);
         int ym = (int) (e-y);
         boolean st = true;
@@ -337,7 +352,13 @@ public class PaintScreen extends Screen {
                 for (GuiEventListener guiEventListener : this.children()) {
                     if (scroller != null && scroller.widgets.contains(guiEventListener)) {
                         if (d >= 44 && d <= width) {
-                            if (guiEventListener.mouseClicked(d, e, i)) {
+                            if (guiEventListener.mouseClicked(
+                                    //#if MC >= 12110
+                                    mouseButtonEvent, b
+                                    //#else
+                                    //$$ d, e, i
+                                    //#endif
+                            )) {
                                 st = false;
                                 selected = guiEventListener;
                                 break;
@@ -347,13 +368,27 @@ public class PaintScreen extends Screen {
                 }
 
                 this.setFocused(selected);
-            } else st = super.mouseClicked(d, e, i);
+            } else st = super.mouseClicked(
+                    //#if MC >= 12110
+                    mouseButtonEvent, b
+                    //#else
+                    //$$ d, e, i
+                    //#endif
+            );
         }
         return st;
     }
 
     @Override
-    public boolean mouseDragged(double d, double e, int i, double d1, double e1) {
+    public boolean mouseDragged(
+            //#if MC < 12110
+            //$$ double d, double e, int i, double d1, double e1){
+            //#else
+            MouseButtonEvent mouseButtonEvent, double f, double g
+    ) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        //#endif
         int xm = (int) (d-x);
         int ym = (int) (e-y);
         if(x < d && xm < bufferedImage.getWidth() && y < e && ym < bufferedImage.getHeight()){
@@ -364,7 +399,13 @@ public class PaintScreen extends Screen {
         } else {
             isPainting = false;
         }
-        return super.mouseDragged(d, e, i, d1, e1) || isPainting;
+        return super.mouseDragged(
+                //#if MC < 12110
+                //$$d, e, i, d1, e1
+                //#else
+                mouseButtonEvent, f, g
+                //#endif
+        ) || isPainting;
     }
 
     @Override
@@ -380,11 +421,22 @@ public class PaintScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
+    //#if MC < 12110
+    //$$public boolean mouseReleased(double d, double e, int i) {
+    //#else
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        int i = mouseButtonEvent.button();
+        //#endif
         if(i == 0 && isPainting){
             isPainting = false;
         }
-        return super.mouseReleased(d, e, i);
+        return super.mouseReleased(
+                //#if MC < 12110
+                //$$d, e, i
+                //#else
+                mouseButtonEvent
+                //#endif
+                );
     }
 
     int lastX = 0;
@@ -493,13 +545,34 @@ public class PaintScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int i, int j, int k) {
+    public boolean keyPressed(
+            //#if MC < 12110
+            //$$int i, int j, int k){
+            //#else
+            KeyEvent keyEvent
+    ) {
+        int i = keyEvent.key();
+        //#endif
         if(i == GLFW.GLFW_KEY_DELETE) reset();
-        else if(i == GLFW.GLFW_KEY_Z && hasControlDown()){
-            if(hasShiftDown()) forward();
+        else if(i == GLFW.GLFW_KEY_Z &&
+                //#if MC >= 12110
+                keyEvent.
+        //#endif
+        hasControlDown()){
+            if(
+                //#if MC >= 12110
+                    keyEvent.
+                            //#endif
+                                    hasShiftDown()) forward();
             else back();
         }
-        return super.keyPressed(i, j, k);
+        return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
     boolean isPanMode = false;

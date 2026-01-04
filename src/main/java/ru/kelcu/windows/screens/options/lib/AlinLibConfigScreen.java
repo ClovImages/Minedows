@@ -3,6 +3,9 @@ package ru.kelcu.windows.screens.options.lib;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+//#if MC >= 12110
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import ru.kelcuprum.alinlib.AlinLib;
@@ -159,13 +162,28 @@ public class AlinLibConfigScreen extends AbstractConfigScreen {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(
+            //#if MC < 12110
+            //$$ double d, double e, int i){
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean b
+    ) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        double i = mouseButtonEvent.button();
+        //#endif
         boolean st = true;
         GuiEventListener selected = null;
         for (GuiEventListener guiEventListener : this.children()) {
             if (scroller_panel != null && scroller_panel.widgets.contains(guiEventListener)) {
                 if ((d >= 10 && d <= builder.panelSize-10) && (e >= 5 && e <= height-5)) {
-                    if (guiEventListener.mouseClicked(d, e, i)) {
+                    if (guiEventListener.mouseClicked(
+                            //#if MC >= 12110
+                            mouseButtonEvent, b
+                            //#else
+                            //$$ d, e, i
+                            //#endif
+                    )) {
                         st = false;
                         selected = guiEventListener;
                         break;
@@ -173,13 +191,25 @@ public class AlinLibConfigScreen extends AbstractConfigScreen {
                 }
             } else if (scroller != null && scroller.widgets.contains(guiEventListener)) {
                 if ((d >= builder.panelSize) && (e >= 5 && e <= height-5)) {
-                    if (guiEventListener.mouseClicked(d, e, i)) {
+                    if (guiEventListener.mouseClicked(
+                            //#if MC >= 12110
+                            mouseButtonEvent, b
+                            //#else
+                            //$$ d, e, i
+                            //#endif
+                    )) {
                         st = false;
                         selected = guiEventListener;
                         break;
                     }
                 }
-            } else if (guiEventListener.mouseClicked(d, e, i)) {
+            } else if (guiEventListener.mouseClicked(
+                    //#if MC >= 12110
+                    mouseButtonEvent, b
+                    //#else
+                    //$$ d, e, i
+                    //#endif
+            )) {
                 st = false;
                 selected = guiEventListener;
                 break;

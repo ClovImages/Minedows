@@ -6,6 +6,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12110
+import net.minecraft.client.input.KeyEvent;
+//#endif
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -21,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ru.kelcu.windows.screens.DesktopScreen;
 import ru.kelcu.windows.utils.WinColors;
+import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcu.windows.Windows;
 
@@ -64,7 +68,13 @@ public abstract class DeathScreenMixin extends Screen {
             addRenderableWidget(new ButtonBuilder(component, (s) -> this.minecraft.player.respawn())
                     .setPosition(x, y).setSize(100, 18).build());
             addRenderableWidget(new ButtonBuilder(Component.translatable("deathScreen.titleScreen"),
-                    (s) -> PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE))
+                    (s) ->
+                            //#if MC < 12110
+                            //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE)
+                            //#else
+                            AlinLib.MINECRAFT.getReportingContext().draftReportHandled(AlinLib.MINECRAFT, AlinLib.MINECRAFT.screen, () -> AlinLib.MINECRAFT.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true)
+                            //#endif
+                            )
                     .setPosition(x+105, y).setSize(100, 18).build());
         }
         cl.cancel();
@@ -85,13 +95,38 @@ public abstract class DeathScreenMixin extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int i, int j, int k) {
-        if(isDisabled()) return super.keyPressed(i, j, k);
+    //#if MC < 12110
+    //$$public boolean keyPressed(int i, int j, int k) {
+    //#else
+    public boolean keyPressed(KeyEvent keyEvent) {
+        int i = keyEvent.key();
+        int j = keyEvent.scancode();
+        int k = keyEvent.modifiers();
+        //#endif
+        if(isDisabled()) return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
         if(isNiko()){
             if(i == GLFW.GLFW_KEY_S) this.minecraft.player.respawn();
-            else if(i == GLFW.GLFW_KEY_T) PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE);
+            else if(i == GLFW.GLFW_KEY_T)
+                //#if MC < 12110
+                //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
+                //#else
+                AlinLib.MINECRAFT.getReportingContext().draftReportHandled(AlinLib.MINECRAFT, AlinLib.MINECRAFT.screen, () -> AlinLib.MINECRAFT.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
+            //#endif
+
         }
-        return super.keyPressed(i, j, k);
+        return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)

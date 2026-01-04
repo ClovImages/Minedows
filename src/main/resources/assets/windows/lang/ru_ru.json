@@ -50,8 +50,8 @@
 
 
   "minedows.winver.title": "Clovisoft Minedows",
-  "minedows.winver.name": "Minedows 98",
-  "minedows.winver.copyright": "Copyright (C) 2025-2025 Clovisoft Corp.",
+  "minedows.winver.name": "Minedows 98 (сборка %s)",
+  "minedows.winver.copyright": "Copyright (C) 2025-2026 Clovisoft Corp.",
   "minedows.winver.microsoft_icons": "Оригинальные иконки принадлежат Microsoft Corp.",
   "minedows.winver.oneshot_startup_sound": "Звук запуска взят из игры OneShot: World Machine Edition",
   "minedows.winver.clovi": "Автор маскота: Кинома (t.me/itzkinoma)",

@@ -7,7 +7,4 @@ accessible field net/minecraft/client/gui/components/AbstractScrollArea scrollAm
 accessible field net/minecraft/client/gui/screens/multiplayer/ServerSelectionList SCANNING_LABEL Lnet/minecraft/network/chat/Component;
 accessible method net/minecraft/client/gui/screens/Screen rebuildWidgets ()V
 accessible class net/minecraft/client/gui/Gui$ContextualInfo
-accessible field net/minecraft/client/gui/GuiGraphics deferredOutlines Ljava/util/List;
-accessible field net/minecraft/client/gui/GuiGraphics deferredTooltip Ljava/lang/Runnable;
-accessible class net/minecraft/client/gui/GuiGraphics$OutlineBox
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;

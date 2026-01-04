@@ -1,24 +1,19 @@
 apply plugin: 'maven-publish'
-apply plugin: 'dev.architectury.loom'
+apply plugin: 'fabric-loom'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
 apply plugin: 'io.github.goooler.shadow'
 apply plugin: 'com.modrinth.minotaur'
 
-def mod_brand = project.name.endsWith("-common") ? 'common' : (loom.platform.get() as String).toLowerCase()
-assert mod_brand in ['fabric', 'forge', 'neoforge', 'common']
-archivesBaseName = (project.archives_base_name == null ? rootProject.archives_base_name : project.archives_base_name) + "-" + mod_brand
+def mod_brand = 'fabric'
+archivesBaseName = (project.archives_base_name == null ? rootProject.archives_base_name : project.archives_base_name)
 group = rootProject.maven_group
 
 int mcVersion = 1
 preprocess {
     mcVersion = vars.get()["MC"] as int
     tabIndentation = true
-    vars.put("WALTER", archivesBaseName.startsWith("Walter") ? 1 : 0)
     vars.put("MC", mcVersion)
-    vars.put("FABRIC", mod_brand == 'fabric' ? 1 : 0)
-    vars.put("FORGE", mod_brand == 'forge' ? 1 : 0)
-    vars.put("NEOFORGE", mod_brand == 'neoforge' ? 1 : 0)
 }
 
 repositories {
@@ -26,6 +21,7 @@ repositories {
     mavenLocal()
     maven { url = "https://maven.terraformersmc.com/releases" }
     maven { url = "https://maven.meteordev.org/releases" }
+    maven { url = "https://keksuccino.github.io/maven/" }
     maven { url = 'https://repo.kelcuprum.ru/snapshots' }
     maven { url = 'https://repo.kelcuprum.ru/releases' }
     maven { url = 'https://repo.kelcuprum.ru/forks' }
@@ -47,11 +43,6 @@ loom {
         vmArgs '-Dmixin.debug.export=true'
     }
     accessWidenerPath = file("./src/main/resources/minedows.accesswidener").exists() ? file("./src/main/resources/minedows.accesswidener") :  file("../../src/main/resources/minedows.accesswidener")
-    if (mod_brand == 'forge') {
-        forge {
-            convertAccessWideners = true
-        }
-    }
 }
 remapJar {
 //    remapperIsolation = true
@@ -79,8 +70,9 @@ dependencies {
     if (mod_brand == 'fabric') {
         modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
         modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-        modImplementation "com.cinemamod:mcef:2.1.6-1.21.8"
-        modImplementation "com.cinemamod:mcef-fabric:2.1.6-1.21.8"
+//        modImplementation "com.cinemamod:mcef:2.1.6-1.21.8"
+//        modImplementation "com.cinemamod:mcef-fabric:2.1.6-1.21.8"
+        modImplementation "de.keksuccino:mcef-fabric:${project.mcef_keksuccino}"
         modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
         modCompileOnly("curse.maven:Catalogue-459701:5896177")
         modCompileOnly("io.github.queerbric:pridelib:${pridelib_version}")
@@ -172,7 +164,7 @@ modrinth {
             required.project "fabric-api"
             optional.project "modmenu"
         }
-        optional.project "mcef"
+        optional.project "mcef-keksuccino"
         incompatible.project "capes"
     }
 }

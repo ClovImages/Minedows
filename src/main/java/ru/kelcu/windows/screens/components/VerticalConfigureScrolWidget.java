@@ -2,17 +2,21 @@
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
-
 package ru.kelcu.windows.screens.components;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+//#if MC >= 12110
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
+//#endif
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import ru.kelcuprum.alinlib.AlinLib;
-import ru.kelcuprum.alinlib.gui.Colors;
+import ru.kelcuprum.alinlib.gui.GuiUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +28,12 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
     public final Consumer<VerticalConfigureScrolWidget> onScroll;
     public int innerHeight;
     public List<AbstractWidget> widgets = new ArrayList();
-    private double animationTimer = (double)0.0F;
-    private double scrollStartVelocity = (double)0.0F;
-    public static double scrollSpeed = (double)0.5F;
+    private double animationTimer = 0.0F;
+    private double scrollStartVelocity = 0.0F;
+    public static double scrollSpeed = 0.5F;
     public static double scrollbarDrag = 0.025;
-    public static double animationDuration = (double)1.0F;
-    public static double pushBackStrength = (double)1.0F;
+    public static double animationDuration = 1.0F;
+    public static double pushBackStrength = 1.0F;
 
     public VerticalConfigureScrolWidget(int x, int y, int width, int height, Component message, Consumer<VerticalConfigureScrolWidget> onScroll) {
         super(x, y, width, height, message);
@@ -41,7 +45,7 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
     }
 
     protected double scrollRate() {
-        return (double)9.0F;
+        return 9.0F;
     }
 
     public double scrollAmount() {
@@ -49,14 +53,14 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
     }
 
     public void setScrollAmount(double amount) {
-        this.scrollAmount = Mth.clamp(amount, (double)0.0F, (double)this.getMaxScrollAmount());
+        this.scrollAmount = Mth.clamp(amount, 0.0F, this.getMaxScrollAmount());
         this.onScroll.accept(this);
     }
 
     protected void renderBackground(GuiGraphics guiGraphics) {
-//        if (this.scrollbarVisible()) {
-//            guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.getHeight(), 1962934272);
-//        }
+        if (this.scrollbarVisible()) {
+            guiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.getHeight(), 1962934272);
+        }
 
     }
 
@@ -69,16 +73,17 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
     }
 
     protected void renderDecorations(GuiGraphics guiGraphics) {
-//        if (this.scrollbarVisible()) {
-//            int i = this.getScrollBarHeight();
-//            int k = Math.max(this.getX(), (int)this.scrollAmount() * (this.width - i) / this.getMaxScrollAmount() + this.getX());
-//            guiGraphics.fill(k, this.getY(), k + i, this.getY() + this.getHeight(), Colors.getScrollerColor());
-//        }
+        if (this.scrollbarVisible()) {
+            int i = this.getScrollBarHeight();
+            int k = Math.max(this.getX(), (int)this.scrollAmount() * (this.width - i) / this.getMaxScrollAmount() + this.getX());
+            guiGraphics.fill(k, this.getY(), k + i, this.getY() + this.getHeight(), GuiUtils.getSelected().getScrollerColor());
+        }
+
     }
 
     public void resetWidgets() {
         this.widgets.clear();
-        this.setScrollAmount((double)0.0F);
+        this.setScrollAmount(0.0F);
     }
 
     public void addWidget(AbstractWidget widget) {
@@ -96,6 +101,7 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
         narrationElementOutput.add(NarratedElementType.TITLE, this.getMessage());
     }
 
+    @Override
     public boolean mouseScrolled(double d, double e, double f, double g) {
         if (!this.visible) {
             return false;
@@ -106,12 +112,12 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
                 diff = Math.signum(diff) * Math.min(Math.abs(diff), (double)10.0F);
                 diff *= scrollSpeed;
                 if (Math.signum(diff) != Math.signum(this.scrollStartVelocity)) {
-                    diff *= (double)2.5F;
+                    diff *= 2.5F;
                 }
 
-                this.animationTimer *= (double)0.5F;
+                this.animationTimer *= 0.5F;
                 this.scrollStartVelocity = scrollbarVelocity(this.animationTimer, this.scrollStartVelocity) + diff;
-                this.animationTimer = (double)0.0F;
+                this.animationTimer = 0.0F;
             } else {
                 this.setScrollAmount(amount);
             }
@@ -120,7 +126,19 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
         }
     }
 
-    public boolean mouseClicked(double d, double e, int i) {
+    @Override
+    public boolean mouseClicked(
+            //#if MC >= 12109
+            MouseButtonEvent mouseButtonEvent, boolean bl1
+            //#else
+            //$$ double d, double e, int i
+            //#endif
+    ) {
+        //#if MC >= 12109
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        int i = mouseButtonEvent.button();
+        //#endif
         if (!this.visible) {
             return false;
         } else {
@@ -135,23 +153,49 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
         }
     }
 
-    public boolean mouseReleased(double d, double e, int i) {
+    @Override
+    public boolean mouseReleased(
+            //#if MC >= 12109
+            MouseButtonEvent mouseButtonEvent
+            //#else
+            //$$ double d, double e, int i
+            //#endif
+    ) {
+        //#if MC >= 12109
+        int i = mouseButtonEvent.button();
+        //#endif
         if (i == 0) {
             this.scrolling = false;
         }
 
-        return super.mouseReleased(d, e, i);
+        return super.mouseReleased(
+                //#if MC >= 12109
+                mouseButtonEvent
+                //#else
+                //$$ d, e, i
+                //#endif
+        );
     }
 
-    public boolean mouseDragged(double d, double e, int i, double f, double g) {
+    @Override
+    public boolean mouseDragged(
+            //#if MC >= 12109
+            MouseButtonEvent mouseButtonEvent, double f, double g
+            //#else
+            //$$ double d, double e, int i, double f, double g
+            //#endif
+    ) {
+        //#if MC >= 12109
+        double d = mouseButtonEvent.x();
+        //#endif
         if (this.visible && this.isFocused() && this.scrolling) {
             if (d < (double)this.getX()) {
-                this.setScrollAmount((double)0.0F);
+                this.setScrollAmount(0.0F);
             } else if (d > (double)(this.getX() + this.width)) {
-                this.setScrollAmount((double)this.getMaxScrollAmount());
+                this.setScrollAmount(this.getMaxScrollAmount());
             } else {
                 int j = this.getScrollBarHeight();
-                double h = (double)Math.max(1, this.getMaxScrollAmount() / (this.width - j));
+                double h = Math.max(1, this.getMaxScrollAmount() / (this.width - j));
                 this.setScrollAmount(this.scrollAmount + f * h);
             }
 
@@ -164,8 +208,17 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
     protected boolean withinContentAreaPoint(double d, double e) {
         return d >= (double)this.getX() && d < (double)(this.getX() + this.width) && e >= (double)this.getY() && e < (double)(this.getY() + this.height);
     }
-
-    public boolean keyPressed(int i, int j, int k) {
+    @Override
+    public boolean keyPressed(
+            //#if MC < 12109
+            //$$ int i, int j, int k
+            //#else
+            KeyEvent keyEvent
+            //#endif
+    ) {
+        //#if MC >= 12109
+        int i = keyEvent.key();
+        //#endif
         boolean bl = i == 265;
         boolean bl2 = i == 264;
         if (bl || bl2) {
@@ -176,7 +229,13 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
             }
         }
 
-        return super.keyPressed(i, j, k);
+        return super.keyPressed(
+                //#if MC < 12109
+                //$$ i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
@@ -189,6 +248,11 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
 
         this.renderBackground(guiGraphics);
         this.renderDecorations(guiGraphics);
+        //#if MC >= 12109
+        if (this.isHovered()) {
+            guiGraphics.requestCursor(this.isActive() ? isFocused() ? CursorTypes.RESIZE_EW : CursorTypes.POINTING_HAND : CursorTypes.NOT_ALLOWED);
+        }
+        //#endif
     }
 
     private void applyMotion(float delta) {
@@ -201,14 +265,14 @@ public class VerticalConfigureScrolWidget extends AbstractWidget {
         if (this.scrollAmount < (double)0.0F) {
             this.scrollAmount += pushBackStrength(Math.abs(this.scrollAmount), delta);
             if (this.scrollAmount > -0.2) {
-                this.scrollAmount = (double)0.0F;
+                this.scrollAmount = 0.0F;
             }
         }
 
         if (this.scrollAmount > (double)this.getMaxScrollAmount()) {
             this.scrollAmount -= pushBackStrength(this.scrollAmount - (double)this.getMaxScrollAmount(), delta);
             if (this.scrollAmount < (double)this.getMaxScrollAmount() + 0.2) {
-                this.scrollAmount = (double)this.getMaxScrollAmount();
+                this.scrollAmount = this.getMaxScrollAmount();
             }
         }
 

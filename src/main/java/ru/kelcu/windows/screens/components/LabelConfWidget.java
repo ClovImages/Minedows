@@ -6,6 +6,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.PauseScreen;
+//#if MC >= 12110
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
@@ -51,7 +54,13 @@ public class LabelConfWidget extends AbstractWidget {
         pw=0;
         if(isHoveredOrFocused()){
             guiGraphics.fill(getX()-3, getY()-3, getX()+getWidth()+3, getY()+yA, 0x3e0000F3);
-            guiGraphics.renderOutline(getX()-3, getY()-3, getWidth()+6, yA+3, 0x3e0000F3);
+            guiGraphics.
+                    //#if MC < 12110
+                    //$$renderOutline
+                    //#else
+                            submitOutline
+                    //#endif
+                            (getX()-3, getY()-3, getWidth()+6, yA+3, 0x3e0000F3);
         }
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, getX()+6, getY()+6, 0, 0, getWidth()-12, getWidth()-12, getWidth()-12, getWidth()-12);
         // -=-=-=-
@@ -81,7 +90,16 @@ public class LabelConfWidget extends AbstractWidget {
     long lastClick = 0;
     boolean isDragged = false;
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(
+            //#if MC < 12110
+            //$$ double d, double e, int i){
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean b
+    ) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        double i = mouseButtonEvent.button();
+        //#endif
         if(config != null){
             config.setBoolean("enable", !config.getBoolean("enable", defaultValue));
             Windows.config.setJsonObject(id, config.toJSON());
@@ -89,7 +107,13 @@ public class LabelConfWidget extends AbstractWidget {
         if(AlinLib.MINECRAFT.screen instanceof DesktopScreen)
             AlinLib.MINECRAFT.screen.rebuildWidgets();
         lastClick = System.currentTimeMillis();
-        return super.mouseClicked(d, e, i);
+        return super.mouseClicked(
+                //#if MC >= 12110
+                mouseButtonEvent, b
+                //#else
+                //$$ d, e, i
+                //#endif
+        );
     }
 
     public boolean isBigDuck = true;
@@ -108,9 +132,20 @@ public class LabelConfWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
+    //#if MC < 12110
+    //$$public boolean mouseReleased(double d, double e, int i) {
+    //#else
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        int i = mouseButtonEvent.button();
+        //#endif
         if(i == 0) isDragged = false;
-        return super.mouseReleased(d, e, i);
+        return super.mouseReleased(
+                //#if MC < 12110
+                //$$d, e, i
+                //#else
+                mouseButtonEvent
+                //#endif
+        );
     }
 
     @Override

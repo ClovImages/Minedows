@@ -3,6 +3,10 @@ package ru.kelcu.windows.screens.apps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12110
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+//#endif
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -69,8 +73,23 @@ public class CalcScreen extends Screen {
     }
 
     boolean isError = false;
+    //#if MC >= 12110
+    public boolean charTyped( char c, int i) {
+        return charTyped(new CharacterEvent(c, i));
+    }
+    public boolean keyPressed(int i, int j, int k) {
+        return keyPressed(new KeyEvent(i, j, k));
+    }
+    //#endif
     @Override
-    public boolean charTyped(char c, int i) {
+    public boolean charTyped(
+            //#if MC < 12110
+            //$$ char c, int i) {
+            //#else
+            CharacterEvent characterEvent) {
+        char c = characterEvent.codepointAsString().charAt(0);
+        int i = characterEvent.modifiers();
+        //#endif
         if (StringUtil.isAllowedChatCharacter(c) && correctForMath(Character.toString(c))) {
             if(isError) {
                 isError = false;
@@ -84,7 +103,14 @@ public class CalcScreen extends Screen {
         }
     }
     @Override
-    public boolean keyPressed(int i, int j, int k) {
+    //#if MC < 12110
+    //$$public boolean keyPressed(int i, int j, int k) {
+    //#else
+    public boolean keyPressed(KeyEvent keyEvent) {
+        int i = keyEvent.key();
+        int j = keyEvent.scancode();
+        int k = keyEvent.modifiers();
+        //#endif
         if(i == GLFW.GLFW_KEY_ENTER && !matematika_blyadskaya.isBlank()){
             try {
                 matematika_blyadskaya = String.valueOf(eval(matematika_blyadskaya));
@@ -100,7 +126,13 @@ public class CalcScreen extends Screen {
             matematika_blyadskaya = matematika_blyadskaya.substring(0, matematika_blyadskaya.length()-1);
             return true;
         }
-        return super.keyPressed(i, j, k);
+        return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+                );
     }
 
     public static boolean correctForMath(String character){

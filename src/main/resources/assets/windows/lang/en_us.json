@@ -49,8 +49,8 @@
 
 
   "minedows.winver.title": "Clovisoft Minedows",
-  "minedows.winver.name": "Minedows 98",
-  "minedows.winver.copyright": "Copyright (C) 2025-2025 Clovisoft Corp.",
+  "minedows.winver.name": "Minedows 98 (Build %s)",
+  "minedows.winver.copyright": "Copyright (C) 2025-2026 Clovisoft Corp.",
   "minedows.winver.microsoft_icons": "Original icons belong to Microsoft Corp.",
   "minedows.winver.oneshot_startup_sound": "Launch sound is taken from OneShot: World Machine Edition.",
   "minedows.winver.clovi": "Mascot designer: Kinoma (t.me/itzkinoma)",

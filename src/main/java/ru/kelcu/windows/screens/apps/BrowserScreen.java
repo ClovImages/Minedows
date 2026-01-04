@@ -10,6 +10,11 @@ import com.mojang.blaze3d.textures.TextureFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12110
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.network.chat.Component;
@@ -217,18 +222,48 @@ public class BrowserScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(
+            //#if MC < 12110
+            //$$double mouseX, double mouseY, int button) {
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean b
+    ) {
+        double mouseX = mouseButtonEvent.x();
+        double mouseY = mouseButtonEvent.y();
+        int button = mouseButtonEvent.button();
+        //#endif
         if(mouseX > BROWSER_DRAW_TITLE_OFFSET) setFocused(null);
         browser.sendMousePress(mouseX(mouseX), mouseY(mouseY), button);
         browser.setFocus(true);
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(
+                //#if MC < 12110
+                //$$mouseX, mouseY, button
+                //#else
+                mouseButtonEvent, b
+                //#endif
+                );
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(
+            //#if MC < 12110
+            //$$double mouseX, double mouseY, int button) {
+            //#else
+            MouseButtonEvent mouseButtonEvent
+    ) {
+        double mouseX = mouseButtonEvent.x();
+        double mouseY = mouseButtonEvent.y();
+        int button = mouseButtonEvent.button();
+        //#endif
         browser.sendMouseRelease(mouseX(mouseX), mouseY(mouseY), button);
         browser.setFocus(true);
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(
+                //#if MC < 12110
+                //$$mouseX, mouseY, button
+                //#else
+                mouseButtonEvent
+                //#endif
+        );
     }
 
     @Override
@@ -244,9 +279,20 @@ public class BrowserScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    public boolean mouseDragged(
+        //#if MC < 12110
+        //$$double mouseX, double mouseY, int button, double dragX, double dragY
+        //#else
+        MouseButtonEvent mouseButtonEvent, double dragX, double dragY
+        //#endif
+    ) {
+        return super.mouseDragged(
+                //#if MC < 12110
+                //$$mouseX, mouseY, button, dragX,  dragY
+                //#else
+                mouseButtonEvent, dragX, dragY
+                //#endif
+        );
     }
 
     @Override
@@ -256,14 +302,27 @@ public class BrowserScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //#if MC < 12110
+    //$$public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //#else
+    public boolean keyPressed(KeyEvent keyEvent) {
+        int keyCode = keyEvent.key();
+        int scanCode = keyEvent.scancode();
+        int modifiers = keyEvent.modifiers();
+        //#endif
         if(editBox.isFocused()){
             if(keyCode == GLFW.GLFW_KEY_ENTER) {
                 updateUrl();
                 setFocused(false);
                 setFocused(null);
             }
-            return editBox.keyPressed(keyCode, scanCode, modifiers);
+            return editBox.keyPressed(
+                    //#if MC < 12110
+                    //$$keyCode, scanCode, modifiers
+                    //#else
+                    keyEvent
+                    //#endif
+            );
         }
         browser.sendKeyPress(keyCode, scanCode, modifiers);
         browser.setFocus(true);
@@ -292,20 +351,57 @@ public class BrowserScreen extends Screen {
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if(editBox.isFocused()) return super.keyReleased(keyCode, scanCode, modifiers);
+    //#if MC < 12110
+    //$$public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    //#else
+    public boolean keyReleased(KeyEvent keyEvent) {
+        int keyCode = keyEvent.key(); int scanCode = keyEvent.scancode(); int modifiers = keyEvent.modifiers();
+        //#endif
+        if(editBox.isFocused()) return super.keyReleased(
+                //#if MC < 12110
+                //$$keyCode, scanCode, modifiers
+                //#else
+                keyEvent
+                //#endif
+        );
         browser.sendKeyRelease(keyCode, scanCode, modifiers);
         browser.setFocus(true);
-        return super.keyReleased(keyCode, scanCode, modifiers);
+        return super.keyReleased(
+                //#if MC < 12110
+                //$$keyCode, scanCode, modifiers
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
-        if(editBox.isFocused()) return super.charTyped(codePoint, modifiers);
+    public boolean charTyped(
+            //#if MC < 12110
+            //$$ char codePoint, int modifiers) {
+            //#else
+            CharacterEvent characterEvent) {
+        char codePoint = characterEvent.codepointAsString().charAt(0);
+        int modifiers = characterEvent.modifiers();
+        //#endif
+
+        if(editBox.isFocused()) return super.charTyped(
+                //#if MC < 12110
+                //$$ codePoint, modifiers
+                //#else
+                characterEvent
+                //#endif
+        );
         if (codePoint == (char) 0) return false;
         browser.sendKeyTyped(codePoint, modifiers);
         browser.setFocus(true);
-        return super.charTyped(codePoint, modifiers);
+        return super.charTyped(
+                //#if MC < 12110
+                //$$ codePoint, modifiers
+                //#else
+                characterEvent
+                //#endif
+        );
     }
 
     public static String getSearchURL(String query){

@@ -4,6 +4,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.OutOfMemoryScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen;
+//#if MC >= 12110
+import net.minecraft.client.input.KeyEvent;
+//#endif
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.spongepowered.asm.mixin.Final;
@@ -54,9 +57,19 @@ public class OutOfMemoryScreenMixin extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int i, int j, int k) {
+    //#if MC < 12110
+    //$$public boolean keyPressed(int i, int j, int k) {
+    //#else
+    public boolean keyPressed(KeyEvent keyEvent) {
+        //#endif
         onClose();
-        return super.keyPressed(i, j, k);
+        return super.keyPressed(
+                //#if MC < 12110
+                //$$i, j, k
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
     @Override

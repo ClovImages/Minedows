@@ -1,6 +1,8 @@
 package ru.kelcu.windows.components;
+//#if MC < 12110
+//$$import net.minecraft.client.gui.screens.ReceivingLevelScreen;
+//#endif
 
-import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -125,7 +127,11 @@ public class Window {
     public Screen lastScreen = null;
 
     public void setScreen(Screen screen){
-        lastScreen = screen instanceof ReceivingLevelScreen ? null : this.screen;
+        //#if MC < 12110
+        //$$lastScreen = screen instanceof ReceivingLevelScreen ? null : this.screen;
+        //#else
+        lastScreen = this.screen;
+        //#endif
         this.screen = screen;
     }
 }

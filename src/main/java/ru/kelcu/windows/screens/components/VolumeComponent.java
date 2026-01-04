@@ -5,6 +5,9 @@ import net.minecraft.client.gui.components.AbstractSliderButton;
 //#if MC >= 12106
 import net.minecraft.client.renderer.RenderPipelines;
 //#endif
+//#if MC >= 12110
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.network.chat.Component;
@@ -56,11 +59,22 @@ public class VolumeComponent extends AbstractSliderButton {
         applyValue();
     }
     @Override
-    protected void onDrag(double d, double e, double f, double g) {
+    //#if MC < 12110
+    //$$protected void onDrag(double d, double e, double f, double g) {
+    //#else
+    protected void onDrag(MouseButtonEvent mouseButtonEvent, double f, double g) {
+        double e = mouseButtonEvent.y();
+        //#endif
         this.setValueFromMouse(e);
     }
+
     @Override
-    public void onClick(double d, double e) {
+    //#if MC < 12110
+    //$$public void onClick(double d, double e) {
+    //#elseif
+    public void onClick(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        double e = mouseButtonEvent.y();
+        //#endif
         this.setValueFromMouse(e);
     }
 

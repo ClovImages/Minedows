@@ -6,6 +6,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ErrorScreen;
 import net.minecraft.client.gui.screens.Screen;
+//#if MC >= 12110
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -132,16 +136,35 @@ public class ExplorerScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //#if MC < 12110
+    //$$public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //#else
+    public boolean keyPressed(KeyEvent keyEvent) {
+        int keyCode = keyEvent.key();
+        int scanCode = keyEvent.scancode();
+        int modifiers = keyEvent.modifiers();
+        //#endif
         if (editBox.isFocused()) {
             if (keyCode == GLFW.GLFW_KEY_ENTER) {
                 changePath(editBox.getValue());
                 setFocused(false);
                 setFocused(null);
             }
-            return editBox.keyPressed(keyCode, scanCode, modifiers);
+            return editBox.keyPressed(
+                    //#if MC < 12110
+                    //$$keyCode, scanCode, modifiers
+                    //#else
+                    keyEvent
+                    //#endif
+                    );
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(
+                //#if MC < 12110
+                //$$keyCode, scanCode, modifiers
+                //#else
+                keyEvent
+                //#endif
+        );
     }
 
     public void initLabels() {
@@ -251,7 +274,16 @@ public class ExplorerScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(
+            //#if MC < 12110
+            //$$double d, double e, int i) {
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean b
+    ) {
+        double d = mouseButtonEvent.x();
+        double e = mouseButtonEvent.y();
+        int i = mouseButtonEvent.button();
+        //#endif
         boolean st = true;
         GuiEventListener selected = null;
         for (GuiEventListener guiEventListener : this.children()) {
@@ -260,14 +292,26 @@ public class ExplorerScreen extends Screen {
                     if(guiEventListener instanceof AbstractWidget){
                         if(((AbstractWidget) guiEventListener).getX() < d && d < ((AbstractWidget) guiEventListener).getRight() &&
                                 ((AbstractWidget) guiEventListener).getY() < e && e < ((AbstractWidget) guiEventListener).getBottom()){
-                            if (guiEventListener.mouseClicked(d, e, i)) {
+                            if (guiEventListener.mouseClicked(
+                                    //#if MC < 12110
+                                    //$$d, e, i
+                                    //#else
+                                    mouseButtonEvent, b
+                                    //#endif
+                                    )) {
                                 st = false;
                                 selected = guiEventListener;
                                 break;
                             }
                         }
                     } else {
-                        if (guiEventListener.mouseClicked(d, e, i)) {
+                        if (guiEventListener.mouseClicked(
+                                //#if MC < 12110
+                                //$$d, e, i
+                                //#else
+                                mouseButtonEvent, b
+                                //#endif
+                        )) {
                             st = false;
                             selected = guiEventListener;
                             break;
@@ -275,7 +319,13 @@ public class ExplorerScreen extends Screen {
                     }
                 }
             } else if(e <= yForFolder){
-                if (guiEventListener.mouseClicked(d, e, i)) {
+                if (guiEventListener.mouseClicked(
+                        //#if MC < 12110
+                        //$$d, e, i
+                        //#else
+                        mouseButtonEvent, b
+                        //#endif
+                )) {
                     st = false;
                     selected = guiEventListener;
                     break;

@@ -7,6 +7,9 @@ package ru.kelcu.windows.screens.components.alinlib;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+//#if MC >= 12110
+import net.minecraft.client.input.MouseButtonEvent;
+//#endif
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -52,7 +55,14 @@ public class ButtonBoolean extends Button implements Resetable {
         }
     }
     @Override
-    public void onClick(double d, double e) {
+    public void onClick(
+            //#if MC < 12110
+            //$$double d, double e
+            //#else
+            MouseButtonEvent mouseButtonEvent, boolean bl
+            //#endif
+    ) {
+
         this.onPress();
     }
 

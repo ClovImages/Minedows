@@ -1,4 +1,2 @@
-- Rewritten DeathScreen for Hardcore
-- Added config for this fucking shit
-- Added config for Home Page on Explorer
-- Added API for adding custom labels in Desktop and Start Menu
+- Ported to new kernel - 1.21.10
+- Added build number in winver.exe

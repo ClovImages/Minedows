@@ -124,7 +124,12 @@ public class Windows implements ClientModInitializer {
         switch (action.type){
             case STOP_GAME -> Minecraft.getInstance().stop();
             case UNPAUSE_GAME -> Minecraft.getInstance().setScreen(null);
-            case DISCONNECT -> PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
+            case DISCONNECT ->
+                //#if MC < 12110
+                //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
+                //#else
+                    AlinLib.MINECRAFT.getReportingContext().draftReportHandled(AlinLib.MINECRAFT, AlinLib.MINECRAFT.screen, () -> AlinLib.MINECRAFT.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
+                //#endif
             case OPEN_SCREEN -> {
                 if(AlinLib.MINECRAFT.screen instanceof DesktopScreen)
                     AlinLib.MINECRAFT.screen.rebuildWidgets();

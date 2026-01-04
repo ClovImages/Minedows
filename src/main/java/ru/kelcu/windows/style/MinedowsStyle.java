@@ -1,5 +1,6 @@
 package ru.kelcu.windows.style;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import ru.kelcu.windows.screens.DesktopScreen;
@@ -14,7 +15,7 @@ import static ru.kelcuprum.alinlib.gui.GuiUtils.interpolate;
 
 public class MinedowsStyle extends AbstractStyle {
     public MinedowsStyle() {
-        super("minedows", Component.translatable("minedows.winver.name"));
+        super("minedows", Component.translatable("minedows.winver.name", FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion().getFriendlyString()));
     }
 
     @Override
