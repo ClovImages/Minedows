@@ -51,6 +51,7 @@ public class Windows implements ClientModInitializer {
     public static Config config = new Config("config/minedows/conf.json");
     public static Thread perlinNoises;
     public static MinedowsStyle minedowsStyle = new MinedowsStyle();
+    private volatile boolean perlinLoop;
     @Override
     public void onInitializeClient() {
         ClientLifecycleEvents.CLIENT_STARTED.register((s) -> {
@@ -88,15 +89,20 @@ public class Windows implements ClientModInitializer {
         GuiUtils.registerStyle(minedowsStyle);
         ClientLifecycleEvents.CLIENT_FULL_STARTED.register((s) -> {
             gameStarted = true;
+            perlinLoop = true;
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath("windows", "windows_startup")), 1.0F));
             perlinNoises = new Thread(() -> {
-                while(true) {
+                while (perlinLoop) {
                         try {
                             if(config.getNumber("WALLPAPER.TYPE", 0).intValue() == 1 && AlinLib.MINECRAFT.level == null) {
                                 generatePerlin(AlinLib.MINECRAFT.gui.screen().width / 2, AlinLib.MINECRAFT.gui.screen().height / 2);
                                 xPerlin++;
                             } else sleep(500);
-                        } catch (Exception ex) {
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                        catch (Exception ex) {
                         }
                 }
             });
@@ -114,7 +120,10 @@ public class Windows implements ClientModInitializer {
                 }
             }
         });
-        ClientLifecycleEvents.CLIENT_STOPPING.register((s) -> {if(perlinNoises != null) perlinNoises.interrupt();});
+        ClientLifecycleEvents.CLIENT_STOPPING.register((s) -> {
+            perlinLoop = false;
+            if (perlinNoises != null) perlinNoises.interrupt();
+        });
         OverlayHandler hud = new OverlayHandler();
         ScreenEvents.SCREEN_RENDER.register(hud);
         GuiRenderEvents.RENDER.register(hud);
