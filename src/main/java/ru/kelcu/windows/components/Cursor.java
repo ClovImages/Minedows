@@ -6,14 +6,13 @@ package ru.kelcu.windows.components;
 import com.mojang.blaze3d.platform.cursor.CursorType;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 //#endif
-import org.lwjgl.glfw.GLFW;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 public class Cursor {
     private static boolean isDragging;
 
 
     //#if MC >= 12110
-    public static CursorType RESIZE_NWSE = CursorType.createStandardCursor(GLFW.GLFW_RESIZE_NWSE_CURSOR, "resize_nwse", CursorType.DEFAULT);
+    public static CursorType RESIZE_NWSE = CursorType.createStandardCursor(221191, "resize_nwse", CursorType.DEFAULT);
     //#endif
 
     public static void setDragging(GuiGraphicsExtractor guiGraphics) {

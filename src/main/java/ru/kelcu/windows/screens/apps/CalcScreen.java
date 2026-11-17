@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.apps;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -11,10 +12,10 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.StringUtil;
-import org.lwjgl.glfw.GLFW;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.utils.SoundUtils;
 import ru.kelcu.windows.utils.WindowUtils;
+import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 
 public class CalcScreen extends Screen {
@@ -58,7 +59,7 @@ public class CalcScreen extends Screen {
         x+=w;
         addRenderableWidget(new ButtonBuilder(Component.literal("+"), (s) -> charTyped('+', 0)).setPosition(x+1, y+1).setSize(w-2, h-2).setStyle(Windows.minedowsStyle).build());
         x+=w;
-        addRenderableWidget(new ButtonBuilder(Component.literal("="), (s) -> keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0)).setPosition(x+1, y+1).setSize(w-2, h-2).setStyle(Windows.minedowsStyle).build());
+        addRenderableWidget(new ButtonBuilder(Component.literal("="), (s) -> keyPressed(40, 0, 0)).setPosition(x+1, y+1).setSize(w-2, h-2).setStyle(Windows.minedowsStyle).build());
         x=0;y+=h;
     }
 
@@ -75,7 +76,17 @@ public class CalcScreen extends Screen {
     boolean isError = false;
     //#if MC >= 12110
     public boolean charTyped( char c, int i) {
-        return charTyped(new CharacterEvent(i));
+        if (StringUtil.isAllowedChatCharacter(c) && correctForMath(Character.toString(c))) {
+            if(isError) {
+                isError = false;
+                matematika_blyadskaya = "";
+            }
+            matematika_blyadskaya+= Character.toString(c);
+            return true;
+        } else {
+            SoundUtils.error();
+            return false;
+        }
     }
     public boolean keyPressed(int i, int j, int k) {
         return keyPressed(new KeyEvent(i, j, k));
@@ -90,6 +101,7 @@ public class CalcScreen extends Screen {
         char c = characterEvent.codepointAsString().charAt(0);
         int i = characterEvent.codepoint();
         //#endif
+        AlinLib.LOG.log("%s", c);
         if (StringUtil.isAllowedChatCharacter(c) && correctForMath(Character.toString(c))) {
             if(isError) {
                 isError = false;
@@ -108,10 +120,10 @@ public class CalcScreen extends Screen {
     //#else
     public boolean keyPressed(KeyEvent keyEvent) {
         int i = keyEvent.key();
-        int j = keyEvent.scancode();
+        int j = keyEvent.keycode();
         int k = keyEvent.modifiers();
         //#endif
-        if(i == GLFW.GLFW_KEY_ENTER && !matematika_blyadskaya.isBlank()){
+        if(keyEvent.isSelection() && !matematika_blyadskaya.isBlank()){
             try {
                 matematika_blyadskaya = String.valueOf(eval(matematika_blyadskaya));
                 if(matematika_blyadskaya.endsWith(".0"))matematika_blyadskaya = matematika_blyadskaya.replace(".0", "");
@@ -122,7 +134,7 @@ public class CalcScreen extends Screen {
             }
             return true;
         }
-        else if(i == GLFW.GLFW_KEY_BACKSPACE && !matematika_blyadskaya.isBlank()){
+        else if(i == InputConstants.KEY_BACKSPACE && !matematika_blyadskaya.isBlank()){
             matematika_blyadskaya = matematika_blyadskaya.substring(0, matematika_blyadskaya.length()-1);
             return true;
         }

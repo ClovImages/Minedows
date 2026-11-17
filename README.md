@@ -1,6 +1,6 @@
 ![Replace this with a description](https://cdn.modrinth.com/data/cached_images/1d37c4c632720a531ad0b129041331a6f299f080.png)
 
-Introducing Minedows 98!
+Introducing Minedows 2000!
 Feel like you're back in the old days with the modern video game Minecraft. You can do anything you want with windows, your surroundings, and even create!
 
 Let's take a closer look at the features.
@@ -36,7 +36,7 @@ As mentioned earlier, you can customize the color palette of your theme or use r
 
 ![Urban Environment ](https://cdn.modrinth.com/data/cached_images/8bb35a41051b384b2d44728229ac0e1f3f55c087.jpeg)
 
-Now that you're interested, we look forward to seeing you in the Minedows 98 family!
+Now that you're interested, we look forward to seeing you in the Minedows 2000 family!
 
 With love,   
 Clovisoft Corp.!

@@ -12,6 +12,7 @@ import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class WindowsVersion extends Screen {
     int pos = 0;
     long lastChange = System.currentTimeMillis();
     String[] testers = {
-           "Kel_Caffeine",
+           "Kel_Cleverov",
            "GRUI_72",
             "Statuxia",
             "SeF0rt",
@@ -36,12 +37,13 @@ public class WindowsVersion extends Screen {
         super.extractRenderState(guiGraphics, i, j, f);
         int x = 5, y = 5;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "icon.png"), x, y, 0, 0, 50, 50, 50, 50);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/start/icons/clovi.png"), x+2, y+57, 0, 0, 46, 46, 46, 46);
         x = 60; y = 15;
         guiGraphics.text(font, Component.translatable("minedows.winver.title"), x, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+3;
         guiGraphics.text(font, Component.translatable("minedows.winver.name", FabricLoader.getInstance().getModContainer("minecraft").get().getMetadata().getVersion().getFriendlyString()), x, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+3;
-        guiGraphics.text(font, Component.translatable("minedows.winver.copyright"), x, y, WinColors.getTextColorWithMainColor(), false);
+        guiGraphics.text(font, Component.translatable("minedows.winver.copyright", LocalDate.now().getYear()), x, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+3;
         y+=3;
         int[] colors = WinColors.getHorizontalRuleColors();

@@ -3,5 +3,10 @@
     "sounds": [
       "windows:startup"
     ]
+  },
+  "windows_shutdown": {
+    "sounds": [
+      "windows:shutdown"
+    ]
   }
 }

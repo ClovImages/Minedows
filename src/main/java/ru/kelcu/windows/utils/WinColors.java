@@ -34,9 +34,17 @@ public class WinColors {
         // База контента - cbcbcb - 203
         // Право первая - 928f92 - 146
         // Право вторая 000808 - 8;
-        int[] colors = new int[5];
         ThemeManager.Theme theme = ThemeManager.getSelectedTheme();
         int mainColor = theme.mainColor();
+        return getWindowColors(mainColor);
+    }
+    public static int[] getWindowColors(int mainColor){
+        // Лева первая - e2e0e3 - 226
+        // Лева вторая - ffffff - 255
+        // База контента - cbcbcb - 203
+        // Право первая - 928f92 - 146
+        // Право вторая 000808 - 8;
+        int[] colors = new int[5];
         int r = ARGB.red(mainColor);
         int g = ARGB.green(mainColor);
         int b = ARGB.blue(mainColor);
@@ -85,7 +93,7 @@ public class WinColors {
     public static int getTextColorWithMainColor(){
         ThemeManager.Theme theme = ThemeManager.getSelectedTheme();
         int mainColor = theme.mainColor();
-        return isLightColor(mainColor) ? 0xFF000000 : 0xffF7F7F7;
+        return theme.isColoredFont() ? theme.fontColor() : isLightColor(mainColor) ? 0xFF000000 : 0xffF7F7F7;
     }
 
     public static boolean isLightColor(int rgb){

@@ -1,1 +1,12 @@
-- Updated kernel to 26.2
+- Updated kernel to 26.3
+- Updated Clovium
+  - Makes "fullscreen" mode with keybind F10
+  - Updates style
+  - Added support JavaScript dialogs
+- Changed default wallpapers and theme to Urban Environment theme
+- Added controls for pinned windows in ChatScreen.exe
+- Added new themes: Cattpuccin Mocha
+- Meow?
+- Added Theme Editor
+- Added style likes Windows 2000/XP
+- и много чего мне лень это всё писать сами почитайте коммиты

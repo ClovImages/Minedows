@@ -5,18 +5,27 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.sdl.SDL;
+import org.lwjgl.sdl.SDLDialog;
+import org.lwjgl.sdl.SDL_DialogFileCallbackI;
+import org.lwjgl.sdl.SDL_DialogFileFilter;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import org.lwjgl.system.MemoryUtil;
 import ru.kelcu.windows.Windows;
+import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.editbox.MultilineEditBoxBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.lwjgl.sdl.SDLError.SDL_GetError;
 import static ru.kelcu.windows.Windows.minedowsStyle;
 
 public class NotepadScreen extends Screen {
@@ -67,22 +76,54 @@ public class NotepadScreen extends Screen {
     public String lastValue = "";
     public void saveText() throws IOException {
         if(file == null) {
-            MemoryStack stack = MemoryStack.stackPush();
-            PointerBuffer filters = stack.mallocPointer(8);
-            filters.put(stack.UTF8("*.txt"));
-            filters.put(stack.UTF8("*.md"));
-
-            filters.flip();
+            // Никакого new Thread()! Вызов строго с главного потока
             File defaultPath = new File(System.getProperty("user.home")).getAbsoluteFile();
             String defaultString = defaultPath.getAbsolutePath();
             if (defaultPath.isDirectory() && !defaultString.endsWith(File.separator)) {
                 defaultString += File.separator;
             }
 
-            String result = TinyFileDialogs.tinyfd_saveFileDialog(Component.translatable("minedows.notepad.save").getString(), defaultString, filters, Component.translatable("minedows.notepad.save.filter_description").getString());
-            if (result == null) return;
-            file = Path.of(result);
+            SDL_DialogFileFilter.Buffer filters = SDL_DialogFileFilter.calloc(1);
+            ByteBuffer filterName = MemoryUtil.memASCII(
+                    Component.translatable("minedows.notepad.save.filter_description").getString());
+            ByteBuffer filterPattern = MemoryUtil.memASCII("txt;md");
+            filters.get(0).name(filterName).pattern(filterPattern);
+
+            SDL_DialogFileCallbackI pendingFileDialog = (userdata, filelist, filter) -> {
+                try {
+                    if (filelist == MemoryUtil.NULL) {
+                        // Вот здесь и живёт твоя «пустая» причина — читаем её
+                        AlinLib.LOG.error("SDL file dialog failed: {}", SDL_GetError());
+                        minecraft.execute(() -> {
+                            // покажешь пользователю тост об ошибке, если хочешь
+                        });
+                        return;
+                    }
+
+                    List<String> picked = new ArrayList<>();
+                    for (long p = filelist; p != 0L; p += PointerBuffer.POINTER_SIZE) {
+                        long s = MemoryUtil.memGetAddress(p);
+                        if (s == MemoryUtil.NULL) break;
+                        picked.add(MemoryUtil.memUTF8(s));
+                    }
+                    if (picked.isEmpty()) {
+                        AlinLib.LOG.log("Dialog cancelled by user");
+                        return;
+                    }
+
+                    String path = picked.get(0);
+                    file = new File(path).toPath();
+                } finally {
+                    filters.free();
+                    MemoryUtil.memFree(filterName);
+                    MemoryUtil.memFree(filterPattern);
+                }
+            };
+
+            // 0 вместо указателя окна — на время диагностики
+            SDLDialog.SDL_ShowSaveFileDialog(pendingFileDialog, 0L, 0L, filters, defaultString);
         }
+        if(file == null) return;
         Files.createDirectories(file.getParent());
         Files.writeString(file, value, StandardCharsets.UTF_8);
         lastValue = value;

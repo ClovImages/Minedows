@@ -1,15 +1,12 @@
 classTweaker  v1  official
 accessible method net/minecraft/client/gui/components/AbstractSliderButton setValue (D)V
 accessible field net/minecraft/client/gui/components/EditBox font Lnet/minecraft/client/gui/Font;
-accessible field net/minecraft/client/gui/components/EditBox formatter Ljava/util/function/BiFunction;
 accessible field net/minecraft/client/gui/components/EditBox displayPos I
 accessible field net/minecraft/client/gui/components/AbstractScrollArea scrollAmount D
 accessible field net/minecraft/client/gui/screens/multiplayer/ServerSelectionList SCANNING_LABEL Lnet/minecraft/network/chat/Component;
 accessible method net/minecraft/client/gui/screens/Screen rebuildWidgets ()V
 accessible class net/minecraft/client/gui/Hud$ContextualInfo
-accessible field net/minecraft/client/gui/GuiGraphics deferredOutlines Ljava/util/List;
-accessible field net/minecraft/client/gui/GuiGraphics deferredTooltip Ljava/lang/Runnable;
-accessible class net/minecraft/client/gui/GuiGraphics$OutlineBox
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor deferredTooltip Ljava/lang/Runnable;
 accessible method net/minecraft/client/gui/GuiGraphicsExtractor componentHoverEffect (Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Style;II)V
+accessible field net/minecraft/client/gui/GuiGraphicsExtractor pendingCursor Lcom/mojang/blaze3d/platform/cursor/CursorType;

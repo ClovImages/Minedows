@@ -1,13 +1,10 @@
 package ru.kelcu.windows.mixin.mcef;
 
-import net.fabricmc.loader.api.FabricLoader;
 import org.cef.CefClient;
 import org.cef.CefSettings;
 import org.cef.browser.CefBrowser;
 import org.cef.browser.CefFrame;
-import org.cef.callback.CefBeforeDownloadCallback;
-import org.cef.callback.CefDownloadItem;
-import org.cef.callback.CefDownloadItemCallback;
+import org.cef.handler.CefLoadHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Unique;
@@ -18,7 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Window;
 import ru.kelcu.windows.screens.DesktopScreen;
-import ru.kelcu.windows.screens.apps.BrowserScreen;
+import ru.kelcu.windows.screens.apps.browser.BrowserScreen;
+import ru.kelcuprum.alinlib.AlinLib;
 
 @Pseudo
 @Mixin(CefClient.class)
@@ -26,7 +24,10 @@ public class CefClientMixin {
     @Inject(at = @At("HEAD"), method = "onAddressChange", remap = false)
     public void onAddressChange(CefBrowser browser, CefFrame frame, String url, CallbackInfo ci) {
         Window window = getWindowByBrowser(browser);
-        if(window != null) ((BrowserScreen) window.screen).editBox.setValue(url);
+        if(window != null) {
+            ((BrowserScreen) window.screen).editBox.setValue(url);
+            ((BrowserScreen) window.screen).errorPage = null;
+        }
 //        if (url != null && !(browser instanceof BrowserTabIcon) && (browser instanceof BrowserImpl)) {
 //            BrowserUtil.onUrlChange();
 //        }
@@ -38,9 +39,38 @@ public class CefClientMixin {
         Window window = getWindowByBrowser(browser);
         if(window != null) ((BrowserScreen) window.screen).tooltipHell = text;
     }
+    @Inject(at = @At("HEAD"), method = "onStatusMessage", remap = false)
+    public void onStatusMessage(CefBrowser browser, String value, CallbackInfo ci) {
+        Window window = getWindowByBrowser(browser);
+        if(window != null) ((BrowserScreen) window.screen).statusHell = value;
+    }
+
+    @Inject(at = @At("HEAD"), method = "onLoadError", remap = false)
+    public void onLoadError(CefBrowser browser, CefFrame frame, CefLoadHandler.ErrorCode errorCode, String errorText, String failedUrl, CallbackInfo ci) {
+        Window window = getWindowByBrowser(browser);
+        if(window != null) {
+            if(((BrowserScreen) window.screen).browser != null && ((BrowserScreen) window.screen).browser.getURL().equals(failedUrl)) {
+                ((BrowserScreen) window.screen).errorPage = new BrowserScreen.ErrorPage(errorCode, errorText, failedUrl);
+            }
+        }
+    }
+//    @Inject(at = @At("HEAD"), method = "onLoadEnd", remap = false)
+//    public void onLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode, CallbackInfo ci) {
+//        Window window = getWindowByBrowser(browser);
+//        if(window != null) ((BrowserScreen) window.screen).errorPage = null;
+//    }
 
     @Inject(at = @At("HEAD"), method = "onConsoleMessage", remap = false, cancellable = true)
     public void onLoadingStateChange(CefBrowser browser, CefSettings.LogSeverity level, String message, String source, int line, CallbackInfoReturnable<Boolean> cir) {
+        if(browser.getURL().contains("https://clovi.art") || browser.getURL().contains("https://clovi.ru") || browser.getURL().contains("http://localhost:3000")){
+            String url = browser.getURL();
+            if(url.endsWith("/auth/minecraft")){
+                if(message.equals("please give me access token")){
+                    BrowserScreen.waitAccessToken = true;
+                }
+            }
+            AlinLib.LOG.log(String.format("%s -> %s", source, message));
+        }
         if(!Windows.config.getBoolean("BROWSER.LOGS_ENABLES", false))// && !FabricLoader.getInstance().isDevelopmentEnvironment())
             cir.setReturnValue(false);
 //        BrowserUtil.instance.updateWidgets();

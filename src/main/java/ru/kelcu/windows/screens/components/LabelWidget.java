@@ -1,6 +1,7 @@
 package ru.kelcu.windows.screens.components;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -14,7 +15,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.util.FormattedCharSequence;
-import org.lwjgl.glfw.GLFW;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.screens.DesktopScreen;
@@ -143,11 +143,7 @@ public class LabelWidget extends AbstractWidget {
             Windows.config.setJsonObject(id, config.toJSON());
         }
         super.onDrag(
-                //#if MC < 12110
-                //$$d, e, f, g
-                //#else
                 mouseButtonEvent, f, g
-                //#endif
         );
     }
 
@@ -190,10 +186,10 @@ public class LabelWidget extends AbstractWidget {
     //#else
     public boolean keyPressed(KeyEvent keyEvent) {
         int i = keyEvent.key();
-        int j = keyEvent.scancode();
+        int j = keyEvent.keycode();
         int k = keyEvent.modifiers();
         //#endif
-        if(i == GLFW.GLFW_KEY_DELETE && !id.isEmpty() && config != null && Windows.config.getBoolean("LABEL.CUSTOM_POS", false)){
+        if(i == InputConstants.KEY_DELETE && !id.isEmpty() && config != null && Windows.config.getBoolean("LABEL.CUSTOM_POS", false)){
             config = new Config(new JsonObject());
             Windows.config.setJsonObject(id, config.toJSON());
             setPosition(xD, yD);

@@ -27,10 +27,13 @@ public class WindowUtils {
     public static void renderPanel(GuiGraphicsExtractor guiGraphics, int x, int y, int x1, int y1){
         renderPanel(guiGraphics, x, y, x1, y1, false);
     }
+
     public static void renderPanel(GuiGraphicsExtractor guiGraphics, int x, int y, int x1, int y1, boolean active){
+        renderPanel(guiGraphics, x, y, x1, y1, active, active ? WinColors.getActiveWindowColors() : WinColors.getWindowColors());
+    }
+    public static void renderPanel(GuiGraphicsExtractor guiGraphics, int x, int y, int x1, int y1, boolean active, int[] colors){
         int width = x1-x;
         int height = y1-y;
-        int[] colors = active ? WinColors.getActiveWindowColors() : WinColors.getWindowColors();
         guiGraphics.fill(x, y, x + width, y + height, colors[0]); // L
         guiGraphics.fill(x + 1, y + 1, x + width, y + height, colors[4]); // R
         guiGraphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, colors[1]); // L
@@ -38,9 +41,11 @@ public class WindowUtils {
         guiGraphics.fill(x + 2, y + 2, x + width - 2, y + height - 2, colors[2]); // C
     }
     public static void renderRevertPanel(GuiGraphicsExtractor guiGraphics, int x, int y, int x1, int y1){
+        renderRevertPanel(guiGraphics, x, y, x1, y1, WinColors.getWindowColors());
+    }
+    public static void renderRevertPanel(GuiGraphicsExtractor guiGraphics, int x, int y, int x1, int y1, int[] colors){
         int width = x1-x;
         int height = y1-y;
-        int[] colors = WinColors.getWindowColors();
         guiGraphics.fill(x, y, x + width, y + height, colors[3]); // L
         guiGraphics.fill(x + 1, y + 1, x + width, y + height, colors[1]); // R
         guiGraphics.fill(x + 1, y + 1, x + width - 1, y + height - 1, colors[4]); // L

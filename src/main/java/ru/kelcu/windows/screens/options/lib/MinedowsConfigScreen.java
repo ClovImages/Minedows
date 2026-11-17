@@ -10,7 +10,7 @@ import ru.kelcuprum.alinlib.gui.screens.ConfigScreenBuilder;
 public class MinedowsConfigScreen {
     public static Screen build(Screen parent){
         ConfigScreenBuilder builder = new ConfigScreenBuilder(parent);
-        builder.setTitle(Component.literal("Minedows 98"));
+        builder.setTitle(Component.literal("Minedows 2000"));
         builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.config.custom_lables_pos"), false).setConfig(Windows.config, "LABEL.CUSTOM_POS"));
         return builder.build();
     }

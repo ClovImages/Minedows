@@ -8,6 +8,9 @@ apply plugin: 'com.modrinth.minotaur'
 def mod_brand = 'fabric'
 archives_base_name = (project.archives_base_name == null ? rootProject.archives_base_name : project.archives_base_name)
 group = rootProject.maven_group
+base {
+    archivesName = (project.archives_base_name == null ? rootProject.archives_base_name : project.archives_base_name);
+}
 
 int mcVersion = 1
 preprocess {
@@ -56,7 +59,7 @@ dependencies {
     if (mod_brand == 'fabric') {
         implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
         implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-        implementation "de.keksuccino:mcef-fabric:${project.mcef_keksuccino}"
+        implementation "maven.modrinth:bQhBuv7x:${project.mcef_keksuccino}"
         implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
         compileOnly("maven.modrinth:flashback:${project.flashback_version}")
         implementation "ru.kelcuprum:AlinLib-fabric:${rootProject.alinlib}+mc${project.alinlib_minecraft_version == null ? project.minecraft_version : project.alinlib_minecraft_version}"

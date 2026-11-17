@@ -54,6 +54,6 @@ public abstract class ScreenMixin {
     @Inject(method = "extractPanorama", at=@At("HEAD"), cancellable = true)
     public void renderPanorama(GuiGraphicsExtractor guiGraphics, float f, CallbackInfo ci){
         if(!((Screen) (Object) this instanceof DesktopScreen) && AlinLib.MINECRAFT.gui.screen() instanceof DesktopScreen) ci.cancel();
-        if((Minecraft.getInstance().gui.screen() instanceof DesktopScreen && Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() != 2) || DesktopScreen.currentRenderedWindow != null) ci.cancel();
+        if((Minecraft.getInstance().gui.screen() instanceof DesktopScreen && Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue() != 2) || DesktopScreen.currentRenderedWindow != null) ci.cancel();
     }
 }

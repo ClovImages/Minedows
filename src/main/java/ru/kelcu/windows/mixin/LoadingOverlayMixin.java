@@ -21,6 +21,8 @@ import ru.kelcu.windows.utils.WallpaperUtil;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -105,8 +107,8 @@ public class LoadingOverlayMixin {
             int x = 0;
             int y = 0;
             double scale;
-            int www = 1472;
-            int whh = 1024;
+            int www = 980;
+            int whh = 785;
             scale = (double) www / guiGraphics.guiWidth();
             int ww = (int) (www / scale);
             int wh = (int) (whh / scale);
@@ -117,15 +119,45 @@ public class LoadingOverlayMixin {
             }
             x = (ww-guiGraphics.guiWidth()) / 2;
             y = (wh-guiGraphics.guiHeight()) / 2;
-            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/background.png"), 0, 0, x, y, ww, wh, ww, wh);
-            guiGraphics.fill(0, guiGraphics.guiHeight()-15, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0xFFF0F0F0);
+            guiGraphics.fill(0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0xFFFFFFFF);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/corp.png"), guiGraphics.guiWidth()-70, 5, 0, 0, 65, 12, 65, 12);
+//            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/background.png"), 0, 0, x, y, ww, wh, ww, wh);
+            // ДЛЯ МЕНЯ
+            /*
+            - Бегущая хуетень - 10px
+            - Прогресс бар - 10px
+            - отступы бара - 10px
+            - копирайт - размер шрифта
+            - 10+10+30+9 - 49
+             */
+            // Анимационная штучка
+            guiGraphics.fill(0, guiGraphics.guiHeight()-49, guiGraphics.guiWidth(), guiGraphics.guiHeight()-39, 0xFF332252);
             int barPos = (int) ((guiGraphics.guiWidth()+180) * ((System.currentTimeMillis()%7500)/7500.0));
-            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/bar.png"), -180+barPos, guiGraphics.guiHeight()-15, 0, 0, 180, 15, 180, 15);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/bar.png"), -180+barPos, guiGraphics.guiHeight()-49, 0, 0, 180, 10, 180, 15);
+            guiGraphics.fill(0, guiGraphics.guiHeight()-39, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0xFFc0c0c0);
             int maxW = (int) Math.min(443, guiGraphics.guiHeight()*0.65);
             scale = maxW/443.0;
             int maxH = (int) (325*scale);
+            // - Прогресс
+            int hCube = 10;
+            int pCount = 16;
+            int wp = 10*pCount+(pCount-1);
+            String start = "Starting up...";
+            int xp = (guiGraphics.guiWidth()/2) - ((wp+2)/2) - 5 - (minecraft.font.width(start)/2);
+            guiGraphics.text(minecraft.font, start, xp, guiGraphics.guiHeight()-31+((10-minecraft.font.lineHeight)/2), 0xFF000000, false);
+            xp+= (5+minecraft.font.width(start));
+            guiGraphics.fill(xp-1, guiGraphics.guiHeight()-32, xp+1+wp, guiGraphics.guiHeight()-20, 0xFF8b8b8b);
+            guiGraphics.fill(xp, guiGraphics.guiHeight()-31, xp+1+wp, guiGraphics.guiHeight()-20, 0xFFfafafa);
+            guiGraphics.fill(xp, guiGraphics.guiHeight()-31, xp+wp, guiGraphics.guiHeight()-21, 0xFFc0c0c0);
+            int pP = (int) (pCount * currentProgress);
+            for(int i = 0; i <= pP; i++){
+                int xPro = xp+(hCube*i)+i;
+                guiGraphics.fill(xPro, guiGraphics.guiHeight()-31, xPro+hCube, guiGraphics.guiHeight()-(31-hCube), 0xFF00289c);
+            }
+            String copyr = String.format("Copyright © 2025-%s  Clovisoft Corporation", LocalDate.now().getYear());
+            guiGraphics.text(minecraft.font, copyr, (guiGraphics.guiWidth()/2)-(minecraft.font.width(copyr)/2), guiGraphics.guiHeight()-15, 0xFF000000, false);
 
-            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/logo.png"), (guiGraphics.guiWidth()/2)-(maxW/2), (guiGraphics.guiHeight()/2)-(maxH/2), 0,0, maxW, maxH, maxW, maxH);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/boot/logo.png"), (guiGraphics.guiWidth()/2)-(maxW/2), (guiGraphics.guiHeight()/2)-(maxH/2)-20, 0,0, maxW, maxH, maxW, maxH);
             // End
             if (f >= 2.0F) {
                 this.minecraft.gui.setOverlay(null);

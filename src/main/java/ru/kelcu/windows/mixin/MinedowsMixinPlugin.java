@@ -21,7 +21,7 @@ public class MinedowsMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if(mixinClassName.startsWith("ru.kelcu.windows.mixin.mcef") && !FabricLoader.getInstance().isModLoaded("mcef")){
+        if(mixinClassName.startsWith("ru.kelcu.windows.mixin.mcef") && !FabricLoader.getInstance().isModLoaded("rinku")){
             return false;
         }
         if(mixinClassName.startsWith("ru.kelcu.windows.mixin.lamb") && !FabricLoader.getInstance().isModLoaded("lambdynlights")){

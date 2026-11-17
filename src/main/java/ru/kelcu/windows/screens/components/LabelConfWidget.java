@@ -13,7 +13,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.util.FormattedCharSequence;
-import org.lwjgl.glfw.GLFW;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.screens.DesktopScreen;

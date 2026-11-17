@@ -12,6 +12,8 @@
   "minedows.browser.options.search.custom": "Request Address",
   "minedows.browser.options.other": "Other",
   "minedows.browser.options.home_page": "Home Page",
+  "minedows.browser.alert.confirm": "Confirm",
+  "minedows.browser.alert.cancel": "Cancel",
 
   "minedows.control": "Control Panel",
   "minedows.control.description": "Here you can do anything you want.",
@@ -49,8 +51,8 @@
 
 
   "minedows.winver.title": "Clovisoft Minedows",
-  "minedows.winver.name": "Minedows 98 (Build %s)",
-  "minedows.winver.copyright": "Copyright (C) 2025-2026 Clovisoft Corp.",
+  "minedows.winver.name": "Minedows 2000 (Build %s)",
+  "minedows.winver.copyright": "Copyright (C) 2025-%s Clovisoft Corp.",
   "minedows.winver.microsoft_icons": "Original icons belong to Microsoft Corp.",
   "minedows.winver.oneshot_startup_sound": "Launch sound is taken from OneShot: World Machine Edition.",
   "minedows.winver.clovi": "Mascot designer: Kinoma (t.me/itzkinoma)",
@@ -86,14 +88,15 @@
   "minedows.system_options.themes.theme": "Theme",
   "minedows.system_options.theme_color": "Custom Theme",
   "minedows.control.colors_tips": "The color format is specified in HEX and AlphaRedGreenBlue, for example: FFE1E1E1 - Gray",
-  "minedows.control.background.theme.color": "Main Window/Element Color",
-  "minedows.control.background.theme.active_color": "Active Element Color",
+  "minedows.control.colors": "Main colors",
+  "minedows.control.background.theme.color": "Main",
+  "minedows.control.background.theme.active_color": "Active",
   "minedows.control.start": "Start Menu",
-  "minedows.control.start.color_start": "Initial Color",
-  "minedows.control.start.color_end": "Final Color",
+  "minedows.control.start.color_start": "Initial",
+  "minedows.control.start.color_end": "Final",
   "minedows.control.title": "Title",
-  "minedows.control.title.color_start": "Initial Color",
-  "minedows.control.title.color_end": "Final Color",
+  "minedows.control.title.color_start": "Initial",
+  "minedows.control.title.color_end": "Final",
   "minedows.system_options.ui": "UI",
   "minedows.system_options.other.enable_new_ui": "Enable new Game UI",
   "minedows.system_options.other.death": "Enable redesign for Death Screen",
@@ -104,6 +107,7 @@
   "minedows.system_options.other.enable_pause_screen": "Enable Pause Screen",
   "minedows.system_options.other.open_pause_screen": "Open the Pause Window if the top configuration is turned off",
   "minedows.system_options.other.explorer.home_page": "Explorer Home Page",
+  "minedows.system_options.other.enable_classic_style": "Classic style",
 
   "minedows.sound_mixer": "Volume Mixer",
   "minedows.calc": "Calculator",
@@ -119,11 +123,17 @@
 
   "minedows.theme.default": "Default",
   "minedows.theme.dark": "Dark",
+  "minedows.theme.the_baltic": "The Baltic",
   "minedows.theme.city": "Urban environment",
   "minedows.theme.sky": "Sky",
+  "minedows.theme.catppuccin_mocha": "Catppuccin Mocha",
   "minedows.theme.user": "Custom Theme",
 
+  "minedows.themes.editor": "Theme editor",
+  "minedows.themes.editor.create": "Create theme",
+
   "minedows.wallpaper.city": "Urban environment",
+  "minedows.wallpaper.the_baltic": "The Baltic",
   "minedows.wallpaper.sky": "Sky",
   "minedows.wallpaper.bliss": "Bliss",
   "minedows.wallpaper.factory_town": "Factory town",
@@ -149,5 +159,10 @@
   "minedows.control.auto_run.description": "Here you can set up the autorun of your frequently used programs!",
   "minedows.control.auto_run.description.empty": "You can't set up autorun of your frequently used programs here! Since your place is empty",
 
-  "resourcePack.windows_sound": "Windows 98 Sounds"
+  "resourcePack.windows_sound": "Windows 98 Sounds",
+
+  "minedows.audio_player": "Minedows Media Player",
+  "minedows.audio_player.with_title": "%s - Minedows Media Player",
+  "minedows.audio_player.fake_title": "ЗОЖ",
+  "minedows.audio_player.fake_author": "Ленинград"
 }

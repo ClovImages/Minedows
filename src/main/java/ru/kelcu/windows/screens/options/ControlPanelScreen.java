@@ -15,6 +15,7 @@ import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.screens.components.LabelWidget;
 import ru.kelcu.windows.screens.info.WindowsVersion;
+import ru.kelcu.windows.screens.options.theme.ThemeEditorScreen;
 import ru.kelcu.windows.utils.ThemeManager;
 import ru.kelcu.windows.utils.WindowUtils;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
@@ -40,11 +41,12 @@ public class ControlPanelScreen extends Screen {
     }
     public void initLabels(){
         widgets = new ArrayList<>();
-        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.minecraft"), GuiUtils.getResourceLocation("windows","textures/start/icons/shutdown.png"), new WindowBuilder().setScreen(new OptionsScreen(null, Minecraft.getInstance().options, Minecraft.getInstance().level != null)))));
+        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.minecraft"), GuiUtils.getResourceLocation("windows","textures/start/icons/shutdown.png"), new WindowBuilder().setScreen(new OptionsScreen(null, Minecraft.getInstance().options)))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("alinlib"), GuiUtils.getResourceLocation("alinlib","icon.png"), new WindowBuilder().setScreen(DesignScreen.build(null)))));
-        if(FabricLoader.getInstance().isModLoaded("mcef")) widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.browser.options"), GuiUtils.getResourceLocation("windows","textures/browser/icon.png"), new WindowBuilder().setScreen(getBrowserOption()).setSize(450, 200))));
+        if(FabricLoader.getInstance().isModLoaded("rinku")) widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.browser.options"), GuiUtils.getResourceLocation("windows","textures/browser/icon.png"), new WindowBuilder().setScreen(getBrowserOption()).setSize(450, 200))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.system_options"), GuiUtils.getResourceLocation("windows","textures/start/icons/options.png"), new WindowBuilder().setScreen(getSystemOption()))));
-        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.background"), GuiUtils.getResourceLocation("windows","textures/start/icons/background.png"), new WindowBuilder().setScreen(new BackgroundSettings()).setSize(325, 320).setResizable(false).setButtons(1).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/background.png")))));
+        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.themes.editor"), GuiUtils.getResourceLocation("windows","textures/start/icons/themes.png"), new WindowBuilder().setScreen(new ThemeEditorScreen()).setSize(625, 375).setResizable(false).setIcon(GuiUtils.getResourceLocation("windows","textures/start/icons/themes.png")))));
+//        widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.background"), GuiUtils.getResourceLocation("windows","textures/start/icons/background.png"), new WindowBuilder().setScreen(new BackgroundSettings()).setSize(325, 320).setResizable(false).setButtons(1).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/background.png")))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.label"), GuiUtils.getResourceLocation("windows","textures/start/icons/empty.png"), new WindowBuilder().setScreen(new LabelsPanelScreen()).setSize(325, 320).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/empty.png")))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control.auto_run"), GuiUtils.getResourceLocation("windows","textures/start/icons/executable.png"), new WindowBuilder().setScreen(new AutoRunPanelScreen()).setSize(325, 320).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/executable.png")))));
         widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.about"), GuiUtils.getResourceLocation("windows", "textures/start/icons/500.png"), new WindowBuilder().setScreen(new WindowsVersion()).setSize(325, 220).setResizable(false).setButtons(1).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/500.png")))));
@@ -172,23 +174,26 @@ public class ControlPanelScreen extends Screen {
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.sounds")).setStyle(LabelsPanelScreen.nothingStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.sounds.disable_click_sound"), false).setConfig(Windows.config, "DISABLE_CLICK_SOUND").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.sounds.disable_error_sound"), false).setConfig(Windows.config, "DISABLE_ERROR_SOUND").setStyle(Windows.minedowsStyle))
-
-                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.themes")).setStyle(LabelsPanelScreen.nothingStyle))
-                .addWidget(new SelectorBuilder(Component.translatable("minedows.system_options.themes.theme")).setValue(ThemeManager.getThemePosition(ThemeManager.getSelectedTheme()))
-                        .setList(ThemeManager.getThemesNames()).setOnPress((s) -> {
-                            config.setString("THEME", ThemeManager.getThemesID()[s.getPosition()]);
-                        }).setStyle(Windows.minedowsStyle))
-                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.theme_color")).setStyle(LabelsPanelScreen.nothingStyle))
-                .addWidget(new TextBuilder(Component.translatable("minedows.control.colors_tips")).setType(TextBuilder.TYPE.BLOCKQUOTE).setStyle(Windows.minedowsStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.background.theme.color")).setColor(0xFFcbcbcb).setConfig(Windows.config, "THEME.MAIN_COLOR").setStyle(Windows.minedowsStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.background.theme.active_color")).setColor(0xFFAFC9D1).setConfig(Windows.config, "THEME.ACTIVE_COLOR").setStyle(Windows.minedowsStyle))
-                .addWidget(new TextBuilder(Component.translatable("minedows.control.start")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.start.color_start")).setColor(-14644786).setConfig(Windows.config, "START.GRADIENT.START").setStyle(Windows.minedowsStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.start.color_end")).setColor(-16777088).setConfig(Windows.config, "START.GRADIENT.END").setStyle(Windows.minedowsStyle))
-                .addWidget(new TextBuilder(Component.translatable("minedows.control.title")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_start")).setColor(-16777088).setConfig(Windows.config, "TITLE.GRADIENT.START").setStyle(Windows.minedowsStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_end")).setColor(-14644786).setConfig(Windows.config, "TITLE.GRADIENT.END").setStyle(Windows.minedowsStyle))
+                // TODO: LEGACY THEMES
+                // -=-=-=-=-
+//                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.themes")).setStyle(LabelsPanelScreen.nothingStyle))
+//                .addWidget(new SelectorBuilder(Component.translatable("minedows.system_options.themes.theme")).setValue(ThemeManager.getThemePosition(ThemeManager.getSelectedTheme()))
+//                        .setList(ThemeManager.getThemesNames()).setOnPress((s) -> {
+//                            config.setString("THEME", ThemeManager.getThemesID()[s.getPosition()]);
+//                        }).setStyle(Windows.minedowsStyle))
+//                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.theme_color")).setStyle(LabelsPanelScreen.nothingStyle))
+//                .addWidget(new TextBuilder(Component.translatable("minedows.control.colors_tips")).setType(TextBuilder.TYPE.BLOCKQUOTE).setStyle(Windows.minedowsStyle))
+//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.background.theme.color")).setColor(0xFFcbcbcb).setConfig(Windows.config, "THEME.MAIN_COLOR").setStyle(Windows.minedowsStyle))
+//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.background.theme.active_color")).setColor(0xFFAFC9D1).setConfig(Windows.config, "THEME.ACTIVE_COLOR").setStyle(Windows.minedowsStyle))
+//                .addWidget(new TextBuilder(Component.translatable("minedows.control.start")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
+//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.start.color_start")).setColor(-14644786).setConfig(Windows.config, "START.GRADIENT.START").setStyle(Windows.minedowsStyle))
+//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.start.color_end")).setColor(-16777088).setConfig(Windows.config, "START.GRADIENT.END").setStyle(Windows.minedowsStyle))
+//                .addWidget(new TextBuilder(Component.translatable("minedows.control.title")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
+//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_start")).setColor(-16777088).setConfig(Windows.config, "TITLE.GRADIENT.START").setStyle(Windows.minedowsStyle))
+//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_end")).setColor(-14644786).setConfig(Windows.config, "TITLE.GRADIENT.END").setStyle(Windows.minedowsStyle))
+                // -=-=-=-=-
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.ui")).setStyle(LabelsPanelScreen.nothingStyle))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_classic_style"), false).setConfig(Windows.config, "ENABLE_CLASSIC_STYLE").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_new_ui"), false).setConfig(Windows.config, "ENABLE_NEW_UI").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.death"), true).setConfig(Windows.config, "DEATH").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.death.hardcore"), true).setConfig(Windows.config, "DEATH.HARDCORE").setStyle(Windows.minedowsStyle))

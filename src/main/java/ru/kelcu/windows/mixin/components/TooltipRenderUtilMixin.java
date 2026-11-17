@@ -1,6 +1,7 @@
 package ru.kelcu.windows.mixin.components;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
 import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +16,7 @@ import ru.kelcuprum.alinlib.AlinLib;
 public class TooltipRenderUtilMixin {
     @Inject(method = "extractTooltipBackground", at=@At("HEAD"), cancellable = true)
     private static void renderTooltipBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, Identifier sprite, CallbackInfo ci){
-        if(AlinLib.MINECRAFT.gui.screen() instanceof DesktopScreen) {
+        if(AlinLib.MINECRAFT.gui.screen() instanceof DesktopScreen || AlinLib.MINECRAFT.gui.screen() instanceof ChatScreen) {
             x -= 5;
             y -= 5;
             width += 10;

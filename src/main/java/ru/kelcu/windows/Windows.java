@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -57,8 +58,9 @@ public class Windows implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register((s) -> {
             WallpaperUtil.registerDefaultWallpapers();
             ThemeManager.registerDefaultThemes();
+            ThemeManager.loadThemesFromFolder();
             try {
-                String file = Windows.config.getString("WALLPAPER.FILE", "");
+                String file = Windows.config.getString("WALLPAPER.FILE", "city");
                 if(!file.isEmpty()) {
                     if(file.equals("fluffy_forever")) WallpaperUtil.fluffy();
                     else if(WallpaperUtil.getWallpaperData(file) != null) WallpaperUtil.loadWallpaper(WallpaperUtil.getWallpaperData(file));
@@ -77,6 +79,7 @@ public class Windows implements ClientModInitializer {
 //        ModManager.registerModAction(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"))), true);
         });
         GuiRenderEvents.RENDER.register((guiGraphics, tick) -> {
+            if(AlinLib.MINECRAFT.gui.screen() instanceof ChatScreen) return;
             for(Window window : DesktopScreen.windows){
                 if(window.pinned && window.visible){
                     DesktopScreen.renderWindow(guiGraphics, window, guiGraphics.guiWidth()/2, guiGraphics.guiHeight()/2, tick);
@@ -94,7 +97,7 @@ public class Windows implements ClientModInitializer {
             perlinNoises = new Thread(() -> {
                 while (perlinLoop) {
                         try {
-                            if(config.getNumber("WALLPAPER.TYPE", 0).intValue() == 1 && AlinLib.MINECRAFT.level == null) {
+                            if(config.getNumber("WALLPAPER.TYPE", 3).intValue() == 1 && AlinLib.MINECRAFT.level == null) {
                                 generatePerlin(AlinLib.MINECRAFT.gui.screen().width / 2, AlinLib.MINECRAFT.gui.screen().height / 2);
                                 xPerlin++;
                             } else sleep(500);
@@ -123,11 +126,18 @@ public class Windows implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STOPPING.register((s) -> {
             perlinLoop = false;
             if (perlinNoises != null) perlinNoises.interrupt();
+            if(s.gui.screen() instanceof DesktopScreen) {
+                isStoppedShitGame = true;
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvent.createVariableRangeEvent(Identifier.fromNamespaceAndPath("windows", "windows_shutdown")), 1.0F));
+                long t = System.currentTimeMillis() + 2500;
+                while(System.currentTimeMillis() < t){} // не задавайте лишних вопросов, я типо умни
+            }
         });
         OverlayHandler hud = new OverlayHandler();
         ScreenEvents.SCREEN_RENDER.register(hud);
         GuiRenderEvents.RENDER.register(hud);
     }
+    public static boolean isStoppedShitGame = false;
 
     public static void executeAction(Action action){
         switch (action.type){

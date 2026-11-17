@@ -1,5 +1,6 @@
 package ru.kelcu.windows.mixin.screens;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -14,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,7 +38,8 @@ public abstract class DeathScreenMixin extends Screen {
     @Final
     private boolean hardcore;
 
-    @Shadow private Component deathScore;
+    @Unique
+    private Component deathScore;
 
     @Shadow protected abstract void handleExitToTitleScreen();
 
@@ -88,7 +89,7 @@ public abstract class DeathScreenMixin extends Screen {
     }
     @Unique
     public boolean isDisabled(){
-        return !Windows.config.getBoolean("DEATH", true);
+        return !Windows.config.getBoolean("DEATH", true) || !(minecraft.gui.screen() instanceof DesktopScreen);
     }
 
     @Override
@@ -97,7 +98,7 @@ public abstract class DeathScreenMixin extends Screen {
     //#else
     public boolean keyPressed(KeyEvent keyEvent) {
         int i = keyEvent.key();
-        int j = keyEvent.scancode();
+        int j = keyEvent.keycode();
         int k = keyEvent.modifiers();
         //#endif
         if(isDisabled()) return super.keyPressed(
@@ -108,8 +109,8 @@ public abstract class DeathScreenMixin extends Screen {
                 //#endif
         );
         if(isNiko()){
-            if(i == GLFW.GLFW_KEY_S) this.minecraft.player.respawn();
-            else if(i == GLFW.GLFW_KEY_T)
+            if(i == InputConstants.KEY_S) this.minecraft.player.respawn();
+            else if(i == InputConstants.KEY_T)
                 //#if MC < 12110
                 //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
                 //#else

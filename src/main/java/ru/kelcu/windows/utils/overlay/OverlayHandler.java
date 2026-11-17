@@ -1,12 +1,10 @@
 package ru.kelcu.windows.utils.overlay;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
-import org.lwjgl.openal.AL;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.screens.DesktopScreen;
 import ru.kelcuprum.alinlib.AlinLib;
@@ -15,13 +13,12 @@ import ru.kelcuprum.alinlib.api.events.client.GuiRenderEvents;
 import ru.kelcuprum.alinlib.info.Player;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class OverlayHandler implements GuiRenderEvents, ScreenEvents.ScreenRender {
     public void render(GuiGraphicsExtractor guiGraphics) {
         boolean activateWindows = (!Player.isLicenseAccount() && !FabricLoader.getInstance().isDevelopmentEnvironment()) || Windows.config.getBoolean("ALWAYS_ACTIVATE_MINECRAFT", false);
         if(!activateWindows) return;
-        int width = Math.min(150, Math.max(AlinLib.MINECRAFT.font.width(Component.translatable("minedows.activate.description")), AlinLib.MINECRAFT.font.width(Component.translatable("minedows.activate"))));
+        int width = Math.clamp(AlinLib.MINECRAFT.font.width(Component.translatable("minedows.activate.description")), AlinLib.MINECRAFT.font.width(Component.translatable("minedows.activate")), 150);
         ArrayList<FormattedCharSequence> list = new ArrayList<>();
         list.addAll(AlinLib.MINECRAFT.font.split(Component.translatable("minedows.activate"), width));
         list.addAll(AlinLib.MINECRAFT.font.split(Component.translatable("minedows.activate.description"), width));

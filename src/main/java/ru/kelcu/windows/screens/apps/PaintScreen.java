@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.apps;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -15,12 +16,12 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
+import org.bytedeco.javacv.FrameFilter;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
-import ru.kelcu.windows.Windows;
+import org.lwjgl.sdl.SDLDialog;
+import org.lwjgl.sdl.SDL_DialogFileCallbackI;
+import org.lwjgl.sdl.SDL_DialogFileFilter;
+import org.lwjgl.system.MemoryUtil;
 import ru.kelcu.windows.screens.components.alinlib.EditBox;
 import ru.kelcu.windows.screens.components.VerticalConfigureScrolWidget;
 import ru.kelcu.windows.screens.options.style.AirStyle;
@@ -39,6 +40,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.lwjgl.sdl.SDLError.SDL_GetError;
 import static ru.kelcu.windows.Windows.minedowsStyle;
 
 public class PaintScreen extends Screen {
@@ -259,24 +262,50 @@ public class PaintScreen extends Screen {
     }
 
     public void savePaint() throws IOException {
-        MemoryStack stack = MemoryStack.stackPush();
-        PointerBuffer filters = stack.mallocPointer(8);
-        filters.put(stack.UTF8("*.png"));
-
-        filters.flip();
         File defaultPath = new File(System.getProperty("user.home")).getAbsoluteFile();
         String defaultString = defaultPath.getAbsolutePath();
-        if(defaultPath.isDirectory() && !defaultString.endsWith(File.separator)){
+        if (defaultPath.isDirectory() && !defaultString.endsWith(File.separator)) {
             defaultString += File.separator;
         }
+        SDL_DialogFileFilter.Buffer filters = SDL_DialogFileFilter.calloc(1);
+        ByteBuffer filterName = MemoryUtil.memASCII(
+                Component.translatable("minedows.notepad.save.filter_description").getString());
+        ByteBuffer filterPattern = MemoryUtil.memASCII("png");
+        filters.get(0).name(filterName).pattern(filterPattern);
 
-        String result = TinyFileDialogs.tinyfd_saveFileDialog(Component.translatable("minedows.control.background.save").getString(), defaultString, filters, Component.translatable("minedows.control.background.select.filter_description").getString());
-        if(result == null) return;
-        Path path = Path.of(result);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
-        Files.createDirectories(path.getParent());
-        Files.write(path, byteArrayOutputStream.toByteArray());
+        SDL_DialogFileCallbackI pendingFileDialog = (userdata, filelist, filter) -> {
+            try {
+                if (filelist == MemoryUtil.NULL) {
+                    AlinLib.LOG.error("SDL file dialog failed: {}", SDL_GetError());
+                    return;
+                }
+
+                List<String> picked = new ArrayList<>();
+                for (long p = filelist; p != 0L; p += PointerBuffer.POINTER_SIZE) {
+                    long s = MemoryUtil.memGetAddress(p);
+                    if (s == MemoryUtil.NULL) break;
+                    picked.add(MemoryUtil.memUTF8(s));
+                }
+                if (picked.isEmpty()) {
+                    AlinLib.LOG.log("Dialog cancelled by user");
+                    return;
+                }
+
+                String pathh = picked.get(0);
+                Path path = new File(pathh).toPath();
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "png", byteArrayOutputStream);
+                Files.createDirectories(path.getParent());
+                Files.write(path, byteArrayOutputStream.toByteArray());
+            } catch(Exception exception) {
+                exception.printStackTrace();
+            } finally {
+                filters.free();
+                MemoryUtil.memFree(filterName);
+                MemoryUtil.memFree(filterPattern);
+            }
+        };
+        SDLDialog.SDL_ShowSaveFileDialog(pendingFileDialog, 0L, 0L, filters, defaultString);
     }
 
     public void resize(){
@@ -427,7 +456,7 @@ public class PaintScreen extends Screen {
     public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
         int i = mouseButtonEvent.button();
         //#endif
-        if(i == 0 && isPainting){
+        if(i == InputConstants.MOUSE_BUTTON_LEFT && isPainting){
             isPainting = false;
         }
         return super.mouseReleased(
@@ -553,8 +582,8 @@ public class PaintScreen extends Screen {
     ) {
         int i = keyEvent.key();
         //#endif
-        if(i == GLFW.GLFW_KEY_DELETE) reset();
-        else if(i == GLFW.GLFW_KEY_Z &&
+        if(i == InputConstants.KEY_DELETE) reset();
+        else if(i == InputConstants.KEY_Z &&
                 //#if MC >= 12110
                 keyEvent.
         //#endif

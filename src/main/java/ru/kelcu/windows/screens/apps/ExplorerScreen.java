@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.apps;
 
+import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -14,7 +15,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Util;
-import org.lwjgl.glfw.GLFW;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.screens.components.LabelWidget;
@@ -141,11 +141,11 @@ public class ExplorerScreen extends Screen {
     //#else
     public boolean keyPressed(KeyEvent keyEvent) {
         int keyCode = keyEvent.key();
-        int scanCode = keyEvent.scancode();
+        int scanCode = keyEvent.keycode();
         int modifiers = keyEvent.modifiers();
         //#endif
         if (editBox.isFocused()) {
-            if (keyCode == GLFW.GLFW_KEY_ENTER) {
+            if (keyEvent.isSelection()) {
                 changePath(editBox.getValue());
                 setFocused(false);
                 setFocused(null);
@@ -174,12 +174,12 @@ public class ExplorerScreen extends Screen {
             if(file.exists()){
                 if(file.isDirectory()){
                     if(file.listFiles() == null) {
-                        Util.getPlatform().openPath(file.toPath());
+                        Blaze3D.openPath(file.toPath());
                         minecraft.gui.setScreen(null);
                     } else {
                         ArrayList<File> files = new ArrayList<>();
-                        for(File f : file.listFiles()) if(f.isDirectory()) files.add(f);
-                        for(File f : file.listFiles()) if(!f.isDirectory()) files.add(f);
+                        for(File f : file.listFiles()) if(f.isDirectory() && !f.isHidden() && f.canRead()) files.add(f);
+                        for(File f : file.listFiles()) if(!f.isDirectory() && !f.isHidden() && f.canRead()) files.add(f);
                         for(File f : files){
                             if(f.getName().startsWith(".") && !Windows.config.getBoolean("EXPLORER.VIEW_HIDDEN_FILES", false)) continue;
                             if(f.isDirectory()) widgets.add(new LabelWidget(-50, 0, 40, new Action(() ->
@@ -191,20 +191,20 @@ public class ExplorerScreen extends Screen {
                                 switch (type){
                                     case "text" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(Action.Type.OPEN_SCREEN
                                             , Component.literal(f.getName()), GuiUtils.getResourceLocation("windows", "textures/start/icons/txt.png"), new NotepadScreen(f.toPath()))));
-                                    case "video", "audio" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Util.getPlatform().openFile(f)
+                                    case "video", "audio" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Blaze3D.openPath(f.toPath())
                                             , Component.literal(f.getName()), GuiUtils.getResourceLocation("windows", "textures/start/icons/video.png"))));
-                                    case "image" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Util.getPlatform().openFile(f)
+                                    case "image" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Blaze3D.openPath(f.toPath())
                                             , Component.literal(f.getName()), GuiUtils.getResourceLocation("windows", "textures/start/icons/image.png"))));
-                                    case "exe" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Util.getPlatform().openFile(f)
+                                    case "exe" -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Blaze3D.openPath(f.toPath())
                                             , Component.literal(f.getName()), GuiUtils.getResourceLocation("windows", "textures/start/icons/executable.png"))));
-                                    default -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Util.getPlatform().openFile(f)
+                                    default -> widgets.add(new LabelWidget(-50, 0, 40, new Action(() -> Blaze3D.openPath(f.toPath())
                                             , Component.literal(f.getName()), GuiUtils.getResourceLocation("windows", "textures/start/icons/file.png"))));
                                 }
                             }
                         }
                     }
                 } else {
-                    Util.getPlatform().openFile(file);
+                    Blaze3D.openPath(file.toPath());
                     minecraft.gui.setScreen(null);
                 }
             } else minecraft.gui.setScreen(null);

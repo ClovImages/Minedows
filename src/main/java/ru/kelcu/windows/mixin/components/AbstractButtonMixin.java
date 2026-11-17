@@ -5,6 +5,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -36,11 +37,11 @@ public abstract class AbstractButtonMixin extends AbstractWidget {
 
     }
 
-    @Inject(method = "extractWidgetRenderState", at = @At("HEAD"), cancellable = true)
-    public void renderWidget(GuiGraphicsExtractor guiGraphics, int i, int j, float f, CallbackInfo ci) {
+    @Inject(method = "extractDefaultSprite", at = @At("HEAD"), cancellable = true)
+    public void renderWidget(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
         Windows.minedowsStyle.renderBackground$widget(guiGraphics, this.getX(), this.getY(), this.getWidth(), this.getHeight(), this.active, this.isHoveredOrFocused());
-        int k = this.active ? 16777215 : 10526880;
-        this.extractScrollingStringOverContents(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE), this.getMessage(), 2);
+//        int k = this.active ? 16777215 : 10526880;
+//        this.extractScrollingStringOverContents(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE), this.getMessage(), 2);
         ci.cancel();
     }
 }

@@ -38,13 +38,7 @@ public class FlashbackActions {
         int buttons = buttonsCount();
         if(buttons == 0) {
             actions.add(new Action(() -> {
-                List<String> incompatibleMods =
-                //#if MC < 12110
-                //$$Screen
-                //#else
-                AlinLib.MINECRAFT
-                //#endif
-                                .hasShiftDown() ? List.of() : Flashback.getReplayIncompatibleMods();
+                List<String> incompatibleMods = AlinLib.MINECRAFT.hasShiftDown() ? List.of() : Flashback.getReplayIncompatibleMods();
                 if (incompatibleMods.isEmpty()) {
                     AlinLib.MINECRAFT.gui.setScreen(new SelectReplayScreen(null));
                 } else {

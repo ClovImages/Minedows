@@ -1,10 +1,14 @@
 package ru.kelcu.windows.screens;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.cursor.CursorType;
+import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import com.mojang.realmsclient.RealmsMainScreen;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -28,7 +32,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
-import org.lwjgl.glfw.GLFW;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.components.Cursor;
@@ -37,6 +40,8 @@ import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.mods.FlashbackActions;
 import ru.kelcu.windows.mods.ModMenuActions;
 import ru.kelcu.windows.screens.apps.*;
+import ru.kelcu.windows.screens.apps.browser.BrowserScreen;
+import ru.kelcu.windows.screens.apps.for_arts.FakeAudioPlayerScreen;
 import ru.kelcu.windows.screens.components.LabelWidget;
 import ru.kelcu.windows.screens.components.VerticalConfigureScrolWidget;
 import ru.kelcu.windows.screens.options.ControlPanelScreen;
@@ -44,13 +49,14 @@ import ru.kelcu.windows.screens.options.SoundMixerScreen;
 import ru.kelcu.windows.utils.*;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.config.Config;
+import ru.kelcuprum.alinlib.gui.Colors;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 import ru.kelcuprum.alinlib.gui.toast.ToastBuilder;
 
 import java.nio.file.Path;
 import java.util.*;
 
-import static ru.kelcuprum.alinlib.gui.Colors.BLACK_ALPHA;
+import static ru.kelcuprum.alinlib.gui.Colors.*;
 import static ru.kelcuprum.alinlib.gui.GuiUtils.interpolate;
 
 public class DesktopScreen extends Screen {
@@ -187,7 +193,7 @@ public class DesktopScreen extends Screen {
         ArrayList<Action> apps = new ArrayList<>();
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
-        if(FabricLoader.getInstance().isModLoaded("mcef")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
+        if(FabricLoader.getInstance().isModLoaded("rinku")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.notepad"), GuiUtils.getResourceLocation("windows", "textures/start/icons/notepad.png"), new WindowBuilder().setSize(325, 240).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/notepad.png")).setScreen(new NotepadScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
@@ -201,6 +207,10 @@ public class DesktopScreen extends Screen {
 
     public static ArrayList<Window> taskbarWindow = new ArrayList<>();
     public static void addWindow(Window window){
+        for(Window sWindows : windows){
+            if(sWindows.x == window.x) window.x+=5;
+            if(sWindows.y== window.y) window.y+=5;
+        }
         if(window.visible && !windows.isEmpty()) {
             window.active = true;
             windows.getLast().active = false;
@@ -229,7 +239,7 @@ public class DesktopScreen extends Screen {
         // Background
         if(minecraft.level != null) super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
         else {
-            switch(Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue()){
+            switch(Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue()){
                 case 1 -> guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("minedows", "perlin"), 0, 0, 0, 0, width, height, width, height);
                 case 2 -> {
                     extractPanorama(guiGraphics, partialTick);
@@ -283,14 +293,14 @@ public class DesktopScreen extends Screen {
         ArrayList<Action> config = new ArrayList<>();
         config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.accessibility"), GuiUtils.getResourceLocation("windows", "textures/start/icons/accessibility.png"), new AccessibilityOptionsScreen(null, minecraft.options)));
         config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.language"), GuiUtils.getResourceLocation("windows", "textures/start/icons/language.png"), new LanguageSelectScreen(null, minecraft.options, minecraft.getLanguageManager())));
-        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.options"), GuiUtils.getResourceLocation("windows", "textures/start/icons/options.png"), new OptionsScreen(null, minecraft.options, Minecraft.getInstance().level != null)));
+        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.options"), GuiUtils.getResourceLocation("windows", "textures/start/icons/options.png"), new OptionsScreen(null, minecraft.options)));
         config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
         links.put("1", config);
         ArrayList<Action> title = new ArrayList<>();
         if(Minecraft.getInstance().level != null) {
             title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.stats"), GuiUtils.getResourceLocation("windows", "textures/start/icons/stats.png"), new StatsScreen(null, Minecraft.getInstance().player.getStats())));
             title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.advancements"), GuiUtils.getResourceLocation("windows", "textures/start/icons/advancements.png"), new AdvancementsScreen(Minecraft.getInstance().player.connection.getAdvancements(), null)));
-            if(this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished()) title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.shareToLan"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new MultiplayerOptionsScreen(null)));
+//            if(this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished()) title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.shareToLan"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new MultiplayerOptionsScreen(null)));
         } else {
             title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.online"), GuiUtils.getResourceLocation("windows", "textures/start/icons/realms.png"), new RealmsMainScreen(null)));
             title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("multiplayer.title"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new JoinMultiplayerScreen(null)));
@@ -304,12 +314,17 @@ public class DesktopScreen extends Screen {
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
-        if(FabricLoader.getInstance().isModLoaded("mcef")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
+        if(FabricLoader.getInstance().isModLoaded("rinku")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
         if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
             apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new DebugScreen()));
         }
         apps.addAll(ModManager.getActions(true));
         links.put("3", apps);
+        if(Windows.config.getBoolean("enable_art_programms", true)){
+            ArrayList<Action> art = new ArrayList<>();
+            art.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.audio_player"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new FakeAudioPlayerScreen()));
+            links.put("4", art);
+        }
         return links;
     }
 
@@ -343,7 +358,7 @@ public class DesktopScreen extends Screen {
             List<FormattedCharSequence> warning = font.split(warn, width/2);
             int yG = height-11-taskbarSize-(font.lineHeight*2);
             for(FormattedCharSequence w : warning) yG -= (3 + font.lineHeight);
-            String title = String.format("Minedows 98 v%s", FabricLoader.getInstance().getModContainer("minedows").get().getMetadata().getVersion().getFriendlyString());
+            String title = String.format("Minedows 2000 v%s", FabricLoader.getInstance().getModContainer("minedows").get().getMetadata().getVersion().getFriendlyString());
             String copy = "@Clovisoft";
             guiGraphics.text(font, title, width-5- font.width(title), yG, -1);
             yG+=(3+font.lineHeight);
@@ -353,6 +368,7 @@ public class DesktopScreen extends Screen {
             }
             guiGraphics.text(font, copy, width-5- font.width(copy), yG, -1);
         }
+        CursorType cursorType = null;
         // Window
         for(Renderable renderable : this.renderables) {
             renderable.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
@@ -366,18 +382,32 @@ public class DesktopScreen extends Screen {
             if(window.visible) renderWindow(guiGraphics, window, mouseX, mouseY, partialTick);
         }
         int textY = height - taskbarSize + 4 + ((taskbarSize - 4 - font.lineHeight) / 2);
+        if(!Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) textY-=1;
         // Panel
         int[] colors = WinColors.getWindowColors();
         int[] hcolors = WinColors.getHorizontalRuleColors();
-        guiGraphics.fill(0, height - (taskbarSize), width, height, colors[2]);
-        guiGraphics.fill(0, height - (taskbarSize), width, height - (taskbarSize-2), colors[0]);
-        guiGraphics.fill(0, height - (taskbarSize-1), width, height - (taskbarSize-2), colors[1]);
+        if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)){
+            guiGraphics.fill(0, height - (taskbarSize), width, height, colors[2]);
+            guiGraphics.fill(0, height - (taskbarSize), width, height - (taskbarSize-2), colors[0]);
+            guiGraphics.fill(0, height - (taskbarSize-1), width, height - (taskbarSize-2), colors[1]);
+        } else guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "taskbar"), width ,taskbarSize, 0, 0, 0, height-taskbarSize, width, taskbarSize, colors[2]);
         // -=-=-=- Left elements
 
-        if(2 < mouseX && mouseX < 2 + 8 + font.width(startComponent) && height-(taskbarSize-3) < mouseY && mouseY < height-1)
-            WindowUtils.renderRevertPanel(guiGraphics,2, height-(taskbarSize-3),  2 + 8 + font.width(startComponent), height - 1);
-        else WindowUtils.renderPanel(guiGraphics,2, height-(taskbarSize-3),  2 + 8 + font.width(startComponent), height - 1);
-        guiGraphics.text(font, startComponent, 6, textY, WinColors.getTextColorWithMainColor(), false);
+        if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            if (2 < mouseX && mouseX < 2 + 8 + (taskbarSize - 4) + font.width(startComponent) && height - (taskbarSize - 3) < mouseY && mouseY < height - 1) {
+                cursorType = CursorTypes.POINTING_HAND;
+                WindowUtils.renderRevertPanel(guiGraphics, 2, height - (taskbarSize - 3), 2 + 8 + (taskbarSize - 4) + font.width(startComponent), height - 1);
+            } else
+                WindowUtils.renderPanel(guiGraphics, 2, height - (taskbarSize - 3), 2 + 8 + (taskbarSize - 4) + font.width(startComponent), height - 1);
+
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "icon.png"), 7,  height-(taskbarSize-6), 0, 0, taskbarSize-10, taskbarSize-10, taskbarSize-10, taskbarSize-10);
+            guiGraphics.text(font, startComponent, (taskbarSize-4) + 6, textY, WinColors.getTextColorWithMainColor(), false);
+        } else {
+            int startSize = 2 + 8 + (taskbarSize - 4) + font.width(startComponent) + 8;
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "start_button"), startSize ,taskbarSize, 0, 0, 0, height-taskbarSize, startSize, taskbarSize);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "icon.png"), 6,  height-(taskbarSize-4), 0, 0, taskbarSize-8, taskbarSize-8, taskbarSize-8, taskbarSize-8);
+            guiGraphics.text(font, startComponent, (taskbarSize-4) + 6, textY, 0xFFFFFFFF, false);
+        }
 
         if(startMenuShowed){
             HashMap<String, ArrayList<Action>> categories = getActionsMainMenu();
@@ -401,32 +431,52 @@ public class DesktopScreen extends Screen {
                 for(Action action : actions){
                     yA -= 22;
                     boolean focused = 20 < mouseX && mouseX < startMenuWidth - 4 && yA < mouseY && mouseY < yA + 20;
+                    if(focused) cursorType = CursorTypes.POINTING_HAND;
                     guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, 23, yA, 0, 0, 20, 20, 20, 20, -1);
                     guiGraphics.text(font, Component.empty().append(action.title).withStyle(Style.EMPTY.withUnderlined(focused)),48, yA+(10-(font.lineHeight/2)), WinColors.getTextColorWithMainColor(), false);
                 }
             }
         }
 
-        int x = 2 + 8 + font.width(startComponent) + 4;
+        int x = 2 + 8 + (taskbarSize-4) + font.width(startComponent) + 4;
         int y = height - taskbarSize + 5;
 
-        guiGraphics.fill(x, y, x + 2, height-3, hcolors[0]);
-        guiGraphics.fill(x, y, x + 1, height-3, hcolors[1]);
-        x += 4;
-        guiGraphics.fill(x, y, x + 2, height-3, hcolors[0]);
-        guiGraphics.fill(x, y, x + 1, height-3, hcolors[1]);
-        x += 6;
+        if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            guiGraphics.fill(x, y, x + 2, height - 3, hcolors[0]);
+            guiGraphics.fill(x, y, x + 1, height - 3, hcolors[1]);
+            x += 4;
+            guiGraphics.fill(x, y, x + 2, height - 3, hcolors[0]);
+            guiGraphics.fill(x, y, x + 1, height - 3, hcolors[1]);
+            x += 6;
+        } else x+=10;
         xWindowTask = x;
         verticalConfigureScrolWidget.setWidth(width-(taskbarSize*getTaskbarActions().size())-xWindowTask-4-((2 + 8 + font.width(AlinLib.localization.getParsedText("{time}")))));
         verticalConfigureScrolWidget.setPosition(xWindowTask, height);
         int xW = xWindows;
         guiGraphics.enableScissor(xWindowTask, height-startMenuHeight, xWindowTask+verticalConfigureScrolWidget.getWidth(), height);
-        for(Window window : taskbarWindow){
+        int buttonY = height-taskbarSize+3;
+        int buttonW = taskbarSize - 4;
+
+        if(!Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            buttonY = height-taskbarSize+2;
+        }
+        for(Window window : taskbarWindow) {
             Component title = window.screen.getTitle().equals(Component.empty()) ? Component.literal(String.format("%s.exe", window.screen.getClass().getSimpleName())) : window.screen.getTitle();
+            String text = title.getString();
+            if (text.length() > 24) title = Component.literal(text.substring(0, 24) + "...");
             int xAdditional = window.icon == null ? 0 : 15;
-            if((xW < mouseX && mouseX < (xW+2 + 8 + xAdditional + font.width(title)) && height-taskbarSize+3 < mouseY && mouseY < height-1) || window.active)
-                WindowUtils.renderRevertPanel(guiGraphics, xW, height-taskbarSize+3, xW+2 + 8 + xAdditional + font.width(title), height-1);
-            else WindowUtils.renderPanel(guiGraphics, xW, height-taskbarSize+3, xW+2 + 8 + xAdditional + font.width(title), height-1);
+            boolean focused = (xW < mouseX && mouseX < (xW + 2 + 8 + xAdditional + font.width(title)) && height - taskbarSize + 3 < mouseY && mouseY < height - 1);
+
+            if (Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+                if (focused || window.active) {
+                    if (focused) cursorType = CursorTypes.POINTING_HAND;
+                    WindowUtils.renderRevertPanel(guiGraphics, xW, buttonY, xW + 2 + 8 + xAdditional + font.width(title), buttonY + buttonW);
+                } else
+                    WindowUtils.renderPanel(guiGraphics, xW, buttonY, xW + 2 + 8 + xAdditional + font.width(title), buttonY + buttonW);
+            } else {
+                int bw = 2 + 8 + xAdditional + font.width(title);
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "button"), bw, buttonW, 0, 0, xW, buttonY, bw, buttonW, (focused || window.active) ? WinColors.getWindowColors()[1] : WinColors.getWindowColors()[0]);
+            }
             if(window.icon != null){
                 guiGraphics.blit(RenderPipelines.GUI_TEXTURED, window.icon, xW+5, textY, 0, 0, 10, 10, 10, 10, -1);
                 xW+=15;
@@ -436,6 +486,9 @@ public class DesktopScreen extends Screen {
         }
         guiGraphics.disableScissor();
         int xA = xWindowTask+verticalConfigureScrolWidget.getWidth()+5+(taskbarSize*Math.max(0, getTaskbarActions().size()-1));
+        if(!Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "taskbar_waaa"), width-xA+6 ,taskbarSize, 0, 0, xA-6, height-taskbarSize, width-xA+6, taskbarSize, colors[0]);
+        }
         for(Action action : getTaskbarActions()){
             guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, xA, height-taskbarSize+4, 0 ,0, 14, 14, 14, 14, -1);
             if(xA < mouseX && mouseX < xA+14 && height-taskbarSize+4 < mouseY && mouseY < height-taskbarSize+18)
@@ -447,10 +500,17 @@ public class DesktopScreen extends Screen {
 //                sound == 0 ? "muted" : sound <= 0.1 ? "low" : sound <= 0.8 ? "ok" : "max")), xWindowTask+verticalConfigureScrolWidget.getWidth()+1, height-taskbarSize+4, 0 ,0, 14, 14, 14, 14);
         // -=-=-=- Right Elements
         String time = AlinLib.localization.getParsedText("{time}");
-        guiGraphics.fill(width - 2, height - (taskbarSize-3), width - (2 + 9 + font.width(time)), height - 1, colors[3]);
-        guiGraphics.fill(width - 2, height - (taskbarSize-4), width - (1 + 9 + font.width(time)), height - 1, colors[0]);
-        guiGraphics.fill(width - 3, height - (taskbarSize-4), width - (1 + 9 + font.width(time)), height - 2, colors[2]);
+        if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            guiGraphics.fill(width - 2, height - (taskbarSize - 3), width - (2 + 9 + font.width(time)), height - 1, colors[3]);
+            guiGraphics.fill(width - 2, height - (taskbarSize - 4), width - (1 + 9 + font.width(time)), height - 1, colors[0]);
+            guiGraphics.fill(width - 3, height - (taskbarSize - 4), width - (1 + 9 + font.width(time)), height - 2, colors[2]);
+        }
         guiGraphics.text(font, time, width - 6 - font.width(time), textY+1, WinColors.getTextColorWithMainColor(), false);
+        if(cursorType != null) guiGraphics.requestCursor(cursorType);
+
+        if(Windows.isStoppedShitGame){
+            guiGraphics.fill(0, 0, width, height, 0x7F000000);
+        }
     }
 
     public int[] getMouseForLabels(int x, int y){
@@ -473,6 +533,7 @@ public class DesktopScreen extends Screen {
     }
 
     static int buttonSize = 10;
+    static int buttonY = 5;
     public static Window currentRenderedWindow;
     public static void renderWindow(GuiGraphicsExtractor guiGraphics, Window window, int mouseX, int mouseY, float tick) {
         int x = (int) window.x;
@@ -483,49 +544,83 @@ public class DesktopScreen extends Screen {
         int mouseYforScreen = mouseY-(y+19);
         if(!window.active) mouseXforScreen = mouseYforScreen = -20;
         currentRenderedWindow = window;
-        //
-        WindowUtils.renderPanel(guiGraphics,x, y, x + width, y + height);
-        if(window.isResizable() && !window.maximize){
-            guiGraphics.fill(x+width-4, y+height-4, x+width-3, y+height-3, 0xFF1e1e1e);
-            guiGraphics.fill(x+width-4, y+height-6, x+width-3, y+height-5, 0xFF1e1e1e);
-            guiGraphics.fill(x+width-4, y+height-8, x+width-3, y+height-7, 0xFF1e1e1e);
-
-            guiGraphics.fill(x+width-5, y+height-5, x+width-4, y+height-4, 0xFF1e1e1e);
-            guiGraphics.fill(x+width-5, y+height-7, x+width-4, y+height-6, 0xFF1e1e1e);
-
-
-            guiGraphics.fill(x+width-6, y+height-4, x+width-5, y+height-3, 0xFF1e1e1e);
-            guiGraphics.fill(x+width-6, y+height-6, x+width-5, y+height-5, 0xFF1e1e1e);
-
-
-            guiGraphics.fill(x+width-7, y+height-5, x+width-6, y+height-4, 0xFF1e1e1e);
-
-            guiGraphics.fill(x+width-8, y+height-4, x+width-7, y+height-3, 0xFF1e1e1e);
-        }
-        //
-        int[] colors = WinColors.getTitleGradientColors();
-        if(!window.active) colors = new int[]{getGrayColor(colors[0]), getGrayColor(colors[1])};
-        for (int i = 0; i < width - 6; i++) {
-            guiGraphics.fill(x + 3 + i, y + 3, x + 4 + i, y + 17, interpolate(colors[0], colors[1], (float) i / (width - 6)));
-        }
-        int xb = x+width-5-buttonSize;
+        // TODO: Добавить проверку классической темы
         int buttonsSizes = 0;
-        if(window.getButtons() < 2){
-            WindowUtils.renderPanel(guiGraphics, xb, y+5, xb+buttonSize,y+5+buttonSize);
-            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon("textures/window/close"), xb, y+5, 0,0,buttonSize, buttonSize, buttonSize, buttonSize);
-            if(xb < mouseX && mouseX < xb+buttonSize && y+5 < mouseY && mouseY < y+5+buttonSize) guiGraphics.fill(xb, y+5, xb+buttonSize, y+5+buttonSize, BLACK_ALPHA);
-            buttonsSizes +=buttonSize+2;
-            xb -= (2+buttonSize);
-            if(window.getButtons() == 0 && window.isResizable()){
-                WindowUtils.renderPanel(guiGraphics, xb, y+5, xb+buttonSize,y+5+buttonSize);
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(window.maximize ? "textures/window/window" : "textures/window/maximaze"), xb, y+5, 0,0,buttonSize, buttonSize, buttonSize, buttonSize);
-                if(xb < mouseX && mouseX < xb+buttonSize && y+5 < mouseY && mouseY < y+5+buttonSize) guiGraphics.fill(xb, y+5, xb+buttonSize, y+5+buttonSize, BLACK_ALPHA);
-                xb -= buttonSize;
-                buttonsSizes +=buttonSize+2;
-                WindowUtils.renderPanel(guiGraphics, xb, y+5, xb+buttonSize,y+5+buttonSize);
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon("textures/window/mini"), xb, y+5, 0,0,buttonSize, buttonSize, buttonSize, buttonSize);
-                if(xb < mouseX && mouseX < xb+buttonSize && y+5 < mouseY && mouseY < y+5+buttonSize) guiGraphics.fill(xb, y+5, xb+buttonSize, y+5+buttonSize, BLACK_ALPHA);
-                buttonsSizes +=buttonSize+2;
+        if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            buttonSize = 10;
+            buttonY = 5;
+            WindowUtils.renderPanel(guiGraphics, x, y, x + width, y + height);
+            if (window.isResizable() && !window.maximize) {
+                guiGraphics.fill(x + width - 4, y + height - 4, x + width - 3, y + height - 3, 0xFF1e1e1e);
+                guiGraphics.fill(x + width - 4, y + height - 6, x + width - 3, y + height - 5, 0xFF1e1e1e);
+                guiGraphics.fill(x + width - 4, y + height - 8, x + width - 3, y + height - 7, 0xFF1e1e1e);
+
+                guiGraphics.fill(x + width - 5, y + height - 5, x + width - 4, y + height - 4, 0xFF1e1e1e);
+                guiGraphics.fill(x + width - 5, y + height - 7, x + width - 4, y + height - 6, 0xFF1e1e1e);
+
+
+                guiGraphics.fill(x + width - 6, y + height - 4, x + width - 5, y + height - 3, 0xFF1e1e1e);
+                guiGraphics.fill(x + width - 6, y + height - 6, x + width - 5, y + height - 5, 0xFF1e1e1e);
+
+
+                guiGraphics.fill(x + width - 7, y + height - 5, x + width - 6, y + height - 4, 0xFF1e1e1e);
+
+                guiGraphics.fill(x + width - 8, y + height - 4, x + width - 7, y + height - 3, 0xFF1e1e1e);
+            }
+            //
+            int[] colors = WinColors.getTitleGradientColors();
+            if (!window.active) colors = new int[]{getGrayColor(colors[0]), getGrayColor(colors[1])};
+            for (int i = 0; i < width - 6; i++) {
+                guiGraphics.fill(x + 3 + i, y + 3, x + 4 + i, y + 17, interpolate(colors[0], colors[1], (float) i / (width - 6)));
+            }
+            int xb = x + width - 5 - buttonSize;
+
+            if (window.getButtons() < 2) {
+                WindowUtils.renderPanel(guiGraphics, xb, y + buttonY, xb + buttonSize, y + buttonY + buttonSize);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon("textures/window/close"), xb, y + 5, 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+                if (xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize)
+                    guiGraphics.fill(xb, y + buttonY, xb + buttonSize, y + buttonY + buttonSize, BLACK_ALPHA);
+                buttonsSizes += buttonSize + 2;
+                xb -= (2 + buttonSize);
+                if (window.getButtons() == 0 && window.isResizable()) {
+                    WindowUtils.renderPanel(guiGraphics, xb, y + buttonY, xb + buttonSize, y + buttonY + buttonSize);
+                    guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(window.maximize ? "textures/window/window" : "textures/window/maximaze"), xb, y + 5, 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+                    if (xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize)
+                        guiGraphics.fill(xb, y + buttonY, xb + buttonSize, y + buttonY + buttonSize, BLACK_ALPHA);
+                    xb -= buttonSize;
+                    buttonsSizes += buttonSize + 2;
+                    WindowUtils.renderPanel(guiGraphics, xb, y + buttonY, xb + buttonSize, y + buttonY + buttonSize);
+                    guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon("textures/window/mini"), xb, y + 5, 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+                    if (xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize)
+                        guiGraphics.fill(xb, y + buttonY, xb + buttonSize, y + buttonY + buttonSize, BLACK_ALPHA);
+                    buttonsSizes += buttonSize + 2;
+                }
+            }
+        } else {
+            buttonSize = 12;
+            buttonY = 4;
+            int xb = x + width - 5 - buttonSize;
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x+1, y+1, width, height, 0x2E000000);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x+2, y+2, width, height, 0x1E000000);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x, y, width, height, Math.min(WinColors.getWindowColors()[0] + (window.active ? 0 : 0x001E1E1E), 0xFFFFFFFF));
+            if (window.getButtons() < 2) {
+                boolean b1 = xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize;
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "button"), buttonSize, buttonSize, 0, 0, xb, y + buttonY, buttonSize, buttonSize, b1 ? SELFISH : GROUPIE);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/window/close_l.png"), xb, y + buttonY, 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+                buttonsSizes += buttonSize + 2;
+                xb -= (2 + buttonSize);
+                if (window.getButtons() == 0 && window.isResizable()) {
+                    boolean b2 = xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize;
+                    guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "button"), buttonSize, buttonSize, 0, 0, xb, y + buttonY, buttonSize, buttonSize, Math.min(WinColors.getWindowColors()[2] + (b2 ? 0x001E1E1E : 0), 0xFFFFFFFF));
+                    guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(window.maximize ? "textures/window/window" : "textures/window/maximaze"), xb, y + buttonY, 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+                    xb -= (2 + buttonSize);
+                    buttonsSizes += buttonSize + 2;
+
+                    boolean b3 = xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize;
+                    guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "button"), buttonSize, buttonSize, 0, 0, xb, y + buttonY, buttonSize, buttonSize, Math.min(WinColors.getWindowColors()[2] + (b3 ? 0x001E1E1E : 0), 0xFFFFFFFF));
+                    guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon("textures/window/mini"), xb, y + buttonY, 0, 0, buttonSize, buttonSize, buttonSize, buttonSize);
+                    buttonsSizes += buttonSize + 2;
+                }
             }
         }
         //
@@ -542,7 +637,7 @@ public class DesktopScreen extends Screen {
         }
         guiGraphics.text(AlinLib.MINECRAFT.font, title, x +xTitle+ 6, y + 6, 0xFFFFFFFF, false);
         guiGraphics.pose().pushMatrix();
-        guiGraphics.enableScissor(x+3, y+19, x+width-3, y+height-3);
+        guiGraphics.enableScissor(x+3, y+(buttonY*2+buttonSize), x+width-3, y+height-3);
         guiGraphics.pose().translate(x+3, y+19);
 //        window.screen.renderWithTooltip(guiGraphics, mouseXforScreen, mouseYforScreen, tick);
         guiGraphics.nextStratum();
@@ -617,7 +712,7 @@ public class DesktopScreen extends Screen {
                         //#if MC < 12110
                         //$$mouseX-(x+3), mouseY-(y+19), button
                         //#else
-                        new MouseButtonEvent(mouseX-(x+3), mouseY-(y+19), mouseButtonEvent.buttonInfo())
+                        new MouseButtonEvent(mouseX-(x+3), mouseY-(y+(buttonY*2+buttonSize)), mouseButtonEvent.buttonInfo())
                         //#endif
                         , dragX, dragY);
                 return true;
@@ -635,7 +730,7 @@ public class DesktopScreen extends Screen {
             if(!window.active || !window.visible) continue;
             if(window.x < mouseX && mouseX < window.x+window.width && window.y < mouseY && mouseY < window.y+window.height && !window.isDragging && !window.isResized){
                 boolean ret;
-                if(mouseY < window.y+19 && !window.maximize){
+                if(mouseY < window.y+(buttonY*2+buttonSize) && !window.maximize){
                     window.setDragging(true);
                     window.setPosition(window.x+dragX, window.y+dragY);
                     ret = true;
@@ -644,7 +739,7 @@ public class DesktopScreen extends Screen {
                 && window.y+window.height-14 < mouseY && mouseY < window.y + window.height+6){
                     window.setResized(true);
                     window.setSize(window.width+dragX, window.height+dragY);
-                    window.screen.resize((int) window.width - 6, (int) window.height - 22);
+                    window.screen.resize((int) window.width - 6, (int) window.height - 3 - (buttonY*2+buttonSize));
                     ret = true;
                 } else {
                     window.setScreenDragging(true);
@@ -655,7 +750,7 @@ public class DesktopScreen extends Screen {
                             //#if MC < 12110
                             //$$mouseX-(x+3), mouseY-(y+19), button
                             //#else
-                            new MouseButtonEvent(mouseX-(x+3), mouseY-(y+19), mouseButtonEvent.buttonInfo())
+                            new MouseButtonEvent(mouseX-(x+3), mouseY-(y+(buttonY*2+buttonSize)), mouseButtonEvent.buttonInfo())
                             //#endif
                             , dragX, dragY);
                 }
@@ -689,7 +784,7 @@ public class DesktopScreen extends Screen {
     //#else
     public boolean keyPressed(KeyEvent keyEvent) {
         int i = keyEvent.key();
-        int j = keyEvent.scancode();
+        int j = keyEvent.keycode();
         int k = keyEvent.modifiers();
         //#endif
         if(windows.isEmpty()) return super.keyPressed(
@@ -701,7 +796,7 @@ public class DesktopScreen extends Screen {
         );
         else for(Window window : DesktopScreen.windows){
             if(window.active && window.visible) {
-                if(i == GLFW.GLFW_KEY_P &&
+                if(i == InputConstants.KEY_P &&
                         //#if MC >= 12110
                         keyEvent.
                         //#endif
@@ -710,7 +805,7 @@ public class DesktopScreen extends Screen {
                   String title = window.screen.getTitle().getString();
                   if(title.isEmpty()) title = window.screen.getClass().getSimpleName()+".exe";
                   new ToastBuilder().setTitle(Component.literal(title)).setMessage(Component.translatable(String.format("minedows.window.%s", window.pinned ? "pinned" : "unpinned"))).setStyle(Windows.minedowsStyle).buildAndShow();
-                } else if(window.y < 0 && i == GLFW.GLFW_KEY_TAB) {
+                } else if(window.y < 0 && i == InputConstants.KEY_TAB) {
                     window.setPosition(0, 0);
                     return true;
                 } else return window.screen.keyPressed(
@@ -826,7 +921,7 @@ public class DesktopScreen extends Screen {
         //#endif
         for(int i = windows.size()-1; i>=0; i--){
             Window window = windows.get(i);
-            if (j == 0) {
+            if (j == InputConstants.MOUSE_BUTTON_LEFT) {
                 if(window.isDragging) window.setDragging(false);
                 else if(window.isResized) window.setResized(false);
                 else if(window.isScreenDragging) window.setScreenDragging(false);
@@ -884,8 +979,21 @@ public class DesktopScreen extends Screen {
         double e = mouseButtonEvent.y();
         int j = mouseButtonEvent.button();
         //#endif
-        if(2 < d && d < 2 + 8 + font.width(startComponent) && height-(taskbarSize-3) < e && e < height-1 && j == GLFW.GLFW_MOUSE_BUTTON_LEFT){
-            if(Windows.config.getString("WALLPAPER.FILE", "").equals("fluffy_forever") && Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() == 3)
+        super.mouseClicked(mouseButtonEvent, b);
+        int xStartB = 2;
+        int yStartB = height-(taskbarSize-3);
+        int wStartB = 8 + (taskbarSize-4) + font.width(startComponent);
+        int hStartB = taskbarSize-4;
+
+        if(!Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            xStartB = 0;
+            yStartB = height-taskbarSize;
+            wStartB = wStartB+2+8;
+            hStartB = taskbarSize;
+        }
+
+        if(xStartB < d && d < xStartB+wStartB && yStartB < e && e < yStartB+hStartB && j == InputConstants.MOUSE_BUTTON_LEFT){
+            if(Windows.config.getString("WALLPAPER.FILE", "").equals("fluffy_forever") && Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue() == 3)
                 AlinLib.MINECRAFT.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f));
             this.startMenuShowed = !startMenuShowed;
             if(!windows.isEmpty()) windows.getLast().active = false;
@@ -964,9 +1072,9 @@ public class DesktopScreen extends Screen {
                 int width = (int) window.width;
                 windows.getLast().active = false;
                 window.active = true;
-                if(window.getButtons() < 2 && j == GLFW.GLFW_MOUSE_BUTTON_LEFT){
+                if(window.getButtons() < 2 && j == InputConstants.MOUSE_BUTTON_LEFT){
                     int xb = x+width-5-buttonSize;
-                    if(xb < d && d < xb+buttonSize && y+5 < e && e < y+5+buttonSize) {
+                    if(xb < d && d < xb+buttonSize && y+buttonY < e && e < y+5+buttonSize) {
                         removeWindow(window);
                         if(!windows.isEmpty() && windows.getLast().visible) windows.getLast().active = true;
                         SoundUtils.click();
@@ -974,14 +1082,14 @@ public class DesktopScreen extends Screen {
                     }
                     xb -= (2+buttonSize);
                     if(window.getButtons() == 0 && window.isResizable()){
-                        if(xb < d && d < xb+buttonSize && y+5 < e && e < y+5+buttonSize) {
+                        if(xb < d && d < xb+buttonSize && y+buttonY < e && e < y+5+buttonSize) {
                             window.changeMax(this.width, this.height-taskbarSize);
                             window.screen.resize((int) window.width - 6, (int) window.height - 22);
                             SoundUtils.click();
                             return true;
                         }
-                        xb -= buttonSize;
-                        if(xb < d && d < xb+buttonSize && y+5 < e && e < y+5+buttonSize){
+                        xb -= ((Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false) ? 0 : 2) + buttonSize);
+                        if(xb < d && d < xb+buttonSize && y+buttonY < e && e < y+5+buttonSize){
                             windows.remove(i);
                             window.visible = false;
                             window.active = false;

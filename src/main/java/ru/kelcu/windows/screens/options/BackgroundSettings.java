@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.options;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -10,12 +11,13 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.util.tinyfd.TinyFileDialogs;
+import org.lwjgl.sdl.SDLDialog;
+import org.lwjgl.sdl.SDL_DialogFileCallbackI;
+import org.lwjgl.sdl.SDL_DialogFileFilter;
+import org.lwjgl.system.MemoryUtil;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.screens.DesktopScreen;
-import ru.kelcu.windows.screens.options.style.AirStyle;
 import ru.kelcu.windows.style.MinedowsStyle;
 import ru.kelcu.windows.utils.WallpaperUtil;
 import ru.kelcu.windows.utils.WinColors;
@@ -23,7 +25,6 @@ import ru.kelcu.windows.utils.WindowUtils;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
-import ru.kelcuprum.alinlib.gui.components.ImageWidget;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBooleanBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.editbox.EditBoxBuilder;
@@ -33,10 +34,14 @@ import ru.kelcuprum.alinlib.gui.screens.ConfigScreenBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.lwjgl.sdl.SDLError.SDL_GetError;
 
 public class BackgroundSettings extends Screen {
     public BackgroundSettings() {
@@ -159,27 +164,60 @@ public class BackgroundSettings extends Screen {
     }
 
     public static String openTrackEditor(){
-        MemoryStack stack = MemoryStack.stackPush();
-        PointerBuffer filters = stack.mallocPointer(8);
-        filters.put(stack.UTF8("*.png"));
-        filters.put(stack.UTF8("*.jpg"));
-
-        filters.flip();
         File defaultPath = new File(System.getProperty("user.home")).getAbsoluteFile();
         String defaultString = defaultPath.getAbsolutePath();
-        if(defaultPath.isDirectory() && !defaultString.endsWith(File.separator)){
+        if (defaultPath.isDirectory() && !defaultString.endsWith(File.separator)) {
             defaultString += File.separator;
         }
+        SDL_DialogFileFilter.Buffer filters = SDL_DialogFileFilter.calloc(1);
+        ByteBuffer filterName = MemoryUtil.memASCII(
+                Component.translatable("minedows.notepad.save.filter_description").getString());
+        ByteBuffer filterPattern = MemoryUtil.memASCII("png;jpg");
+        filters.get(0).name(filterName).pattern(filterPattern);
+        AtomicBoolean b = new AtomicBoolean(false);
+        AtomicReference<Path> path = new AtomicReference<>();
+        SDL_DialogFileCallbackI pendingFileDialog = (userdata, filelist, filter) -> {
+            try {
+                if (filelist == MemoryUtil.NULL) {
+                    AlinLib.LOG.error("SDL file dialog failed: {}", SDL_GetError());
+                    b.set(true);
+                    return;
+                }
 
-        String result = TinyFileDialogs.tinyfd_openFileDialog(Component.translatable("minedows.control.background.select").getString(), defaultString, filters, Component.translatable("minedows.control.background.select.filter_description").getString(), false);
-        if(result == null) return "";
-        else if(new File(result).exists()) return result;
+                List<String> picked = new ArrayList<>();
+                for (long p = filelist; p != 0L; p += PointerBuffer.POINTER_SIZE) {
+                    long s = MemoryUtil.memGetAddress(p);
+                    if (s == MemoryUtil.NULL) break;
+                    picked.add(MemoryUtil.memUTF8(s));
+                }
+                if (picked.isEmpty()) {
+                    AlinLib.LOG.log("Dialog cancelled by user");
+                    b.set(true);
+                    return;
+                }
+
+                String pathh = picked.get(0);
+                path.set(new File(pathh).toPath());
+                b.set(true);
+            } catch(Exception exception) {
+                b.set(true);
+                exception.printStackTrace();
+            } finally {
+                b.set(true);
+                filters.free();
+                MemoryUtil.memFree(filterName);
+                MemoryUtil.memFree(filterPattern);
+            }
+        };
+        SDLDialog.SDL_ShowOpenFileDialog(pendingFileDialog, 0L, 0L, filters, defaultString, false);
+        while(!b.get()){};
+        if(path.get().toFile().exists()) return path.toString();
         else return "";
     }
 
     @Override
     public Component getTitle() {
-        if(Windows.config.getString("WALLPAPER.FILE", "").equals("fluffy_forever") && Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() == 3) return Component.translatable("minedows.fluffy");
+        if(Windows.config.getString("WALLPAPER.FILE", "").equals("fluffy_forever") && Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue() == 3) return Component.translatable("minedows.fluffy");
         return super.getTitle();
     }
 
@@ -190,34 +228,7 @@ public class BackgroundSettings extends Screen {
         int xDisplay = (width/2)-(displayWidth/2);
         int yDisplay = 20;
         WindowUtils.renderPanel(guiGraphics, xDisplay-10, yDisplay-10, xDisplay+displayWidth+10, yDisplay+displayHeight+10);
-        WindowUtils.welcomeToWhiteSpace(guiGraphics, xDisplay-1, yDisplay-1, displayWidth+2, displayHeight+2);
-        switch(Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue()){
-            case 1 -> guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("minedows", "perlin"), xDisplay, yDisplay, 0, 0, displayWidth, displayHeight, minecraft.gui.screen().width, minecraft.gui.screen().height);
-            case 2 -> {
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("textures/gui/title/background/panorama_0.png"), xDisplay, yDisplay, 0, 35, displayWidth, displayHeight, displayWidth, displayWidth);
-//                renderPanorama(guiGraphics, f);
-                guiGraphics.fill(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight, 0x5F000000);
-            }
-            case 3 -> {
-                int x = 0;
-                int y = 0;
-                double scale;
-                scale = (double) WallpaperUtil.width / displayWidth;
-                int ww = (int) (WallpaperUtil.width / scale);
-                int wh = (int) (WallpaperUtil.height / scale);
-                if(wh < displayHeight){
-                    scale = (double) WallpaperUtil.height / displayHeight;
-                    ww = (int) (WallpaperUtil.width / scale);
-                    wh = displayHeight;
-                }
-                x = (ww-displayWidth) / 2;
-                y = (wh-displayHeight) / 2;
-                guiGraphics.enableScissor(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight);
-                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WallpaperUtil.location, xDisplay, yDisplay, x, y, ww, wh, ww, wh);
-                guiGraphics.disableScissor();
-            }
-            default -> guiGraphics.fill(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight, Windows.config.getNumber("WALLPAPER.COLOR", 0xFF177f96).intValue());
-        }
+        extractWallpaper(guiGraphics, displayWidth, displayHeight, xDisplay, yDisplay, minecraft);
         int x = 10;
         int y = 150;
         guiGraphics.text(font, Component.translatable("minedows.control.background.wallpaper"), x+10, y, WinColors.getTextColorWithMainColor(), false);
@@ -255,6 +266,37 @@ public class BackgroundSettings extends Screen {
         guiGraphics.text(font, Component.translatable("minedows.control.background.wallpaper.select"), x+10, y, WinColors.getTextColorWithMainColor(), false);
         y+=font.lineHeight+5;
         WindowUtils.welcomeToWhiteSpace(guiGraphics, x+10, y, x+((width-40)/2), height-y-25);
+    }
+
+    public static void extractWallpaper(GuiGraphicsExtractor guiGraphics, int displayWidth, int displayHeight, int xDisplay, int yDisplay, Minecraft minecraft){
+        WindowUtils.welcomeToWhiteSpace(guiGraphics, xDisplay-1, yDisplay-1, displayWidth+2, displayHeight+2);
+        switch(Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue()){
+            case 1 -> guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("minedows", "perlin"), xDisplay, yDisplay, 0, 0, displayWidth, displayHeight, minecraft.gui.screen().width, minecraft.gui.screen().height);
+            case 2 -> {
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("textures/gui/title/background/panorama_0.png"), xDisplay, yDisplay, 0, 35, displayWidth, displayHeight, displayWidth, displayWidth);
+//                renderPanorama(guiGraphics, f);
+                guiGraphics.fill(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight, 0x5F000000);
+            }
+            case 3 -> {
+                int x = 0;
+                int y = 0;
+                double scale;
+                scale = (double) WallpaperUtil.width / displayWidth;
+                int ww = (int) (WallpaperUtil.width / scale);
+                int wh = (int) (WallpaperUtil.height / scale);
+                if(wh < displayHeight){
+                    scale = (double) WallpaperUtil.height / displayHeight;
+                    ww = (int) (WallpaperUtil.width / scale);
+                    wh = displayHeight;
+                }
+                x = (ww-displayWidth) / 2;
+                y = (wh-displayHeight) / 2;
+                guiGraphics.enableScissor(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WallpaperUtil.location, xDisplay, yDisplay, x, y, ww, wh, ww, wh);
+                guiGraphics.disableScissor();
+            }
+            default -> guiGraphics.fill(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight, Windows.config.getNumber("WALLPAPER.COLOR", 0xFF177f96).intValue());
+        }
     }
 
     @Override
@@ -352,6 +394,6 @@ public class BackgroundSettings extends Screen {
     public void tick() {
         super.tick();
         if (scroller != null) scroller.onScroll.accept(scroller);
-        image.setActive(Windows.config.getNumber("WALLPAPER.TYPE", 0).intValue() == 3);
+        image.setActive(Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue() == 3);
     }
 }

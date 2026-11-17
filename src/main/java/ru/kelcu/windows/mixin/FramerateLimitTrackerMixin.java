@@ -15,6 +15,6 @@ public class FramerateLimitTrackerMixin {
     protected void getFramerateLimit(CallbackInfoReturnable<Integer> cir) {
         if(!Windows.config.getBoolean("FIXES.SMOOTH_MENU", false) || AlinLib.MINECRAFT.level != null) return;
         Monitor monitor = AlinLib.MINECRAFT.getWindow().findBestMonitor();
-        if(monitor != null) cir.setReturnValue(monitor.currentMode().getRefreshRate());
+        if(monitor != null) cir.setReturnValue((int) monitor.currentMode().getRefreshRate());
     }
 }

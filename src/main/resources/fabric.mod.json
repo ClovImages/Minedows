@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "name": "Minedows 98",
+  "name": "Minedows 2000",
   "id": "minedows",
   "version": "${version}",
   "description": "A familiar look and feel in the most unexpected place.",
   "authors": [
-    "Kel Caffeine"
+    "Kel Cleverov"
   ],
   "accessWidener": "minedows.accesswidener",
   "license": "ClovLicense 1.0.0",
