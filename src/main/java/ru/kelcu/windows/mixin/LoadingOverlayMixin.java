@@ -48,7 +48,7 @@ public class LoadingOverlayMixin {
             guiGraphics.fill(0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0xFF000000);
             long time = System.currentTimeMillis() % 2000;
             String dots = ".".repeat((int) (time/500));
-            guiGraphics.centeredText(AlinLib.MINECRAFT.font, Component.translatable("minedows.please_wait", dots), guiGraphics.guiWidth()/2, guiGraphics.guiHeight()/2-(AlinLib.MINECRAFT.font.lineHeight/2), 0xFFe77830);
+            guiGraphics.centeredText(Minecraft.getInstance().font, Component.translatable("minedows.please_wait", dots), guiGraphics.guiWidth()/2, guiGraphics.guiHeight()/2-(Minecraft.getInstance().font.lineHeight/2), 0xFFe77830);
             // End
             if (f >= 2.0F) {
                 this.minecraft.gui.setOverlay(null);

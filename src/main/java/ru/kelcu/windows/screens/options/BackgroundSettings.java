@@ -67,8 +67,14 @@ public class BackgroundSettings extends Screen {
             String file = openTrackEditor();
             if(!file.isBlank()){
                 try {
-                    WallpaperUtil.loadFileWallpaper(Path.of(file));
-                    Windows.config.setString("WALLPAPER.FILE", file);
+                    for(WallpaperUtil.FiledWallpaperData fwd : WallpaperUtil.filedWallpapers){
+                        if(fwd.file().toPath().toString().equals(file)){
+                            WallpaperUtil.setFiledWallpaper(fwd);
+                            return;
+                        }
+                    }
+                    WallpaperUtil.registerFiledWallpaper(new File(file), true);
+                    rebuildWidgets();
                 } catch (Exception e){
                     e.printStackTrace();
                 }
@@ -116,6 +122,19 @@ public class BackgroundSettings extends Screen {
                 .setStyle(airStyle)
                 .build());
         y+=20;
+        for(WallpaperUtil.FiledWallpaperData wallpaperData : WallpaperUtil.filedWallpapers){
+            widgets.add(new ButtonBuilder(Component.literal(wallpaperData.file().getName()), (s) -> {
+                WallpaperUtil.setFiledWallpaper(wallpaperData);
+                Windows.config.setString("WALLPAPER.FILE", wallpaperData.file().toPath().toString());
+                Windows.config.setNumber("WALLPAPER.TYPE", 4);
+            })
+                    .setCentered(false)
+                    .setSize(((width-40)/2), 16)
+                    .setPosition(x+15, y)
+                    .setStyle(airStyle)
+                    .build());
+            y+=20;
+        }
         for(WallpaperUtil.WallpaperData wallpaperData : WallpaperUtil.wallpapers.values()){
             widgets.add(new ButtonBuilder(wallpaperData.name(), (s) -> {
                 WallpaperUtil.loadWallpaper(wallpaperData);
@@ -132,7 +151,7 @@ public class BackgroundSettings extends Screen {
         widgets.add(new ButtonBuilder(Component.translatable("minedows.control.background.wallpaper.image"), (s) -> {
             if(
                     //#if MC >= 12110
-                    AlinLib.MINECRAFT.
+                    Minecraft.getInstance().
                     //#endif
                     hasShiftDown()){
                 WallpaperUtil.fluffy();
@@ -277,7 +296,7 @@ public class BackgroundSettings extends Screen {
 //                renderPanorama(guiGraphics, f);
                 guiGraphics.fill(xDisplay, yDisplay, xDisplay+displayWidth, yDisplay+displayHeight, 0x5F000000);
             }
-            case 3 -> {
+            case 3, 4 -> {
                 int x = 0;
                 int y = 0;
                 double scale;

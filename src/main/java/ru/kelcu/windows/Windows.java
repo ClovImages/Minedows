@@ -57,11 +57,20 @@ public class Windows implements ClientModInitializer {
     public void onInitializeClient() {
         ClientLifecycleEvents.CLIENT_STARTED.register((s) -> {
             WallpaperUtil.registerDefaultWallpapers();
+            WallpaperUtil.loadFiledWallpapers();
             ThemeManager.registerDefaultThemes();
             ThemeManager.loadThemesFromFolder();
             try {
                 String file = Windows.config.getString("WALLPAPER.FILE", "city");
                 if(!file.isEmpty()) {
+                    if(Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue() == 4){
+                        for(WallpaperUtil.FiledWallpaperData fwd : WallpaperUtil.filedWallpapers){
+                            if(fwd.file().toPath().toString().equals(file)){
+                                WallpaperUtil.setFiledWallpaper(fwd);
+                                return;
+                            }
+                        }
+                    }
                     if(file.equals("fluffy_forever")) WallpaperUtil.fluffy();
                     else if(WallpaperUtil.getWallpaperData(file) != null) WallpaperUtil.loadWallpaper(WallpaperUtil.getWallpaperData(file));
                     else WallpaperUtil.loadFileWallpaper(Path.of(file));
@@ -71,7 +80,7 @@ public class Windows implements ClientModInitializer {
                 ex.printStackTrace();
             }
             try {
-                generatePerlin(AlinLib.MINECRAFT.getWindow().getGuiScaledWidth() / 2, AlinLib.MINECRAFT.getWindow().getGuiScaledHeight() / 2);
+                generatePerlin(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2, Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -79,7 +88,7 @@ public class Windows implements ClientModInitializer {
 //        ModManager.registerModAction(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder1.png"))), true);
         });
         GuiRenderEvents.RENDER.register((guiGraphics, tick) -> {
-            if(AlinLib.MINECRAFT.gui.screen() instanceof ChatScreen) return;
+            if(Minecraft.getInstance().gui.screen() instanceof ChatScreen) return;
             for(Window window : DesktopScreen.windows){
                 if(window.pinned && window.visible){
                     DesktopScreen.renderWindow(guiGraphics, window, guiGraphics.guiWidth()/2, guiGraphics.guiHeight()/2, tick);
@@ -97,8 +106,8 @@ public class Windows implements ClientModInitializer {
             perlinNoises = new Thread(() -> {
                 while (perlinLoop) {
                         try {
-                            if(config.getNumber("WALLPAPER.TYPE", 3).intValue() == 1 && AlinLib.MINECRAFT.level == null) {
-                                generatePerlin(AlinLib.MINECRAFT.gui.screen().width / 2, AlinLib.MINECRAFT.gui.screen().height / 2);
+                            if(config.getNumber("WALLPAPER.TYPE", 3).intValue() == 1 && Minecraft.getInstance().level == null) {
+                                generatePerlin(Minecraft.getInstance().gui.screen().width / 2, Minecraft.getInstance().gui.screen().height / 2);
                                 xPerlin++;
                             } else sleep(500);
                         } catch (InterruptedException e) {
@@ -145,13 +154,13 @@ public class Windows implements ClientModInitializer {
             case UNPAUSE_GAME -> Minecraft.getInstance().gui.setScreen(null);
             case DISCONNECT ->
                 //#if MC < 12110
-                //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
+                //$$PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE);
                 //#else
-                    AlinLib.MINECRAFT.getReportingContext().draftReportHandled(AlinLib.MINECRAFT, AlinLib.MINECRAFT.gui.screen(), () -> AlinLib.MINECRAFT.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
+                    Minecraft.getInstance().getReportingContext().draftReportHandled(Minecraft.getInstance(), Minecraft.getInstance().gui.screen(), () -> Minecraft.getInstance().disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
                 //#endif
             case OPEN_SCREEN -> {
-                if(AlinLib.MINECRAFT.gui.screen() instanceof DesktopScreen)
-                    AlinLib.MINECRAFT.gui.screen().rebuildWidgets();
+                if(Minecraft.getInstance().gui.screen() instanceof DesktopScreen)
+                    Minecraft.getInstance().gui.screen().rebuildWidgets();
                 DesktopScreen.addWindow(action.getWindow());
             }
             case EXECUTE_ACTION -> action.execute.execute();

@@ -168,7 +168,7 @@ public class DesktopScreen extends Screen {
         }
     }
     public static ArrayList<Action> getTaskbarActions(){
-        float sound = AlinLib.MINECRAFT.options.getFinalSoundSourceVolume(SoundSource.MASTER);
+        float sound = Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.MASTER);
         ArrayList<Action> actions = new ArrayList<>();
         actions.add(new Action(() -> {
             for(Window window : windows){
@@ -180,7 +180,7 @@ public class DesktopScreen extends Screen {
                     return;
                 }
             }
-            addWindow(new WindowBuilder().setSize(460, 200).setPosition(AlinLib.MINECRAFT.gui.screen().width-460, AlinLib.MINECRAFT.gui.screen().height-220).setIcon(GuiUtils.getResourceLocation("windows", "textures/sound_mixer/main.png")).setResizable(false).setScreen(new SoundMixerScreen()).build());
+            addWindow(new WindowBuilder().setSize(460, 200).setPosition(Minecraft.getInstance().gui.screen().width-460, Minecraft.getInstance().gui.screen().height-220).setIcon(GuiUtils.getResourceLocation("windows", "textures/sound_mixer/main.png")).setResizable(false).setScreen(new SoundMixerScreen()).build());
         }, Component.translatable("minedows.start.volume", (int) (sound * 100) +"%"), WinColors.getLightIcon(String.format("textures/start/volume_%s",
                 sound == 0 ? "muted" : sound <= 0.1 ? "low" : sound <= 0.8 ? "ok" : "max"))));
         if(FabricLoader.getInstance().isModLoaded("flashback")){
@@ -199,7 +199,7 @@ public class DesktopScreen extends Screen {
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
         apps.add(new Action(() ->
             addWindow(new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png"))
-                    .setScreen(AlinLib.MINECRAFT.level != null ? new PauseScreen(true) : new TitleScreen()).build()),
+                    .setScreen(Minecraft.getInstance().level != null ? new PauseScreen(true) : new TitleScreen()).build()),
                 Component.literal("Minecraft Menu"), GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png")));
         apps.addAll(ModManager.getActions(false));
         return apps;
@@ -245,7 +245,7 @@ public class DesktopScreen extends Screen {
                     extractPanorama(guiGraphics, partialTick);
                     guiGraphics.fill(0, 0, width, height, 0x5F000000);
                 }
-                case 3 -> {
+                case 3, 4 -> {
                     int x = 0;
                     int y = 0;
                     double scale;
@@ -495,7 +495,7 @@ public class DesktopScreen extends Screen {
                 guiGraphics.setTooltipForNextFrame(action.title, mouseX, mouseY);
             xA-=taskbarSize;
         }
-//        float sound = AlinLib.MINECRAFT.options.getFinalSoundSourceVolume(SoundSource.MASTER);
+//        float sound = Minecraft.getInstance().options.getFinalSoundSourceVolume(SoundSource.MASTER);
 //        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, WinColors.getLightIcon(String.format("textures/start/volume_%s",
 //                sound == 0 ? "muted" : sound <= 0.1 ? "low" : sound <= 0.8 ? "ok" : "max")), xWindowTask+verticalConfigureScrolWidget.getWidth()+1, height-taskbarSize+4, 0 ,0, 14, 14, 14, 14);
         // -=-=-=- Right Elements
@@ -632,10 +632,10 @@ public class DesktopScreen extends Screen {
         int maxTitleWidth = width - xTitle - buttonsSizes-10;
         String title = window.screen.getTitle().getString();
         if(title.isEmpty()) title = window.screen.getClass().getSimpleName()+".exe";
-        if(AlinLib.MINECRAFT.font.width(title) > maxTitleWidth){
-            title = AlinLib.MINECRAFT.font.substrByWidth(Component.literal(title), maxTitleWidth - (AlinLib.MINECRAFT.font.width("..."))).getString()+"...";
+        if(Minecraft.getInstance().font.width(title) > maxTitleWidth){
+            title = Minecraft.getInstance().font.substrByWidth(Component.literal(title), maxTitleWidth - (Minecraft.getInstance().font.width("..."))).getString()+"...";
         }
-        guiGraphics.text(AlinLib.MINECRAFT.font, title, x +xTitle+ 6, y + 6, 0xFFFFFFFF, false);
+        guiGraphics.text(Minecraft.getInstance().font, title, x +xTitle+ 6, y + 6, 0xFFFFFFFF, false);
         guiGraphics.pose().pushMatrix();
         guiGraphics.enableScissor(x+3, y+(buttonY*2+buttonSize), x+width-3, y+height-3);
         guiGraphics.pose().translate(x+3, y+19);
@@ -668,7 +668,7 @@ public class DesktopScreen extends Screen {
         //#endif
         guiGraphics.pose().translate(-x-3, -y-19);
         guiGraphics.pose().popMatrix();
-//        guiGraphics.drawString(AlinLib.MINECRAFT.font, String.format("moved = %s", window.isDragging), x, y-12, -1);
+//        guiGraphics.drawString(Minecraft.getInstance().font, String.format("moved = %s", window.isDragging), x, y-12, -1);
         if((x+width-14 < mouseX && mouseX < x+width+6
         && y+height-14 < mouseY && mouseY < y+height+6 && window.isResizable() && !window.maximize) || window.isResized) Cursor.setDragging(guiGraphics);
         else Cursor.reset(guiGraphics);
@@ -979,7 +979,6 @@ public class DesktopScreen extends Screen {
         double e = mouseButtonEvent.y();
         int j = mouseButtonEvent.button();
         //#endif
-        super.mouseClicked(mouseButtonEvent, b);
         int xStartB = 2;
         int yStartB = height-(taskbarSize-3);
         int wStartB = 8 + (taskbarSize-4) + font.width(startComponent);
@@ -994,7 +993,7 @@ public class DesktopScreen extends Screen {
 
         if(xStartB < d && d < xStartB+wStartB && yStartB < e && e < yStartB+hStartB && j == InputConstants.MOUSE_BUTTON_LEFT){
             if(Windows.config.getString("WALLPAPER.FILE", "").equals("fluffy_forever") && Windows.config.getNumber("WALLPAPER.TYPE", 3).intValue() == 3)
-                AlinLib.MINECRAFT.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f));
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f));
             this.startMenuShowed = !startMenuShowed;
             if(!windows.isEmpty()) windows.getLast().active = false;
             SoundUtils.click();

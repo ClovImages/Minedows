@@ -143,6 +143,7 @@
 
   "minedows.explorer": "Проводник",
   "minedows.explorer.user_folder": "Домашняя папка",
+  "minedows.explorer.this_computer": "Этот компьютер",
 
   "minedows.bsod.back": "Нажмите любую клавишу, чтобы продолжить%s",
   "minedows.bsod.hardcore.spectate": "[S] %s",

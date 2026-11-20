@@ -1,6 +1,7 @@
 package ru.kelcu.windows.screens.info;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -81,6 +82,6 @@ public class WindowsVersion extends Screen {
 
     @Override
     public void onClose() {
-        AlinLib.MINECRAFT.gui.setScreen(null);
+        Minecraft.getInstance().gui.setScreen(null);
     }
 }

@@ -150,6 +150,7 @@
 
   "minedows.explorer": "File Explorer",
   "minedows.explorer.user_folder": "Home Directory",
+  "minedows.explorer.this_computer": "This Computer",
 
   "minedows.bsod.back": "Press any key to continue%s",
   "minedows.bsod.hardcore.spectate": "[S] %s",

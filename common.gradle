@@ -28,7 +28,6 @@ repositories {
     maven { url = 'https://repo.kelcuprum.ru/releases' }
     maven { url = 'https://repo.kelcuprum.ru/forks' }
     maven { url = 'https://repo.kelcuprum.ru/test' }
-    maven { url = "https://maven.parchmentmc.org" } // MAPPINGS
     maven { url = 'https://api.modrinth.com/maven'}
     maven { url = "https://cursemaven.com" }
     maven { url = "https://jitpack.io/" }
@@ -59,7 +58,7 @@ dependencies {
     if (mod_brand == 'fabric') {
         implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
         implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-        implementation "maven.modrinth:bQhBuv7x:${project.mcef_keksuccino}"
+        compileOnly "maven.modrinth:bQhBuv7x:${project.mcef_keksuccino}"
         implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
         compileOnly("maven.modrinth:flashback:${project.flashback_version}")
         implementation "ru.kelcuprum:AlinLib-fabric:${rootProject.alinlib}+mc${project.alinlib_minecraft_version == null ? project.minecraft_version : project.alinlib_minecraft_version}"

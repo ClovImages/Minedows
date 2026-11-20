@@ -5,6 +5,7 @@
 
 package ru.kelcu.windows.screens.components.alinlib;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 //#if MC >= 12110
@@ -75,11 +76,11 @@ public class ButtonBoolean extends Button implements Resetable {
 
     public void renderText(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if (GuiUtils.isDoesNotFit(this.builder.isCheckBox ? this.builder.getTitle() : this.getMessage(), this.getWidthComponent(), this.getHeight())) {
-            this.renderScrollingString(guiGraphics, AlinLib.MINECRAFT.font, this.builder.isCheckBox ? this.builder.getTitle() : this.getMessage(), (this.getHeight() - 8) / 2, this.builder.getStyle().getTextColor(this.active), this.builder.getStyle().textShadow());
+            this.renderScrollingString(guiGraphics, Minecraft.getInstance().font, this.builder.isCheckBox ? this.builder.getTitle() : this.getMessage(), (this.getHeight() - 8) / 2, this.builder.getStyle().getTextColor(this.active), this.builder.getStyle().textShadow());
         } else {
-            guiGraphics.text(AlinLib.MINECRAFT.font, this.builder.getTitle(), this.getXComponent() + (this.getHeight() - 8) / 2, this.getY() + (this.getHeight() - 8) / 2, this.builder.getStyle().getTextColor(this.active), this.builder.getStyle().textShadow());
+            guiGraphics.text(Minecraft.getInstance().font, this.builder.getTitle(), this.getXComponent() + (this.getHeight() - 8) / 2, this.getY() + (this.getHeight() - 8) / 2, this.builder.getStyle().getTextColor(this.active), this.builder.getStyle().textShadow());
             if (!this.builder.isCheckBox) {
-                guiGraphics.text(AlinLib.MINECRAFT.font, this.volumeState, this.getX() + this.getWidth() - AlinLib.MINECRAFT.font.width(this.volumeState.getString()) - (this.getHeight() - 8) / 2, this.getY() + (this.getHeight() - 8) / 2, this.builder.getStyle().getTextColor(this.active), this.builder.getStyle().textShadow());
+                guiGraphics.text(Minecraft.getInstance().font, this.volumeState, this.getX() + this.getWidth() - Minecraft.getInstance().font.width(this.volumeState.getString()) - (this.getHeight() - 8) / 2, this.getY() + (this.getHeight() - 8) / 2, this.builder.getStyle().getTextColor(this.active), this.builder.getStyle().textShadow());
             }
         }
 

@@ -1,5 +1,6 @@
 package ru.kelcu.windows.mixin.screens;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.OutOfMemoryScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -24,7 +25,7 @@ public abstract class TitleScreenMixin {
                         button.setPosition((int) (button.getX() - (button.getWidth() * Math.random() * (Math.random() < 0.5 ? -1 : 1))), (int) (button.getY() - (button.getHeight() * Math.random() * (Math.random() < 0.5 ? -1 : 1))));
                         SoundUtils.error();
                     } else {
-                        AlinLib.MINECRAFT.gui.setScreen(new OutOfMemoryScreen());
+                        Minecraft.getInstance().gui.setScreen(new OutOfMemoryScreen());
                     }
                 }).bounds(guiEventListener.getX(), guiEventListener.getY(), 98, 20).build());
             }

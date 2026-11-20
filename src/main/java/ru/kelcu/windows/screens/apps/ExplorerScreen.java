@@ -28,6 +28,7 @@ import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.editbox.EditBoxBuilder;
 import ru.kelcuprum.alinlib.gui.components.editbox.EditBox;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,7 +172,15 @@ public class ExplorerScreen extends Screen {
         try {
             widgets = new ArrayList<>();
             File file = new File(path);
-            if(file.exists()){
+            if(path.isBlank()){
+                FileSystemView fsv = FileSystemView.getFileSystemView();
+                File[] roots = File.listRoots();
+                for(File f : roots){
+                    String icon = fsv.isFloppyDrive(f) ? "removable_disk_drive" : fsv.isDrive(f) ? "hard_disk_drive_cool" : "cd_drive_purple";
+                    widgets.add(new LabelWidget(-50, 0, 40, new Action(() ->
+                            changePath(f.getAbsolutePath()), Component.literal(fsv.getSystemDisplayName(f)), GuiUtils.getResourceLocation("windows", String.format("textures/start/icons/drive/%s.png", icon)))));
+                }
+            } else if(file.exists()){
                 if(file.isDirectory()){
                     if(file.listFiles() == null) {
                         Blaze3D.openPath(file.toPath());
@@ -249,6 +258,9 @@ public class ExplorerScreen extends Screen {
 
     @Override
     public Component getTitle() {
+        if(path.isBlank()){
+            return Component.translatable("minedows.explorer.this_computer");
+        }
         File file = new File(path);
         Component name = file.exists() ? Component.literal(file.getName()) : super.getTitle();
         if(file.getName().equals(System.getProperty("user.name"))) name = Component.translatable("minedows.explorer.user_folder");
@@ -352,9 +364,14 @@ public class ExplorerScreen extends Screen {
         if (!scr && scroller != null) scr = scroller.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         return scr;
     }
+    public int lastDrives = File.listRoots().length;
     @Override
     public void tick() {
         if (scroller != null) scroller.onScroll.accept(scroller);
+        if(lastDrives != File.listRoots().length && path.isBlank()){
+            lastDrives = File.listRoots().length;
+            rebuildWidgets();
+        }
         super.tick();
     }
 }

@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.components;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 //#if MC >= 12106
@@ -23,7 +24,7 @@ import static ru.kelcuprum.alinlib.gui.Colors.*;
 public class VolumeComponent extends AbstractSliderButton {
     public final SoundSource soundSource;
     public VolumeComponent(int x, int y, int width, int height, SoundSource soundSource) {
-        super(x, y, width, height, Component.empty(), AlinLib.MINECRAFT.options.getSoundSourceVolume(soundSource));
+        super(x, y, width, height, Component.empty(), Minecraft.getInstance().options.getSoundSourceVolume(soundSource));
         this.soundSource = soundSource;
     }
     @Override
@@ -40,7 +41,7 @@ public class VolumeComponent extends AbstractSliderButton {
     }
 
     public Identifier getSpeakerVolumeIcon(){
-        float f = AlinLib.MINECRAFT.options.getSoundSourceVolume(soundSource);
+        float f = Minecraft.getInstance().options.getSoundSourceVolume(soundSource);
         return GuiUtils.getResourceLocation("windows", String.format("textures/start/volume_%s.png",
                 f == 0 ? "muted" : f <= 0.1 ? "low" : f <= 0.8 ? "ok" : "max"));
     }
@@ -95,7 +96,7 @@ public class VolumeComponent extends AbstractSliderButton {
 
     @Override
     protected void applyValue() {
-        AlinLib.MINECRAFT.options.getSoundSourceOptionInstance(soundSource).set(value);
-        AlinLib.MINECRAFT.options.save();
+        Minecraft.getInstance().options.getSoundSourceOptionInstance(soundSource).set(value);
+        Minecraft.getInstance().options.save();
     }
 }

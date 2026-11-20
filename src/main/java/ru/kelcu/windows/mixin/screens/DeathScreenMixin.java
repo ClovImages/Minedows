@@ -68,9 +68,9 @@ public abstract class DeathScreenMixin extends Screen {
             addRenderableWidget(new ButtonBuilder(Component.translatable("deathScreen.titleScreen"),
                     (s) ->
                             //#if MC < 12110
-                            //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE)
+                            //$$PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE)
                             //#else
-                            AlinLib.MINECRAFT.getReportingContext().draftReportHandled(AlinLib.MINECRAFT, AlinLib.MINECRAFT.gui.screen(), () -> AlinLib.MINECRAFT.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true)
+                            Minecraft.getInstance().getReportingContext().draftReportHandled(Minecraft.getInstance(), Minecraft.getInstance().gui.screen(), () -> Minecraft.getInstance().disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true)
                             //#endif
                             )
                     .setPosition(x+105, y).setSize(100, 18).build());
@@ -112,9 +112,9 @@ public abstract class DeathScreenMixin extends Screen {
             if(i == InputConstants.KEY_S) this.minecraft.player.respawn();
             else if(i == InputConstants.KEY_T)
                 //#if MC < 12110
-                //$$PauseScreen.disconnectFromWorld(AlinLib.MINECRAFT, ClientLevel.DEFAULT_QUIT_MESSAGE);
+                //$$PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE);
                 //#else
-                AlinLib.MINECRAFT.getReportingContext().draftReportHandled(AlinLib.MINECRAFT, AlinLib.MINECRAFT.gui.screen(), () -> AlinLib.MINECRAFT.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
+                Minecraft.getInstance().getReportingContext().draftReportHandled(Minecraft.getInstance(), Minecraft.getInstance().gui.screen(), () -> Minecraft.getInstance().disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
             //#endif
 
         }

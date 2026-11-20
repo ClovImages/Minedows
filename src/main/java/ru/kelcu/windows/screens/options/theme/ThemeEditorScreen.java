@@ -1,5 +1,6 @@
 package ru.kelcu.windows.screens.options.theme;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -101,7 +102,7 @@ public class ThemeEditorScreen extends Screen {
             if(Math.random() < 0.25){
                 new ToastBuilder().setTitle(Component.literal("Meow?")).setMessage(Component.literal("Waiting for something to happen?")).setIcon("windows", "textures/meow.png").buildAndShow();
             }
-            AlinLib.MINECRAFT.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f));
         }).setStyle(minedowsStyle).setPosition(x, y).setWidth(155).build());
 
         x=width-149;
@@ -237,10 +238,10 @@ public class ThemeEditorScreen extends Screen {
         int maxTitleWidth = width - xTitle - buttonsSizes-10;
         String title = window.screen.getTitle().getString();
         if(title.isEmpty()) title = window.screen.getClass().getSimpleName()+".exe";
-        if(AlinLib.MINECRAFT.font.width(title) > maxTitleWidth){
-            title = AlinLib.MINECRAFT.font.substrByWidth(Component.literal(title), maxTitleWidth - (AlinLib.MINECRAFT.font.width("..."))).getString()+"...";
+        if(Minecraft.getInstance().font.width(title) > maxTitleWidth){
+            title = Minecraft.getInstance().font.substrByWidth(Component.literal(title), maxTitleWidth - (Minecraft.getInstance().font.width("..."))).getString()+"...";
         }
-        guiGraphics.text(AlinLib.MINECRAFT.font, title, x +xTitle+ 6, y + 6, 0xFFFFFFFF, false);
+        guiGraphics.text(Minecraft.getInstance().font, title, x +xTitle+ 6, y + 6, 0xFFFFFFFF, false);
         guiGraphics.pose().pushMatrix();
         guiGraphics.enableScissor(x+3, y+(buttonY*2+buttonSize), x+width-3, y+height-3);
         guiGraphics.pose().translate(x+3, y+19);
@@ -273,7 +274,7 @@ public class ThemeEditorScreen extends Screen {
         //#endif
         guiGraphics.pose().translate(-x-3, -y-19);
         guiGraphics.pose().popMatrix();
-//        guiGraphics.drawString(AlinLib.MINECRAFT.font, String.format("moved = %s", window.isDragging), x, y-12, -1);
+//        guiGraphics.drawString(Minecraft.getInstance().font, String.format("moved = %s", window.isDragging), x, y-12, -1);
         if((x+width-14 < mouseX && mouseX < x+width+6
                 && y+height-14 < mouseY && mouseY < y+height+6 && window.isResizable() && !window.maximize) || window.isResized) Cursor.setDragging(guiGraphics);
         else Cursor.reset(guiGraphics);

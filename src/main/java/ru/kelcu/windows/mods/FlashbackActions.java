@@ -30,7 +30,7 @@ public class FlashbackActions {
     }
 
     public static int buttonsCount(){
-        return AlinLib.MINECRAFT.level == null || !isShow() ? 0 : isRecord() ? 3 : 1;
+        return Minecraft.getInstance().level == null || !isShow() ? 0 : isRecord() ? 3 : 1;
     }
 
     public static ArrayList<Action> getActions(){
@@ -38,13 +38,13 @@ public class FlashbackActions {
         int buttons = buttonsCount();
         if(buttons == 0) {
             actions.add(new Action(() -> {
-                List<String> incompatibleMods = AlinLib.MINECRAFT.hasShiftDown() ? List.of() : Flashback.getReplayIncompatibleMods();
+                List<String> incompatibleMods = Minecraft.getInstance().hasShiftDown() ? List.of() : Flashback.getReplayIncompatibleMods();
                 if (incompatibleMods.isEmpty()) {
-                    AlinLib.MINECRAFT.gui.setScreen(new SelectReplayScreen(null));
+                    Minecraft.getInstance().gui.setScreen(new SelectReplayScreen(null));
                 } else {
                     String mods = StringUtils.join(incompatibleMods, ", ");
                     Component description = Component.translatable("flashback.incompatible_with_viewing_description").append(Component.literal(mods).withStyle(ChatFormatting.RED));
-                    AlinLib.MINECRAFT.gui.setScreen(new AlertScreen(() -> Minecraft.getInstance().gui.setScreen(null), Component.translatable("flashback.incompatible_with_viewing"), description));
+                    Minecraft.getInstance().gui.setScreen(new AlertScreen(() -> Minecraft.getInstance().gui.setScreen(null), Component.translatable("flashback.incompatible_with_viewing"), description));
                 }
 
             }, Component.translatable("flashback.open_replays"), WinColors.getLightIcon(String.format("textures/start/flashback/start"))));
@@ -74,15 +74,15 @@ public class FlashbackActions {
         if(isRecord())
             Flashback.finishRecordingReplay();
         else Flashback.startRecordingReplay();
-        AlinLib.MINECRAFT.gui.setScreen(null);
+        Minecraft.getInstance().gui.setScreen(null);
     }
     public static void cancelRecord(){
-        AlinLib.MINECRAFT.gui.setScreen(new ConfirmScreen(value -> {
+        Minecraft.getInstance().gui.setScreen(new ConfirmScreen(value -> {
             if (value) {
                 Flashback.cancelRecordingReplay();
-                AlinLib.MINECRAFT.gui.setScreen(null);
+                Minecraft.getInstance().gui.setScreen(null);
             } else {
-                AlinLib.MINECRAFT.gui.setScreen(new PauseScreen(true));
+                Minecraft.getInstance().gui.setScreen(new PauseScreen(true));
             }
         }, Component.literal("Confirm Cancel Recording"),
                 Component.literal("Are you sure you want to cancel the recording? You won't be able to recover it")));

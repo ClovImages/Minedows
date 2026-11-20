@@ -1,5 +1,6 @@
 package ru.kelcu.windows.mixin.screens;
 
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,7 +15,7 @@ public class ConfigScreenBuilderMixin {
 
     @Inject(method = "build", at=@At("HEAD"), cancellable = true, remap = false)
     public void build(CallbackInfoReturnable<AbstractConfigScreen> cir){
-        if(!(AlinLib.MINECRAFT.gui.screen() instanceof DesktopScreen)) return;
+        if(!(Minecraft.getInstance().gui.screen() instanceof DesktopScreen)) return;
 //        cir.setReturnValue(new AlinLibConfigScreen((ConfigScreenBuilder) (Object) this));
     }
 }

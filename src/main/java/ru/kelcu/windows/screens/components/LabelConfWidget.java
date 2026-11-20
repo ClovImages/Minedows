@@ -33,12 +33,12 @@ public class LabelConfWidget extends AbstractWidget {
 
     @Override
     public int getHeight() {
-        return (int) (width + (AlinLib.MINECRAFT.font.lineHeight*1.65) +6);
+        return (int) (width + (Minecraft.getInstance().font.lineHeight*1.65) +6);
     }
 
     @Override
     protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
-        List<FormattedCharSequence> list = AlinLib.MINECRAFT.font.split(action.title, (int) (width*1.65));
+        List<FormattedCharSequence> list = Minecraft.getInstance().font.split(action.title, (int) (width*1.65));
         int yA = getWidth()+3;
         int max /* не мессенжер */ = isHovered() ? 100 : 2;
         int pw = 0;
@@ -47,7 +47,7 @@ public class LabelConfWidget extends AbstractWidget {
                 pw = 0;
                 break;
             }
-            yA += (int) (AlinLib.MINECRAFT.font.lineHeight*1.25);
+            yA += (int) (Minecraft.getInstance().font.lineHeight*1.25);
             pw++;
         }
         pw=0;
@@ -70,8 +70,8 @@ public class LabelConfWidget extends AbstractWidget {
         int color = Windows.config.getBoolean("LABEL.DARK_TEXT", false) || isBlackDuck ? 0xFF000000 : -1;
         for(FormattedCharSequence formattedCharSequence : list){
             if(pw == max) break;
-            guiGraphics.text(AlinLib.MINECRAFT.font, formattedCharSequence, (int) ((getWidth()/1.5)-(AlinLib.MINECRAFT.font.width(formattedCharSequence)*0.5)), y, color, false);
-            y+= (6+AlinLib.MINECRAFT.font.lineHeight);
+            guiGraphics.text(Minecraft.getInstance().font, formattedCharSequence, (int) ((getWidth()/1.5)-(Minecraft.getInstance().font.width(formattedCharSequence)*0.5)), y, color, false);
+            y+= (6+Minecraft.getInstance().font.lineHeight);
             pw++;
         }
         guiGraphics.pose().popMatrix();
@@ -103,8 +103,8 @@ public class LabelConfWidget extends AbstractWidget {
             config.setBoolean("enable", !config.getBoolean("enable", defaultValue));
             Windows.config.setJsonObject(id, config.toJSON());
         }
-        if(AlinLib.MINECRAFT.gui.screen() instanceof DesktopScreen)
-            AlinLib.MINECRAFT.gui.screen().rebuildWidgets();
+        if(Minecraft.getInstance().gui.screen() instanceof DesktopScreen)
+            Minecraft.getInstance().gui.screen().rebuildWidgets();
         lastClick = System.currentTimeMillis();
         return super.mouseClicked(
                 //#if MC >= 12110
