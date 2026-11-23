@@ -9,3 +9,10 @@ accessible class net/minecraft/client/gui/Hud$ContextualInfo
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor deferredTooltip Ljava/lang/Runnable;
 accessible method net/minecraft/client/gui/GuiGraphicsExtractor componentHoverEffect (Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Style;II)V
+accessible field net/minecraft/client/gui/components/MultiLineEditBox textField Lnet/minecraft/client/gui/components/MultilineTextField;
+accessible field net/minecraft/client/gui/components/MultilineTextField$StringView beginIndex I
+accessible method net/minecraft/client/gui/components/MultilineTextField truncateInsertionText (Ljava/lang/String;)Ljava/lang/String;
+accessible method net/minecraft/client/gui/components/MultilineTextField overflowsLineLimit (Ljava/lang/String;)Z
+accessible field net/minecraft/client/gui/components/MultilineTextField cursor I
+accessible field net/minecraft/client/gui/components/MultilineTextField selectCursor I
+accessible method net/minecraft/client/gui/components/MultilineTextField onValueChange ()V

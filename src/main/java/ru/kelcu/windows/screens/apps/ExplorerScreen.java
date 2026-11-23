@@ -322,8 +322,9 @@ public class ExplorerScreen extends Screen {
             return Component.translatable("minedows.explorer.this_computer");
         }
         File file = new File(path);
-        Component name = file.exists() ? Component.literal(file.getName()) : super.getTitle();
-        if(file.getName().equals(System.getProperty("user.name"))) name = Component.translatable("minedows.explorer.user_folder");
+        String fname = fsv.getSystemDisplayName(file);
+        Component name = file.exists() ? Component.literal(fname) : super.getTitle();
+        if(fname.equals(System.getProperty("user.name"))) name = Component.translatable("minedows.explorer.user_folder");
         return name;
     }
 

@@ -196,7 +196,8 @@ public class DesktopScreen extends Screen {
         SystemInfo si = new SystemInfo();
         if(si.getHardware().getPowerSources() != null && !si.getHardware().getPowerSources().isEmpty()){
             for(PowerSource ps : si.getHardware().getPowerSources()){
-                double p = ps.getRemainingCapacityPercent();
+                if(ps.getCurrentCapacity() == 0 && ps.getMaxCapacity() == 0) continue;
+                double p = ps.getCurrentCapacity() / (double) ps.getMaxCapacity();
                 actions.add(new Action(() -> Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f)), Component.translatable("minedows.start.battery", String.format("%.1f%%", p * 100), ps.isCharging() ? Component.translatable("minedows.start.battery.charging") : Component.empty()), Identifier.fromNamespaceAndPath("windows", String.format("textures/start/battery_%s%s.png",
                         p == 0 ? "low" : p <= 0.3 ? "ok" : p <= 0.8 ? "very_ok" : "max", ps.isCharging() ? "_c" : ""))));
             }

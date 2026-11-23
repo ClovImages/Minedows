@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineEditBox;
+import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.BookViewScreen;
@@ -13,12 +14,19 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.WritableBookContent;
 import org.jspecify.annotations.Nullable;
+import ru.kelcu.windows.screens.apps.PaintScreen;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
+import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
+import ru.kelcuprum.alinlib.gui.components.builder.text.HorizontalRuleBuilder;
+import ru.kelcuprum.alinlib.gui.components.editbox.MultilineEditBox;
+import ru.kelcuprum.alinlib.gui.components.text.HorizontalRule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +41,24 @@ public class WordPad extends Screen {
         for(int i = 0; i<100; i++){
             pages.add(null);
         }
+        colors.put("0", 0xFF000000);
+        colors.put("1", 0xFF0000AA);
+        colors.put("2", 0xFF00AA00);
+        colors.put("3", 0xFF00AAAA);
+        colors.put("4", 0xFFAA0000);
+        colors.put("5", 0xFFAA00AA);
+        colors.put("6", 0xFFFFAA00);
+        colors.put("7", 0xFFAAAAAA);
+        colors.put("8", 0xFF555555);
+        colors.put("9", 0xFF5555FF);
+        colors.put("a", 0xFF55FF55);
+        colors.put("b", 0xFF55FFFF);
+        colors.put("c", 0xFFFF5555);
+        colors.put("d", 0xFFFF55FF);
+        colors.put("e", 0xFFFFFF55);
+        colors.put("f", 0xFFFFFFFF);
     }
+    private HashMap<String, Integer> colors = new HashMap<>();
     private Player owner;
     private ItemStack book;
     private InteractionHand hand;
@@ -53,7 +78,7 @@ public class WordPad extends Screen {
             i++;
         }
     }
-
+    public int yForPages = 57;
     HashMap<Integer, String> strings = new HashMap<>();
     HashMap<Integer, MultiLineEditBox> editBoxs = new HashMap<>();
     ArrayList<AbstractWidget> widgets = new ArrayList<>();
@@ -61,11 +86,66 @@ public class WordPad extends Screen {
     @Override
     protected void init() {
         super.init();
+        // =-=-=-=-=-= CONTROLS
+        int xb = 5;
+        int yb = 5;
+        // - File & format
+        addRenderableWidget(new ButtonBuilder().setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/folder.png")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder().setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/folder.png")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder().setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/folder.png")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        //
+        xb+=30;
+        addRenderableWidget(new ButtonBuilder(Component.literal("§rR"), (b) -> setColor("r")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder(Component.literal("§lB"), (b) -> setColor("l")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder(Component.literal("§mS"), (b) -> setColor("m")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder(Component.literal("§nU"), (b) -> setColor("n")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder(Component.literal("§oI"), (b) -> setColor("o")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+=20;
+        addRenderableWidget(new ButtonBuilder(Component.literal("§kK"), (b) -> setColor("k")).setPosition(xb, yb)
+                .setSize(20, 20).build());
+        xb+= 30;
+        //-=-=-=-=-=-=-=- todo
+        int pc = 0;
+        int si = 10;
+        for(String color : colors.keySet()){
+            if(xb+20 > width){
+                xb = 5; yb+=20;
+            }
+            addRenderableWidget(new PaintScreen.ButtonColor(new ButtonBuilder(Component.empty(),
+                    (s) -> setColor(color)).setSize(si, si).setPosition(xb, yb), colors.get(color)));
+            if(pc == 0) {
+                yb+=si;
+                pc++;
+            }
+            else {
+                pc = 0;
+                xb+=si;
+                yb-=si;
+            }
+        }
+        xb = 0; yb+=24;
+        HorizontalRule hr = (HorizontalRule) addRenderableWidget(new HorizontalRuleBuilder().setPosition(xb, yb).setWidth(width).build());
+        yForPages = hr.getBottom();
+        // =-=-=-=-=-= PAGES
         widgets.clear();
         widgets = new ArrayList<>();
         int x = (width/2) - (122/2);
         int padding = (192-134) / 2;
-        int y = 24+padding;
+        int y = yForPages+padding;
         for(int i = 0; i < 100; i++){
             MultiLineEditBox page = MultiLineEditBox.builder().setShowDecorations(false).setTextColor(-16777216).setCursorColor(-16777216).setShowBackground(false).setTextShadow(false).setX((this.width - 114) / 2 - 8).setY(28).build(this.font, 122, 134, CommonComponents.EMPTY);
             page.setCharacterLimit(1024);
@@ -80,8 +160,8 @@ public class WordPad extends Screen {
             widgets.add(page);
             y = page.getBottom()+(padding*2)+1;
         }
-        this.scroller = addRenderableWidget(new ConfigureScrolWidget(width-4, 25, 3, this.height-25, Component.empty(), scroller -> {
-            scroller.innerHeight = 24+(padding);
+        this.scroller = addRenderableWidget(new ConfigureScrolWidget(width-4, yForPages+2, 3, this.height-yForPages-3, Component.empty(), scroller -> {
+            scroller.innerHeight = yForPages+(padding);
             for (AbstractWidget widget : widgets) {
                 if (widget.visible) {
                     widget.setPosition(x, (int) (scroller.innerHeight - scroller.scrollAmount()));
@@ -95,12 +175,33 @@ public class WordPad extends Screen {
             addWidget(widget);
         }
     }
+    public void setColor(String code){
+        if(active != null){
+            insertText(active, "§"+code);
+            setFocused(active);
+        }
+    }
+    public void insertText(MultiLineEditBox editBox, final String input) {
+        if (!input.isEmpty() || editBox.textField.hasSelection()) {
+            String text = input;
+            MultilineTextField.StringView selected = editBox.textField.getSelected();
+            if(selected.beginIndex() != selected.endIndex()){
+                text = input + editBox.textField.value().substring(selected.beginIndex(), selected.endIndex()).replace("\n", "\n"+input)+"§r";
+            }
+            String newValue = (new StringBuilder(editBox.textField.value())).replace(selected.beginIndex(), selected.endIndex(), text).toString();
+            if (!editBox.textField.overflowsLineLimit(newValue)) {
+                editBox.textField.setValue(newValue);
+                editBox.textField.cursor = selected.beginIndex + text.length();
+                editBox.textField.selectCursor = editBox.textField.cursor;
+                editBox.textField.onValueChange();
+            }
+        }
+    }
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(guiGraphics, mouseX, mouseY, a);
-
-        guiGraphics.enableScissor(0, 24, width, height);
+        guiGraphics.enableScissor(0, yForPages, width, height);
         if (scroller != null) for (AbstractWidget widget : scroller.widgets) widget.extractRenderState(guiGraphics, mouseX, mouseY, a);
         guiGraphics.disableScissor();
     }
@@ -114,15 +215,18 @@ public class WordPad extends Screen {
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
+        graphics.enableScissor(0, yForPages, width, height);
         for(int i = 0; i<100; i++){
             MultiLineEditBox box = editBoxs.getOrDefault(i, null);
             if(box != null){
                 int x = (width / 2) - (192 / 2);
                 int y = box.getY()-((192 - box.getHeight()) / 2);
+                if(height < y || y+192 < 0) continue;
                 graphics.blit(RenderPipelines.GUI_TEXTURED, BookViewScreen.BOOK_LOCATION, x, y, 0.0F, 0.0F, 192, 192, 256, 256);
-                graphics.text(font, Component.translatable("book.pageIndicator", i+1, 100), box.getX(), box.getY()-font.lineHeight-3, -16777216, false);
+                graphics.text(font, Component.translatable("book.pageIndicator", i+1, 100), box.getX()+3, box.getY()-font.lineHeight-3, -16777216, false);
             }
         }
+        graphics.disableScissor();
     }
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         boolean scr = super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);

@@ -10,3 +10,4 @@ accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor deferredTooltip Ljava/lang/Runnable;
 accessible method net/minecraft/client/gui/GuiGraphicsExtractor componentHoverEffect (Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Style;II)V
 accessible field net/minecraft/client/gui/GuiGraphicsExtractor pendingCursor Lcom/mojang/blaze3d/platform/cursor/CursorType;
+accessible field net/minecraft/client/gui/components/MultiLineEditBox textField Lnet/minecraft/client/gui/components/MultilineTextField;
