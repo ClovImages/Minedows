@@ -29,6 +29,7 @@ import ru.kelcuprum.alinlib.gui.config.DesignScreen;
 import ru.kelcuprum.alinlib.gui.screens.ConfigScreenBuilder;
 import ru.kelcuprum.alinlib.info.Player;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -174,35 +175,18 @@ public class ControlPanelScreen extends Screen {
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.sounds")).setStyle(LabelsPanelScreen.nothingStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.sounds.disable_click_sound"), false).setConfig(Windows.config, "DISABLE_CLICK_SOUND").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.sounds.disable_error_sound"), false).setConfig(Windows.config, "DISABLE_ERROR_SOUND").setStyle(Windows.minedowsStyle))
-                // TODO: LEGACY THEMES
-                // -=-=-=-=-
-//                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.themes")).setStyle(LabelsPanelScreen.nothingStyle))
-//                .addWidget(new SelectorBuilder(Component.translatable("minedows.system_options.themes.theme")).setValue(ThemeManager.getThemePosition(ThemeManager.getSelectedTheme()))
-//                        .setList(ThemeManager.getThemesNames()).setOnPress((s) -> {
-//                            config.setString("THEME", ThemeManager.getThemesID()[s.getPosition()]);
-//                        }).setStyle(Windows.minedowsStyle))
-//                .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.theme_color")).setStyle(LabelsPanelScreen.nothingStyle))
-//                .addWidget(new TextBuilder(Component.translatable("minedows.control.colors_tips")).setType(TextBuilder.TYPE.BLOCKQUOTE).setStyle(Windows.minedowsStyle))
-//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.background.theme.color")).setColor(0xFFcbcbcb).setConfig(Windows.config, "THEME.MAIN_COLOR").setStyle(Windows.minedowsStyle))
-//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.background.theme.active_color")).setColor(0xFFAFC9D1).setConfig(Windows.config, "THEME.ACTIVE_COLOR").setStyle(Windows.minedowsStyle))
-//                .addWidget(new TextBuilder(Component.translatable("minedows.control.start")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
-//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.start.color_start")).setColor(-14644786).setConfig(Windows.config, "START.GRADIENT.START").setStyle(Windows.minedowsStyle))
-//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.start.color_end")).setColor(-16777088).setConfig(Windows.config, "START.GRADIENT.END").setStyle(Windows.minedowsStyle))
-//                .addWidget(new TextBuilder(Component.translatable("minedows.control.title")).setAlign(TextBuilder.ALIGN.LEFT).setStyle(LabelsPanelScreen.nothingStyle))
-//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_start")).setColor(-16777088).setConfig(Windows.config, "TITLE.GRADIENT.START").setStyle(Windows.minedowsStyle))
-//                .addWidget(new EditBoxBuilder(Component.translatable("minedows.control.title.color_end")).setColor(-14644786).setConfig(Windows.config, "TITLE.GRADIENT.END").setStyle(Windows.minedowsStyle))
                 // -=-=-=-=-
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.ui")).setStyle(LabelsPanelScreen.nothingStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_classic_style"), false).setConfig(Windows.config, "ENABLE_CLASSIC_STYLE").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_new_ui"), false).setConfig(Windows.config, "ENABLE_NEW_UI").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.death"), true).setConfig(Windows.config, "DEATH").setStyle(Windows.minedowsStyle))
-                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.death.hardcore"), true).setConfig(Windows.config, "DEATH.HARDCORE").setStyle(Windows.minedowsStyle))
                 .addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.other")).setStyle(LabelsPanelScreen.nothingStyle));
         if(Windows.isDeveloperPreview()) builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.disable_warn_text"), false).setConfig(Windows.config, "DISABLE_WARN_TEXT").setStyle(Windows.minedowsStyle));
         builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.fix_smooth_menu"), false).setConfig(Windows.config, "FIXES.SMOOTH_MENU").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_pause_screen"), false).setConfig(Windows.config, "ENABLE_PAUSE_SCREEN").setStyle(Windows.minedowsStyle))
                 .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.open_pause_screen"), false).setConfig(Windows.config, "OPEN_PAUSE_SCREEN").setStyle(Windows.minedowsStyle))
-                .addWidget(new EditBoxBuilder(Component.translatable("minedows.system_options.other.explorer.home_page")).setValue(System.getProperty("user.home")).setConfig(Windows.config, "EXPLORER.DEFAULT_PAGE").setStyle(Windows.minedowsStyle));
+                .addWidget(new EditBoxBuilder(Component.translatable("minedows.system_options.other.explorer.home_page")).setValue(System.getProperty("user.home")).setConfig(Windows.config, "EXPLORER.DEFAULT_PAGE").setStyle(Windows.minedowsStyle))
+                .addWidget(new EditBoxBuilder(Component.translatable("minedows.system_options.other.explorer.links")).setValue(String.format("%s%sDesktop", System.getProperty("user.home"), File.separator)).setConfig(Windows.config, "explorer_links").setStyle(Windows.minedowsStyle));
         if(Player.isLicenseAccount() || FabricLoader.getInstance().isDevelopmentEnvironment())
             builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.activate"), false).setConfig(Windows.config, "ALWAYS_ACTIVATE_MINECRAFT").setStyle(Windows.minedowsStyle));
         return new SystemOptionsScreen(builder);

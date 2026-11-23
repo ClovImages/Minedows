@@ -58,10 +58,11 @@ dependencies {
     if (mod_brand == 'fabric') {
         implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
         implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-        compileOnly "maven.modrinth:bQhBuv7x:${project.mcef_keksuccino}"
+        implementation "maven.modrinth:bQhBuv7x:${project.mcef_keksuccino}"
         implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
         compileOnly("maven.modrinth:flashback:${project.flashback_version}")
         implementation "ru.kelcuprum:AlinLib-fabric:${rootProject.alinlib}+mc${project.alinlib_minecraft_version == null ? project.minecraft_version : project.alinlib_minecraft_version}"
+        implementation "com.github.oshi:oshi-core:6.6.5"
     }
 
 
@@ -139,7 +140,7 @@ modrinth {
             required.project "fabric-api"
             optional.project "modmenu"
         }
-        optional.project "mcef-keksuccino"
+        optional.project "rinku"
         incompatible.project "capes"
     }
 }

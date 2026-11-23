@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.StringUtil;
 import ru.kelcu.windows.Windows;
+import ru.kelcu.windows.screens.components.alinlib.EditBox;
 import ru.kelcu.windows.utils.SoundUtils;
 import ru.kelcu.windows.utils.WindowUtils;
 import ru.kelcuprum.alinlib.AlinLib;
@@ -91,23 +92,25 @@ public class CalcScreen extends Screen {
     public boolean keyPressed(int i, int j, int k) {
         return keyPressed(new KeyEvent(i, j, k));
     }
+
+    @Override
+    public boolean keyReleased(KeyEvent event) {
+        return super.keyReleased(event);
+    }
+
     //#endif
     @Override
     public boolean charTyped(
-            //#if MC < 12110
-            //$$ char c, int i) {
-            //#else
             CharacterEvent characterEvent) {
-        char c = characterEvent.codepointAsString().charAt(0);
-        int i = characterEvent.codepoint();
+        String c = characterEvent.codepointAsString();
         //#endif
         AlinLib.LOG.log("%s", c);
-        if (StringUtil.isAllowedChatCharacter(c) && correctForMath(Character.toString(c))) {
+        if (characterEvent.isAllowedChatCharacter() && correctForMath(c)) {
             if(isError) {
                 isError = false;
                 matematika_blyadskaya = "";
             }
-            matematika_blyadskaya+= Character.toString(c);
+            matematika_blyadskaya+= c;
             return true;
         } else {
             SoundUtils.error();

@@ -1,6 +1,7 @@
 package ru.kelcu.windows.screens;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.cursor.CursorType;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
@@ -28,10 +29,13 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
+import oshi.SystemInfo;
+import oshi.hardware.PowerSource;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.components.Cursor;
@@ -42,6 +46,7 @@ import ru.kelcu.windows.mods.ModMenuActions;
 import ru.kelcu.windows.screens.apps.*;
 import ru.kelcu.windows.screens.apps.browser.BrowserScreen;
 import ru.kelcu.windows.screens.apps.for_arts.FakeAudioPlayerScreen;
+import ru.kelcu.windows.screens.apps.wordpad.WordPad;
 import ru.kelcu.windows.screens.components.LabelWidget;
 import ru.kelcu.windows.screens.components.VerticalConfigureScrolWidget;
 import ru.kelcu.windows.screens.options.ControlPanelScreen;
@@ -53,6 +58,8 @@ import ru.kelcuprum.alinlib.gui.Colors;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 import ru.kelcuprum.alinlib.gui.toast.ToastBuilder;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -186,6 +193,14 @@ public class DesktopScreen extends Screen {
         if(FabricLoader.getInstance().isModLoaded("flashback")){
             actions.addAll(FlashbackActions.getActions());
         }
+        SystemInfo si = new SystemInfo();
+        if(si.getHardware().getPowerSources() != null && !si.getHardware().getPowerSources().isEmpty()){
+            for(PowerSource ps : si.getHardware().getPowerSources()){
+                double p = ps.getRemainingCapacityPercent();
+                actions.add(new Action(() -> Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f)), Component.translatable("minedows.start.battery", String.format("%.1f%%", p * 100), ps.isCharging() ? Component.translatable("minedows.start.battery.charging") : Component.empty()), Identifier.fromNamespaceAndPath("windows", String.format("textures/start/battery_%s%s.png",
+                        p == 0 ? "low" : p <= 0.3 ? "ok" : p <= 0.8 ? "very_ok" : "max", ps.isCharging() ? "_c" : ""))));
+            }
+        }
         return actions;
     }
 
@@ -197,13 +212,30 @@ public class DesktopScreen extends Screen {
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.notepad"), GuiUtils.getResourceLocation("windows", "textures/start/icons/notepad.png"), new WindowBuilder().setSize(325, 240).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/notepad.png")).setScreen(new NotepadScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
+        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.wordpad"), GuiUtils.getResourceLocation("windows", "textures/start/icons/wordpad.png"), new WindowBuilder().setScreen(new WordPad()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/wordpad.png"))));
         apps.add(new Action(() ->
             addWindow(new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png"))
                     .setScreen(Minecraft.getInstance().level != null ? new PauseScreen(true) : new TitleScreen()).build()),
                 Component.literal("Minecraft Menu"), GuiUtils.getResourceLocation("windows", "textures/start/icons/minecraft.png")));
         apps.addAll(ModManager.getActions(false));
+        if(!Windows.config.getString("explorer_links", String.format("%s%sDesktop", System.getProperty("user.home"), File.separator)).isBlank()){
+            String d = Windows.config.getString("explorer_links", String.format("%s%sDesktop", System.getProperty("user.home"), File.separator));
+            File file = new File(d);
+            if(file.exists() && file.isDirectory()){
+                for(File f : file.listFiles()){
+                    if(f.getName().toLowerCase().endsWith(".lnk")){
+                        String n = fsv.getSystemDisplayName(f);
+                        if(n.endsWith(".lnk")) n = n.substring(0, n.length()-4);
+                        apps.add(new Action(() -> Blaze3D.openPath(f.toPath()),
+                                Component.literal(n), ExplorerScreen.getIcon(f)));
+                    }
+                }
+            }
+        }
         return apps;
     }
+
+    private static FileSystemView fsv = FileSystemView.getFileSystemView();
 
     public static ArrayList<Window> taskbarWindow = new ArrayList<>();
     public static void addWindow(Window window){
@@ -320,7 +352,7 @@ public class DesktopScreen extends Screen {
         }
         apps.addAll(ModManager.getActions(true));
         links.put("3", apps);
-        if(Windows.config.getBoolean("enable_art_programms", true)){
+        if(Windows.config.getBoolean("enable_art_programms", false)){
             ArrayList<Action> art = new ArrayList<>();
             art.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.audio_player"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new FakeAudioPlayerScreen()));
             links.put("4", art);
@@ -486,8 +518,9 @@ public class DesktopScreen extends Screen {
         }
         guiGraphics.disableScissor();
         int xA = xWindowTask+verticalConfigureScrolWidget.getWidth()+5+(taskbarSize*Math.max(0, getTaskbarActions().size()-1));
+        int xAAAAA = xA - (taskbarSize*Math.max(0, getTaskbarActions().size()-1));
         if(!Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "taskbar_waaa"), width-xA+6 ,taskbarSize, 0, 0, xA-6, height-taskbarSize, width-xA+6, taskbarSize, colors[0]);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "taskbar_waaa"), width-xAAAAA+6 ,taskbarSize, 0, 0, xAAAAA-6, height-taskbarSize, width-xAAAAA+6, taskbarSize, colors[0]);
         }
         for(Action action : getTaskbarActions()){
             guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, xA, height-taskbarSize+4, 0 ,0, 14, 14, 14, 14, -1);

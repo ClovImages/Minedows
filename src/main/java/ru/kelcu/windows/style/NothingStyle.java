@@ -9,11 +9,17 @@ import ru.kelcuprum.alinlib.gui.components.builder.text.TextBuilder;
 import ru.kelcuprum.alinlib.gui.styles.AbstractStyle;
 import ru.kelcuprum.alinlib.gui.toast.ToastBuilder;
 
+import static ru.kelcu.windows.Windows.minedowsStyle;
 import static ru.kelcuprum.alinlib.gui.GuiUtils.interpolate;
 
 public class NothingStyle extends AbstractStyle {
-    public NothingStyle() {
+    public boolean isDarkText;
+    public NothingStyle(){
+        this(false);
+    }
+    public NothingStyle(boolean isDarkText) {
         super("nothing", Component.literal("Nothing, not company"));
+        this.isDarkText = isDarkText;
     }
     @Override
     public void renderBackground$widget(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height, boolean active, boolean isHoveredOrFocused) {
@@ -110,16 +116,19 @@ public class NothingStyle extends AbstractStyle {
 
     @Override
     public int getToastTextColor() {
+        if(isDarkText) return minedowsStyle.getToastTextColor();
         return 0xFF000000;
     }
 
     @Override
     public int getTextColor(TextBuilder.TYPE type) {
+        if(isDarkText) return minedowsStyle.getTextColor(type);
         return type == TextBuilder.TYPE.BLOCKQUOTE ? 0xFF000000 : getTextColor(true);
     }
 
     @Override
     public int getTextColor(boolean active) {
+        if(isDarkText) return WinColors.getTextColorWithMainColor();
         return  active ? 0xFF000000 : 0xFFadb5bd;
     }
 

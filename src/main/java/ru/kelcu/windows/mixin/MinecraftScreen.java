@@ -74,20 +74,21 @@ public abstract class MinecraftScreen{
                 currentWindow.screen.init((int) currentWindow.width-6, (int) currentWindow.height-22);
             }
             ci.cancel();
-        } else if(screen instanceof TitleScreen || (screen instanceof PauseScreen && !Windows.config.getBoolean("ENABLE_PAUSE_SCREEN", false)) || screen instanceof WinScreen || isWindowedDeathScreen(screen) || screen instanceof DisconnectedScreen){
+        } else if(screen instanceof TitleScreen || (screen instanceof PauseScreen && !Windows.config.getBoolean("ENABLE_PAUSE_SCREEN", false)) || screen instanceof WinScreen || screen instanceof DisconnectedScreen){
             setScreen(new DesktopScreen());
             try {
                 for(Window window : DesktopScreen.windows){
-                    if((window.screen instanceof TitleScreen || window.screen instanceof PauseScreen || window.screen instanceof WinScreen || isWindowedDeathScreen(window.screen)
+                    if((window.screen instanceof TitleScreen || window.screen instanceof PauseScreen || window.screen instanceof WinScreen
                             //#if MC < 12110
                             //$$|| window.screen instanceof ReceivingLevelScreen
                             //#endif
+                            || window.screen instanceof LevelLoadingScreen
                     ))
                         DesktopScreen.removeWindow(window);
                 }
                 if(Windows.config.getBoolean("OPEN_PAUSE_SCREEN", false) && (screen instanceof PauseScreen)) DesktopScreen.addWindow(new WindowBuilder().setScreen(screen).build());
             } catch (Exception ignored){}
-            if(screen instanceof WinScreen || screen instanceof DisconnectedScreen || isWindowedDeathScreen(screen)){
+            if(screen instanceof WinScreen || screen instanceof DisconnectedScreen){
                 DesktopScreen.addWindow(WindowUtils.getBuilderByScreen(screen).build());
             }
             ci.cancel();
@@ -95,14 +96,7 @@ public abstract class MinecraftScreen{
     }
     @Unique
     public boolean isNotLegalScreen(Screen screen){
-        if(screen instanceof DeathScreen && Minecraft.getInstance().level != null && Minecraft.getInstance().level.getLevelData().isHardcore()) return Windows.config.getBoolean("DEATH.HARDCORE", true);
+        if(screen instanceof DeathScreen) return Windows.config.getBoolean("DEATH", true);
         return screen instanceof AbstractContainerScreen || screen instanceof AbstractFurnaceScreen || screen instanceof AbstractSignEditScreen || screen instanceof BookEditScreen || screen instanceof AbstractCommandBlockEditScreen || screen instanceof OutOfMemoryScreen;
-    }
-
-    @Unique
-    public boolean isWindowedDeathScreen(Screen screen){
-        if(minecraft.level == null || !(screen instanceof DeathScreen)) return false;
-        return screen instanceof DeathScreen && Windows.config.getBoolean("DEATH", true) &&
-                !(Windows.config.getBoolean("DEATH.HARDCORE", true) && Minecraft.getInstance().level.getLevelData().isHardcore());
     }
 }

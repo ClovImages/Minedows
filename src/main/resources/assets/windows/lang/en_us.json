@@ -63,6 +63,8 @@
   "minedows.start.browser": "Clovium",
   "minedows.start.about": "About System",
   "minedows.start.volume": "Volume: %s",
+  "minedows.start.battery": "Battery: %s%s",
+  "minedows.start.battery.charging": " Charging",
 
   "minedows.paint": "Clovisoft Paint",
   "minedows.paint.marker_size": "Brush Width",
@@ -76,7 +78,7 @@
   "windows.paint.save": "Save",
   "minedows.paint.color": "Color",
 
-  "minedows.fluffy": "Fluffy will always be in our hearts <3",
+  "minedows.fluffy": "Cat <3",
 
   "minedows.system_options": "System Options",
   "minedows.system_options.boot": "Boot",
@@ -108,6 +110,7 @@
   "minedows.system_options.other.open_pause_screen": "Open the Pause Window if the top configuration is turned off",
   "minedows.system_options.other.explorer.home_page": "Explorer Home Page",
   "minedows.system_options.other.enable_classic_style": "Classic style",
+  "minedows.system_options.other.explorer.links": "Desktop Links",
 
   "minedows.sound_mixer": "Volume Mixer",
   "minedows.calc": "Calculator",
@@ -151,6 +154,8 @@
   "minedows.explorer": "File Explorer",
   "minedows.explorer.user_folder": "Home Directory",
   "minedows.explorer.this_computer": "This Computer",
+  "minedows.explorer.other_places": "Other Places",
+  "minedows.explorer.drives": "Connected drives",
 
   "minedows.bsod.back": "Press any key to continue%s",
   "minedows.bsod.hardcore.spectate": "[S] %s",
@@ -165,5 +170,7 @@
   "minedows.audio_player": "Minedows Media Player",
   "minedows.audio_player.with_title": "%s - Minedows Media Player",
   "minedows.audio_player.fake_title": "ЗОЖ",
-  "minedows.audio_player.fake_author": "Ленинград"
+  "minedows.audio_player.fake_author": "Ленинград",
+
+  "minedows.wordpad": "WordPad"
 }

@@ -10,6 +10,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 //#endif
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.sdl.SDLDialog;
 import org.lwjgl.sdl.SDL_DialogFileCallbackI;
@@ -19,6 +20,7 @@ import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.builders.WindowBuilder;
 import ru.kelcu.windows.screens.DesktopScreen;
 import ru.kelcu.windows.style.MinedowsStyle;
+import ru.kelcu.windows.style.NothingStyle;
 import ru.kelcu.windows.utils.WallpaperUtil;
 import ru.kelcu.windows.utils.WinColors;
 import ru.kelcu.windows.utils.WindowUtils;
@@ -48,7 +50,7 @@ public class BackgroundSettings extends Screen {
         super(Component.translatable("minedows.control.background"));
     }
 
-    public static MinedowsStyle airStyle = Windows.minedowsStyle;
+    public static NothingStyle airStyle = new NothingStyle(false);
     public Button image;
 
     public ArrayList<AbstractWidget> widgets = new ArrayList<>();
@@ -98,6 +100,7 @@ public class BackgroundSettings extends Screen {
         widgets.add(new ButtonBuilder(Component.translatable("minedows.control.background.wallpaper.perlin_noise"), (s) -> {
             Windows.config.setNumber("WALLPAPER.TYPE", 1);
         })
+                .setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/image.png"))
                 .setCentered(false)
                 .setSize(((width-40)/2), 16)
                 .setPosition(x+15, y)
@@ -107,6 +110,7 @@ public class BackgroundSettings extends Screen {
         widgets.add(new ButtonBuilder(Component.translatable("minedows.control.background.wallpaper.mono_color"), (s) -> {
             Windows.config.setNumber("WALLPAPER.TYPE", 0);
         })
+                .setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/image.png"))
                 .setCentered(false)
                 .setSize(((width-40)/2), 16)
                 .setPosition(x+15, y)
@@ -116,6 +120,7 @@ public class BackgroundSettings extends Screen {
         widgets.add(new ButtonBuilder(Component.translatable("minedows.control.background.wallpaper.panorama"), (s) -> {
             Windows.config.setNumber("WALLPAPER.TYPE", 2);
         })
+                .setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/image.png"))
                 .setCentered(false)
                 .setSize(((width-40)/2), 16)
                 .setPosition(x+15, y)
@@ -128,6 +133,7 @@ public class BackgroundSettings extends Screen {
                 Windows.config.setString("WALLPAPER.FILE", wallpaperData.file().toPath().toString());
                 Windows.config.setNumber("WALLPAPER.TYPE", 4);
             })
+                    .setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/image.png"))
                     .setCentered(false)
                     .setSize(((width-40)/2), 16)
                     .setPosition(x+15, y)
@@ -141,6 +147,7 @@ public class BackgroundSettings extends Screen {
                 Windows.config.setString("WALLPAPER.FILE", wallpaperData.id());
                 Windows.config.setNumber("WALLPAPER.TYPE", 3);
             })
+                    .setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/image.png"))
                     .setCentered(false)
                     .setSize(((width-40)/2), 16)
                     .setPosition(x+15, y)
@@ -174,6 +181,7 @@ public class BackgroundSettings extends Screen {
                 }
             }
         })
+                .setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/image.png"))
                 .setCentered(false)
                 .setSize(((width-40)/2), 16)
                 .setPosition(x+15, y)

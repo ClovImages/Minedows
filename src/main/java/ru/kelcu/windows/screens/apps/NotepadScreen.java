@@ -12,6 +12,7 @@ import org.lwjgl.sdl.SDL_DialogFileFilter;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import ru.kelcu.windows.Windows;
+import ru.kelcu.windows.style.NothingStyle;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.editbox.MultilineEditBoxBuilder;
@@ -26,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.sdl.SDLError.SDL_GetError;
-import static ru.kelcu.windows.Windows.minedowsStyle;
 
 public class NotepadScreen extends Screen {
     public String value = "";
@@ -46,7 +46,7 @@ public class NotepadScreen extends Screen {
         }
         this.lastValue = this.value;
     }
-
+    public static NothingStyle nothingStyle = new NothingStyle(true);
     @Override
     protected void init() {
         addRenderableWidget(new ButtonBuilder(Component.translatable("windows.paint.save"), (s) -> {
@@ -56,10 +56,10 @@ public class NotepadScreen extends Screen {
                 exception.printStackTrace();
             }
         })
-                .setSize(75, 16).setPosition(0, 1)
-                .setStyle(minedowsStyle).build());
+                .setSize(75, 10).setPosition(0, 1)
+                .setStyle(nothingStyle).build());
         addRenderableWidget(new MultilineEditBoxBuilder(Component.empty()).setValue(value).setResponder((string) -> value = string)
-                .setSize(width, height-19).setPosition(0, 19).setStyle(Windows.minedowsStyle).build());
+                .setSize(width, height-13).setPosition(0, 13).setStyle(Windows.minedowsStyle).build());
     }
 
     @Override

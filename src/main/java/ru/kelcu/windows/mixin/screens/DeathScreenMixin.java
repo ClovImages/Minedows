@@ -48,9 +48,6 @@ public abstract class DeathScreenMixin extends Screen {
     @Shadow
     protected abstract void init();
 
-    @Unique
-    public boolean isInited = false;
-
     protected DeathScreenMixin() {
         super(null);
     }
@@ -58,23 +55,6 @@ public abstract class DeathScreenMixin extends Screen {
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)
     void init(CallbackInfo cl) {
         if(isDisabled()) return;
-        if(!isNiko()){
-            this.deathScore = Component.translatable("deathScreen.score.value", new Object[]{Component.literal(Integer.toString(this.minecraft.player.getScore())).withStyle(ChatFormatting.YELLOW)});
-            Component component = this.hardcore ? Component.translatable("deathScreen.spectate") : Component.translatable("deathScreen.respawn");
-            int x = width-210;
-            int y = height-23;
-            addRenderableWidget(new ButtonBuilder(component, (s) -> this.minecraft.player.respawn())
-                    .setPosition(x, y).setSize(100, 18).build());
-            addRenderableWidget(new ButtonBuilder(Component.translatable("deathScreen.titleScreen"),
-                    (s) ->
-                            //#if MC < 12110
-                            //$$PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE)
-                            //#else
-                            Minecraft.getInstance().getReportingContext().draftReportHandled(Minecraft.getInstance(), Minecraft.getInstance().gui.screen(), () -> Minecraft.getInstance().disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true)
-                            //#endif
-                            )
-                    .setPosition(x+105, y).setSize(100, 18).build());
-        }
         cl.cancel();
     }
     @Inject(method = "extractBackground", at = @At("HEAD"), cancellable = true)
@@ -84,12 +64,8 @@ public abstract class DeathScreenMixin extends Screen {
     }
 
     @Unique
-    public boolean isNiko(){
-        return Windows.config.getBoolean("DEATH.HARDCORE", true) && hardcore;
-    }
-    @Unique
     public boolean isDisabled(){
-        return !Windows.config.getBoolean("DEATH", true) || !(minecraft.gui.screen() instanceof DesktopScreen);
+        return !Windows.config.getBoolean("DEATH", true);
     }
 
     @Override
@@ -98,8 +74,6 @@ public abstract class DeathScreenMixin extends Screen {
     //#else
     public boolean keyPressed(KeyEvent keyEvent) {
         int i = keyEvent.key();
-        int j = keyEvent.keycode();
-        int k = keyEvent.modifiers();
         //#endif
         if(isDisabled()) return super.keyPressed(
                 //#if MC < 12110
@@ -108,16 +82,15 @@ public abstract class DeathScreenMixin extends Screen {
                 keyEvent
                 //#endif
         );
-        if(isNiko()){
-            if(i == InputConstants.KEY_S) this.minecraft.player.respawn();
-            else if(i == InputConstants.KEY_T)
-                //#if MC < 12110
-                //$$PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE);
-                //#else
-                Minecraft.getInstance().getReportingContext().draftReportHandled(Minecraft.getInstance(), Minecraft.getInstance().gui.screen(), () -> Minecraft.getInstance().disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
+        if(i == InputConstants.KEY_S) this.minecraft.player.respawn();
+        else if(i == InputConstants.KEY_T)
+            //#if MC < 12110
+            //$$PauseScreen.disconnectFromWorld(Minecraft.getInstance(), ClientLevel.DEFAULT_QUIT_MESSAGE);
+            //#else
+            Minecraft.getInstance().getReportingContext().draftReportHandled(Minecraft.getInstance(), Minecraft.getInstance().gui.screen(), () -> Minecraft.getInstance().disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE), true);
             //#endif
 
-        }
+
         return super.keyPressed(
                 //#if MC < 12110
                 //$$i, j, k
@@ -131,39 +104,28 @@ public abstract class DeathScreenMixin extends Screen {
     public void render(GuiGraphicsExtractor guiGraphics, int i, int j, float f, CallbackInfo ci) {
         if(isDisabled()) return;
         super.extractRenderState(guiGraphics, i, j, f);
-        if(isNiko()){
-            ci.cancel();
-            guiGraphics.fill(0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), 0xFFFF0000);
-            int w = (int) (guiGraphics.guiWidth() * 0.6);
-            ArrayList<FormattedCharSequence> messages = new ArrayList<>();
-            if(causeOfDeath != null) messages.addAll(font.split(causeOfDeath, w));
-            if(deathScore != null) messages.addAll(font.split(deathScore, w));
-            int h = 30 + (font.lineHeight*2) + (font.lineHeight*messages.size()) + (2*(messages.size()-1));
-            int x = guiGraphics.guiWidth() / 2 - w / 2;
-            int y = guiGraphics.guiHeight() / 2 - h / 2;
-            guiGraphics.fill(guiGraphics.guiWidth()/2-(font.width(Component.literal("CRITICAL ERROR"))/2)-6, y-3, guiGraphics.guiWidth()/2+(font.width(Component.literal("CRITICAL ERROR"))/2)+6, y+ font.lineHeight+3, -1);
-            guiGraphics.text(font, Component.literal("CRITICAL ERROR"), guiGraphics.guiWidth()/2-(font.width(Component.literal("CRITICAL ERROR"))/2), y, 0xFFFF0000, false);
-            y+=15+font.lineHeight;
-            for(FormattedCharSequence formattedCharSequence : messages){
-                guiGraphics.text(font, formattedCharSequence, guiGraphics.guiWidth()/2-(font.width(formattedCharSequence)/2), y, -1, false);
-                y+=2+font.lineHeight;
-            }
-            y+=13;
-            guiGraphics.text(font, Component.translatable("minedows.bsod.hardcore.spectate", Component.translatable("deathScreen.spectate")),
-                    guiGraphics.guiWidth()/2-(font.width(Component.translatable("minedows.bsod.hardcore.spectate", Component.translatable("deathScreen.spectate")))/2), y, -1, false);
-            y+=13;
-            guiGraphics.text(font, Component.translatable("minedows.bsod.hardcore.title", Component.translatable("deathScreen.titleScreen")),
-                    guiGraphics.guiWidth()/2-(font.width(Component.translatable("minedows.bsod.hardcore.title", Component.translatable("deathScreen.titleScreen")))/2), y, -1, false);
-        } else {
-            int y = 5;
-            if (this.causeOfDeath != null) {
-                guiGraphics.text(this.font, this.causeOfDeath, 5, y, WinColors.getTextColorWithMainColor(), false);
-            }
-            y+=15;
-
-            guiGraphics.text(this.font, this.deathScore, 5, y, WinColors.getTextColorWithMainColor(), false);
-            ci.cancel();
+        ci.cancel();
+        guiGraphics.fill(0, 0, guiGraphics.guiWidth(), guiGraphics.guiHeight(), (hardcore ? 0xFFFF0000 : 0xFF0000FF));
+        int w = (int) (guiGraphics.guiWidth() * 0.6);
+        ArrayList<FormattedCharSequence> messages = new ArrayList<>();
+        if(causeOfDeath != null) messages.addAll(font.split(causeOfDeath, w));
+        if(deathScore != null) messages.addAll(font.split(deathScore, w));
+        int h = 30 + (font.lineHeight*2) + (font.lineHeight*messages.size()) + (2*(messages.size()-1));
+        int x = guiGraphics.guiWidth() / 2 - w / 2;
+        int y = guiGraphics.guiHeight() / 2 - h / 2;
+        guiGraphics.fill(guiGraphics.guiWidth()/2-(font.width(Component.literal("CRITICAL ERROR"))/2)-6, y-3, guiGraphics.guiWidth()/2+(font.width(Component.literal("CRITICAL ERROR"))/2)+6, y+ font.lineHeight+3, -1);
+        guiGraphics.text(font, Component.literal("CRITICAL ERROR"), guiGraphics.guiWidth()/2-(font.width(Component.literal("CRITICAL ERROR"))/2), y, (hardcore ? 0xFFFF0000 : 0xFF0000FF), false);
+        y+=15+font.lineHeight;
+        for(FormattedCharSequence formattedCharSequence : messages){
+            guiGraphics.text(font, formattedCharSequence, guiGraphics.guiWidth()/2-(font.width(formattedCharSequence)/2), y, -1, false);
+            y+=2+font.lineHeight;
         }
-
+        y+=13;
+        Component component = this.hardcore ? Component.translatable("deathScreen.spectate") : Component.translatable("deathScreen.respawn");
+        guiGraphics.text(font, Component.translatable("minedows.bsod.hardcore.spectate", component),
+                guiGraphics.guiWidth()/2-(font.width(Component.translatable("minedows.bsod.hardcore.spectate",component))/2), y, -1, false);
+        y+=13;
+        guiGraphics.text(font, Component.translatable("minedows.bsod.hardcore.title", Component.translatable("deathScreen.titleScreen")),
+                guiGraphics.guiWidth()/2-(font.width(Component.translatable("minedows.bsod.hardcore.title", Component.translatable("deathScreen.titleScreen")))/2), y, -1, false);
     }
 }
