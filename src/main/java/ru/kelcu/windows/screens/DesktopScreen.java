@@ -196,7 +196,7 @@ public class DesktopScreen extends Screen {
         SystemInfo si = new SystemInfo();
         if(si.getHardware().getPowerSources() != null && !si.getHardware().getPowerSources().isEmpty()){
             for(PowerSource ps : si.getHardware().getPowerSources()){
-                if(ps.getCurrentCapacity() == 0 && ps.getMaxCapacity() == 0) continue;
+                if(ps.getCurrentCapacity() == 0 || ps.getMaxCapacity() == 0) continue;
                 double p = ps.getCurrentCapacity() / (double) ps.getMaxCapacity();
                 actions.add(new Action(() -> Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.CAT_AMBIENT_BABY.value(), 1f, 1f)), Component.translatable("minedows.start.battery", String.format("%.1f%%", p * 100), ps.isCharging() ? Component.translatable("minedows.start.battery.charging") : Component.empty()), Identifier.fromNamespaceAndPath("windows", String.format("textures/start/battery_%s%s.png",
                         p == 0 ? "low" : p <= 0.3 ? "ok" : p <= 0.8 ? "very_ok" : "max", ps.isCharging() ? "_c" : ""))));
@@ -355,7 +355,7 @@ public class DesktopScreen extends Screen {
         links.put("3", apps);
         if(Windows.config.getBoolean("enable_art_programms", false)){
             ArrayList<Action> art = new ArrayList<>();
-            art.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.audio_player"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new FakeAudioPlayerScreen()));
+            art.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.audio_player"), GuiUtils.getResourceLocation("windows", "textures/start/icons/media_player.png"), new WindowBuilder().setScreen(new FakeAudioPlayerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/media_player.png"))));
             links.put("4", art);
         }
         return links;

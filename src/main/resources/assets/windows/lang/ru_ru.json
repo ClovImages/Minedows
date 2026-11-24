@@ -111,6 +111,10 @@
   "minedows.system_options.other.enable_classic_style": "Классический дизайн",
   "minedows.system_options.other.explorer.links": "Ярлыки рабочего стола",
 
+  "minedows.system_options.for_arts": "Для художников",
+  "minedows.system_options.for_arts.description": "Пока-что нету описания, напишу потом",
+  "minedows.system_options.for_arts.enable": "Включить режим художника",
+
   "minedows.sound_mixer": "Звуковой микшер",
   "minedows.calc": "Калькулятор",
 
@@ -160,5 +164,8 @@
 
   "resourcePack.windows_sound": "Звуки Windows 98",
 
-  "minedows.wordpad": "WordPad"
+  "minedows.wordpad": "WordPad (Dev.)",
+  "minedows.wordpad.open_file": "Открыть MWP файл",
+  "minedows.wordpad.open_from_game": "Импортировать книгу",
+  "minedows.wordpad.save": "Сохранить (Зажмите CTRL для файла)"
 }

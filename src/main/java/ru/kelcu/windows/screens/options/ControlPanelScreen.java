@@ -189,6 +189,9 @@ public class ControlPanelScreen extends Screen {
                 .addWidget(new EditBoxBuilder(Component.translatable("minedows.system_options.other.explorer.links")).setValue(String.format("%s%sDesktop", System.getProperty("user.home"), File.separator)).setConfig(Windows.config, "explorer_links").setStyle(Windows.minedowsStyle));
         if(Player.isLicenseAccount() || FabricLoader.getInstance().isDevelopmentEnvironment())
             builder.addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.activate"), false).setConfig(Windows.config, "ALWAYS_ACTIVATE_MINECRAFT").setStyle(Windows.minedowsStyle));
+        builder.addWidget(new HorizontalRuleBuilder(Component.translatable("minedows.system_options.for_arts")).setStyle(LabelsPanelScreen.nothingStyle))
+                .addWidget(new TextBuilder(Component.translatable("minedows.system_options.for_arts.description")).setType(TextBuilder.TYPE.BLOCKQUOTE))
+                .addWidget(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.for_arts.enable"), false).setConfig(Windows.config, "enable_art_programms").setStyle(Windows.minedowsStyle));
         return new SystemOptionsScreen(builder);
     }
 

@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.WritableBookContent;
 import org.jspecify.annotations.Nullable;
 import ru.kelcu.windows.screens.apps.PaintScreen;
+import ru.kelcu.windows.utils.WinColors;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.text.HorizontalRuleBuilder;
@@ -90,13 +91,13 @@ public class WordPad extends Screen {
         int xb = 5;
         int yb = 5;
         // - File & format
-        addRenderableWidget(new ButtonBuilder().setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/folder.png")).setPosition(xb, yb)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.open_file")).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/file.png")).setPosition(xb, yb)
                 .setSize(20, 20).build());
         xb+=20;
-        addRenderableWidget(new ButtonBuilder().setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/folder.png")).setPosition(xb, yb)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.open_from_game")).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/folder.png")).setPosition(xb, yb)
                 .setSize(20, 20).build());
         xb+=20;
-        addRenderableWidget(new ButtonBuilder().setIcon(Identifier.fromNamespaceAndPath("windows", "textures/start/icons/folder.png")).setPosition(xb, yb)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.save")).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/save.png")).setPosition(xb, yb)
                 .setSize(20, 20).build());
         //
         xb+=30;
@@ -138,8 +139,7 @@ public class WordPad extends Screen {
             }
         }
         xb = 0; yb+=24;
-        HorizontalRule hr = (HorizontalRule) addRenderableWidget(new HorizontalRuleBuilder().setPosition(xb, yb).setWidth(width).build());
-        yForPages = hr.getBottom();
+        yForPages = yb+5;
         // =-=-=-=-=-= PAGES
         widgets.clear();
         widgets = new ArrayList<>();
@@ -161,7 +161,7 @@ public class WordPad extends Screen {
             y = page.getBottom()+(padding*2)+1;
         }
         this.scroller = addRenderableWidget(new ConfigureScrolWidget(width-4, yForPages+2, 3, this.height-yForPages-3, Component.empty(), scroller -> {
-            scroller.innerHeight = yForPages+(padding);
+            scroller.innerHeight = yForPages+(padding)+5;
             for (AbstractWidget widget : widgets) {
                 if (widget.visible) {
                     widget.setPosition(x, (int) (scroller.innerHeight - scroller.scrollAmount()));
@@ -215,6 +215,9 @@ public class WordPad extends Screen {
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
+        int[] colors = WinColors.getHorizontalRuleColors();
+        graphics.fill(5, yForPages-2, width-5, yForPages, colors[0]);
+        graphics.fill(5, yForPages-2, width-5, yForPages-1, colors[1]);
         graphics.enableScissor(0, yForPages, width, height);
         for(int i = 0; i<100; i++){
             MultiLineEditBox box = editBoxs.getOrDefault(i, null);

@@ -112,6 +112,10 @@
   "minedows.system_options.other.enable_classic_style": "Classic style",
   "minedows.system_options.other.explorer.links": "Desktop Links",
 
+  "minedows.system_options.for_arts": "Для художников",
+  "minedows.system_options.for_arts.description": "Пока-что нету описания, напишу потом",
+  "minedows.system_options.for_arts.enable": "Включить режим художника",
+
   "minedows.sound_mixer": "Volume Mixer",
   "minedows.calc": "Calculator",
 
@@ -172,5 +176,8 @@
   "minedows.audio_player.fake_title": "ЗОЖ",
   "minedows.audio_player.fake_author": "Ленинград",
 
-  "minedows.wordpad": "WordPad"
+  "minedows.wordpad": "WordPad (Dev.)",
+  "minedows.wordpad.open_file": "Open MWP File",
+  "minedows.wordpad.open_from_game": "Import Book",
+  "minedows.wordpad.save": "Save (press CTRL to file)"
 }
