@@ -1,6 +1,8 @@
 package ru.kelcu.windows.screens.apps.wordpad;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -11,36 +13,56 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
+import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WritableBookContent;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.sdl.SDLDialog;
+import org.lwjgl.sdl.SDL_DialogFileCallbackI;
+import org.lwjgl.sdl.SDL_DialogFileFilter;
+import org.lwjgl.system.MemoryUtil;
 import ru.kelcu.windows.screens.apps.PaintScreen;
 import ru.kelcu.windows.utils.WinColors;
+import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.text.HorizontalRuleBuilder;
 import ru.kelcuprum.alinlib.gui.components.editbox.MultilineEditBox;
 import ru.kelcuprum.alinlib.gui.components.text.HorizontalRule;
+import ru.kelcuprum.alinlib.gui.toast.ToastBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
+
+import static org.lwjgl.sdl.SDLError.SDL_GetError;
 
 // TODO: СДЕЛАТЬ
 public class WordPad extends Screen {
     public WordPad() {
         super(Component.translatable("minedows.wordpad"));
         for(int i = 0; i<100; i++){
-            pages.add(null);
+            pages.add("");
         }
         colors.put("0", 0xFF000000);
         colors.put("1", 0xFF0000AA);
@@ -91,13 +113,31 @@ public class WordPad extends Screen {
         int xb = 5;
         int yb = 5;
         // - File & format
-        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.open_file")).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/file.png")).setPosition(xb, yb)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.open_file")
+        , (b) -> loadFile()).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/file.png")).setPosition(xb, yb)
                 .setSize(20, 20).build());
         xb+=20;
-        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.open_from_game")).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/folder.png")).setPosition(xb, yb)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.open_from_game"),
+                (boo) -> {
+                    boolean b = true;
+                    if(minecraft.level != null){
+                        ItemStack is = minecraft.player.getItemBySlot(EquipmentSlot.MAINHAND);
+                        if(is.is(Items.WRITABLE_BOOK)){
+                           minecraft.gui.setScreen(new WordPad(minecraft.player, is, InteractionHand.MAIN_HAND,
+                                   is.get(DataComponents.WRITABLE_BOOK_CONTENT)));
+                        } else {
+                            b = false;
+                        }
+                    } else b = false;
+                    if(!b) new ToastBuilder().setTitle(Component.translatable("minedows.wordpad")).setMessage(Component.translatable("minedows.wordpad.wrong_book")).setType(ToastBuilder.Type.ERROR).buildAndShow();
+                }).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/folder.png")).setPosition(xb, yb)
                 .setSize(20, 20).build());
         xb+=20;
-        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.save")).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/save.png")).setPosition(xb, yb)
+        addRenderableWidget(new ButtonBuilder(Component.translatable("minedows.wordpad.save"),
+                (b) -> {
+                    if(minecraft.hasControlDown()) saveFile();
+                    else saveToBook();
+                }).setSprite(Identifier.fromNamespaceAndPath("windows", "textures/wordpad/save.png")).setPosition(xb, yb)
                 .setSize(20, 20).build());
         //
         xb+=30;
@@ -240,5 +280,138 @@ public class WordPad extends Screen {
     public void tick() {
         if (scroller != null) scroller.onScroll.accept(scroller);
         super.tick();
+    }
+
+
+
+    public void saveFile(){
+        File defaultPath = new File(System.getProperty("user.home")).getAbsoluteFile();
+        String defaultString = defaultPath.getAbsolutePath();
+        if (defaultPath.isDirectory() && !defaultString.endsWith(File.separator)) {
+            defaultString += File.separator;
+        }
+        SDL_DialogFileFilter.Buffer filters = SDL_DialogFileFilter.calloc(1);
+        ByteBuffer filterName = MemoryUtil.memASCII(
+                Component.translatable("minedows.wordpad.save.filter_description").getString());
+        ByteBuffer filterPattern = MemoryUtil.memASCII("book");
+        filters.get(0).name(filterName).pattern(filterPattern);
+
+        SDL_DialogFileCallbackI pendingFileDialog = (userdata, filelist, filter) -> {
+            try {
+                if (filelist == MemoryUtil.NULL) {
+                    AlinLib.LOG.error("SDL file dialog failed: {}", SDL_GetError());
+                    return;
+                }
+
+                List<String> picked = new ArrayList<>();
+                for (long p = filelist; p != 0L; p += PointerBuffer.POINTER_SIZE) {
+                    long s = MemoryUtil.memGetAddress(p);
+                    if (s == MemoryUtil.NULL) break;
+                    picked.add(MemoryUtil.memUTF8(s));
+                }
+                if (picked.isEmpty()) {
+                    AlinLib.LOG.log("Dialog cancelled by user");
+                    return;
+                }
+
+                String pathh = picked.get(0);
+                Path path = new File(pathh).toPath();
+                Files.createDirectories(path.getParent());
+                Files.write(path, toString().getBytes(StandardCharsets.UTF_8));
+            } catch(Exception exception) {
+                exception.printStackTrace();
+            } finally {
+                filters.free();
+                MemoryUtil.memFree(filterName);
+                MemoryUtil.memFree(filterPattern);
+            }
+        };
+        SDLDialog.SDL_ShowSaveFileDialog(pendingFileDialog, 0L, 0L, filters, defaultString);
+    }
+    public void saveToBook(){
+
+        boolean b = true;
+        if(minecraft.level != null){
+            ItemStack is = minecraft.player.getItemBySlot(EquipmentSlot.MAINHAND);
+            if(is.is(Items.WRITABLE_BOOK)){
+                eraseEmptyTrailingPages();
+                int slot = this.hand == InteractionHand.MAIN_HAND ? this.owner.getInventory().getSelectedSlot() : 40;
+                this.minecraft.getConnection().send(new ServerboundEditBookPacket(slot, this.pages, Optional.empty()));
+                new ToastBuilder().setTitle(Component.translatable("minedows.wordpad")).setMessage(Component.translatable("minedows.wordpad.save.book_done")).buildAndShow();
+            } else {
+                b = false;
+            }
+        } else b = false;
+        if(!b) new ToastBuilder().setTitle(Component.translatable("minedows.wordpad")).setMessage(Component.translatable("minedows.wordpad.wrong_book")).setType(ToastBuilder.Type.ERROR).buildAndShow();
+    }
+    private void eraseEmptyTrailingPages() {
+        ListIterator<String> pagesIt = this.pages.listIterator(this.pages.size());
+
+        while(pagesIt.hasPrevious() && ((String) pagesIt.previous() == null || ((String)pagesIt.previous()).isEmpty())) {
+            pagesIt.remove();
+        }
+
+    }
+    public void loadFile(){
+        File defaultPath = new File(System.getProperty("user.home")).getAbsoluteFile();
+        String defaultString = defaultPath.getAbsolutePath();
+        if (defaultPath.isDirectory() && !defaultString.endsWith(File.separator)) {
+            defaultString += File.separator;
+        }
+        SDL_DialogFileFilter.Buffer filters = SDL_DialogFileFilter.calloc(1);
+        ByteBuffer filterName = MemoryUtil.memASCII(
+                Component.translatable("minedows.wordpad.save.filter_description").getString());
+        ByteBuffer filterPattern = MemoryUtil.memASCII("book");
+        filters.get(0).name(filterName).pattern(filterPattern);
+        AtomicBoolean b = new AtomicBoolean(false);
+        AtomicReference<Path> path = new AtomicReference<>();
+        SDL_DialogFileCallbackI pendingFileDialog = (userdata, filelist, filter) -> {
+            try {
+                if (filelist == MemoryUtil.NULL) {
+                    AlinLib.LOG.error("SDL file dialog failed: {}", SDL_GetError());
+                    b.set(true);
+                    return;
+                }
+
+                List<String> picked = new ArrayList<>();
+                for (long p = filelist; p != 0L; p += PointerBuffer.POINTER_SIZE) {
+                    long s = MemoryUtil.memGetAddress(p);
+                    if (s == MemoryUtil.NULL) break;
+                    picked.add(MemoryUtil.memUTF8(s));
+                }
+                if (picked.isEmpty()) {
+                    AlinLib.LOG.log("Dialog cancelled by user");
+                    b.set(true);
+                    return;
+                }
+
+                String pathh = picked.get(0);
+                JsonArray jsonArray = GsonHelper.parseArray(Files.readString(Path.of(pathh)));
+                int i = 0;
+                for(JsonElement jsonElement : jsonArray){
+                    pages.set(i, jsonElement.isJsonNull() ? null : jsonElement.getAsString());
+                    i++;
+                }
+                b.set(true);
+            } catch(Exception exception) {
+                exception.printStackTrace();
+            } finally {
+                filters.free();
+                MemoryUtil.memFree(filterName);
+                MemoryUtil.memFree(filterPattern);
+            }
+        };
+        SDLDialog.SDL_ShowOpenFileDialog(pendingFileDialog, 0L, 0L, filters, defaultString, false);
+        while(!b.get());
+        rebuildWidgets();
+    }
+
+    @Override
+    public String toString() {
+        JsonArray a = new JsonArray();
+        for(String page : pages){
+            a.add(page);
+        }
+        return a.toString();
     }
 }
