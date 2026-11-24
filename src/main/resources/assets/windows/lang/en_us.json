@@ -176,8 +176,10 @@
   "minedows.audio_player.fake_title": "ЗОЖ",
   "minedows.audio_player.fake_author": "Ленинград",
 
-  "minedows.wordpad": "WordPad (Dev.)",
-  "minedows.wordpad.open_file": "Open MWP File",
+  "minedows.wordpad": "WordPad (Alpha)",
+  "minedows.wordpad.open_file": "Open .book File",
   "minedows.wordpad.open_from_game": "Import Book",
-  "minedows.wordpad.save": "Save (press CTRL to file)"
+  "minedows.wordpad.save": "Save (press CTRL to .book file)",
+  "minedows.wordpad.wrong_book": "There is a problem with the book",
+  "minedows.wordpad.save.filter_description": "Minedows WordPad Book"
 }

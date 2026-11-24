@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -16,11 +15,9 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.client.gui.screens.inventory.BookEditScreen;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -38,13 +35,8 @@ import ru.kelcu.windows.utils.WinColors;
 import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
-import ru.kelcuprum.alinlib.gui.components.builder.text.HorizontalRuleBuilder;
-import ru.kelcuprum.alinlib.gui.components.editbox.MultilineEditBox;
-import ru.kelcuprum.alinlib.gui.components.text.HorizontalRule;
 import ru.kelcuprum.alinlib.gui.toast.ToastBuilder;
 
-import javax.imageio.ImageIO;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -88,16 +80,18 @@ public class WordPad extends Screen {
     private List<String> pages = Lists.newArrayList();
     public WordPad(final Player owner, final ItemStack book, final InteractionHand hand, final WritableBookContent content){
         this();
+        this.pages = Lists.newArrayList();
         this.owner = owner;
         this.book = book;
         this.hand = hand;
-        Stream var10000 = content.getPages(Minecraft.getInstance().isTextFilteringEnabled());
-        List var10001 = this.pages;
-        Objects.requireNonNull(var10001);
-        var10000.forEach(var10001::add);
+        Stream<String> var10000 = content.getPages(Minecraft.getInstance().isTextFilteringEnabled());
+        var10000.forEach(this.pages::add);
+        for(int i = 0; i<100; i++){
+            if(pages.size()-1 < i) pages.add("");
+        }
         int i = 0;
         for(String s : pages){
-            if(!s.isBlank()) strings.put(0, s);
+            if(!s.isBlank()) strings.put(i, s);
             i++;
         }
     }
@@ -106,6 +100,12 @@ public class WordPad extends Screen {
     HashMap<Integer, MultiLineEditBox> editBoxs = new HashMap<>();
     ArrayList<AbstractWidget> widgets = new ArrayList<>();
     private ConfigureScrolWidget scroller;
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -334,9 +334,9 @@ public class WordPad extends Screen {
         if(minecraft.level != null){
             ItemStack is = minecraft.player.getItemBySlot(EquipmentSlot.MAINHAND);
             if(is.is(Items.WRITABLE_BOOK)){
-                eraseEmptyTrailingPages();
-                int slot = this.hand == InteractionHand.MAIN_HAND ? this.owner.getInventory().getSelectedSlot() : 40;
-                this.minecraft.getConnection().send(new ServerboundEditBookPacket(slot, this.pages, Optional.empty()));
+                List<String> pp = eraseEmptyTrailingPages(this.pages);
+                int slot = minecraft.player.getInventory().getSelectedSlot();
+                this.minecraft.getConnection().send(new ServerboundEditBookPacket(slot, pp, Optional.empty()));
                 new ToastBuilder().setTitle(Component.translatable("minedows.wordpad")).setMessage(Component.translatable("minedows.wordpad.save.book_done")).buildAndShow();
             } else {
                 b = false;
@@ -344,13 +344,13 @@ public class WordPad extends Screen {
         } else b = false;
         if(!b) new ToastBuilder().setTitle(Component.translatable("minedows.wordpad")).setMessage(Component.translatable("minedows.wordpad.wrong_book")).setType(ToastBuilder.Type.ERROR).buildAndShow();
     }
-    private void eraseEmptyTrailingPages() {
-        ListIterator<String> pagesIt = this.pages.listIterator(this.pages.size());
+    private List<String> eraseEmptyTrailingPages(List<String> pages) {
+        ListIterator<String> pagesIt = pages.listIterator(pages.size());
 
-        while(pagesIt.hasPrevious() && ((String) pagesIt.previous() == null || ((String)pagesIt.previous()).isEmpty())) {
+        while(pagesIt.hasPrevious() && (pagesIt.previous().isEmpty())) {
             pagesIt.remove();
         }
-
+        return pages;
     }
     public void loadFile(){
         File defaultPath = new File(System.getProperty("user.home")).getAbsoluteFile();

@@ -164,8 +164,10 @@
 
   "resourcePack.windows_sound": "Звуки Windows 98",
 
-  "minedows.wordpad": "WordPad (Dev.)",
-  "minedows.wordpad.open_file": "Открыть MWP файл",
+  "minedows.wordpad": "WordPad (Альфа)",
+  "minedows.wordpad.open_file": "Открыть .book файл",
   "minedows.wordpad.open_from_game": "Импортировать книгу",
-  "minedows.wordpad.save": "Сохранить (Зажмите CTRL для файла)"
+  "minedows.wordpad.save": "Сохранить (Зажмите CTRL для .book файла)",
+  "minedows.wordpad.wrong_book": "Возникла проблема с книгой",
+  "minedows.wordpad.save.filter_description": "Minedows WordPad Книга"
 }
