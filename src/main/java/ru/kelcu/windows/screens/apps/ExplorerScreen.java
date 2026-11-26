@@ -310,9 +310,8 @@ public class ExplorerScreen extends Screen {
     public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
         WindowUtils.welcomeToWhiteSpace(guiGraphics, 0, yForFolder, width, height-yForFolder);
-        guiGraphics.fill(1, yForFolder+1, 180, height-1, 0xFF677eda);
-        for(int i = 0; i<50 && i<(height-1); i++){
-            guiGraphics.fill(1, yForFolder+1+i, 180, yForFolder+2+i, GuiUtils.interpolate(0xFF7ca3e8, 0xFF677eda, i/50f));
+        for(int i = yForFolder; i<height-1; i++){
+            guiGraphics.fill(1, 1+i, 180, 2+i, GuiUtils.interpolate(0xFF7ca3e8, 0xFF677eda, i/(float) (height-2)));
         }
     }
 
@@ -466,7 +465,7 @@ public class ExplorerScreen extends Screen {
     public void tick() {
         if (scroller != null) scroller.onScroll.accept(scroller);
         if (panel_scroller != null) panel_scroller.onScroll.accept(panel_scroller);
-        if(lastDrives != File.listRoots().length && path.isBlank()){
+        if(lastDrives != File.listRoots().length){
             lastDrives = File.listRoots().length;
             rebuildWidgets();
         }
@@ -512,7 +511,7 @@ public class ExplorerScreen extends Screen {
             return GuiUtils.getResourceLocation("windows", "textures/start/icons/file.png");
         }
     }
-    public class XPCategoryBox extends CategoryBox {
+    public static class XPCategoryBox extends CategoryBox {
 
         public XPCategoryBox(int x, int y, int width, int height, boolean state, Component label) {
             super(x, y, width, height, state, label);
@@ -526,11 +525,11 @@ public class ExplorerScreen extends Screen {
                     GuiGraphicsExtractor.fill(getX()+(getWidth()/2)+z, getY(), getX()+(getWidth()/2)+z+1, getY()+getHeight(), GuiUtils.interpolate(0xFFFFFFFF, 0xFFc8d4f7, (z/(float)(getWidth()/2))));
                 }
                 int y = this.getY() + (this.getHeight() - 8) / 2;
-                GuiGraphicsExtractor.text(font, this.getState() ? "▼" : "▶", this.getX() + this.getWidth() - 5 - font.width(this.getState() ? "▼" : "▶"), y, 0xFF1c5ec7, false);
-                if(width-15 - font.width(this.getState() ? "▼" : "▶") > font.width(getName()))
-                    GuiGraphicsExtractor.text(font, this.getName(), this.getX() + 5, y, 0xFF1c5ec7, false);
-                else TextBox.renderScrollingString(GuiGraphicsExtractor, font, this.getName(), this.getX() + 5, this.getY(), this.getX() + this.getWidth() - 10 - font.width(this.getState() ? "▼" : "▶"), this.getY() + this.getHeight(), 0xFF1c5ec7, false);
-                if(getState()){
+                GuiGraphicsExtractor.text(Minecraft.getInstance().font, this.getState() ? "▼" : "▶", this.getX() + this.getWidth() - 5 - Minecraft.getInstance().font.width(this.getState() ? "▼" : "▶"), y, 0xFF1c5ec7, false);
+                if(width-15 - Minecraft.getInstance().font.width(this.getState() ? "▼" : "▶") > Minecraft.getInstance().font.width(getName()))
+                    GuiGraphicsExtractor.text(Minecraft.getInstance().font, this.getName(), this.getX() + 5, y, 0xFF1c5ec7, false);
+                else TextBox.renderScrollingString(GuiGraphicsExtractor, Minecraft.getInstance().font, this.getName(), this.getX() + 5, this.getY(), this.getX() + this.getWidth() - 10 - Minecraft.getInstance().font.width(this.getState() ? "▼" : "▶"), this.getY() + this.getHeight(), 0xFF1c5ec7, false);
+                if(getState() && !values.isEmpty()){
                     int yW = 0;
                     for(AbstractWidget widget : values) yW = Math.max(yW, widget.getBottom());
                     yW+=5;

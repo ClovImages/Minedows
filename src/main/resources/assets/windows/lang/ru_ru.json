@@ -109,6 +109,7 @@
   "minedows.system_options.other.open_pause_screen": "Открыть окно паузы, если верхний конфиг выключен",
   "minedows.system_options.other.explorer.home_page": "Домашняя страница Проводника",
   "minedows.system_options.other.enable_classic_style": "Классический дизайн",
+  "minedows.system_options.other.overwrite_light": "Перезаписать светлый шрифт",
   "minedows.system_options.other.explorer.links": "Ярлыки рабочего стола",
 
   "minedows.system_options.for_arts": "Для художников",

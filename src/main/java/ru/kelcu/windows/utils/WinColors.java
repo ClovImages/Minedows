@@ -5,6 +5,8 @@ import net.minecraft.util.ARGB;
 import ru.kelcu.windows.Windows;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 
+import java.util.Objects;
+
 import static ru.kelcu.windows.Windows.config;
 
 public class WinColors {
@@ -97,6 +99,7 @@ public class WinColors {
     }
 
     public static boolean isLightColor(int rgb){
+        if(ThemeManager.getSelectedTheme().overwrite_light()) return false;
         int red = (rgb >> 16) & 0xff;
         int green = (rgb >> 8) & 0xff;
         int blue = (rgb) & 0xff;

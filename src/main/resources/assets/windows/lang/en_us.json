@@ -110,6 +110,7 @@
   "minedows.system_options.other.open_pause_screen": "Open the Pause Window if the top configuration is turned off",
   "minedows.system_options.other.explorer.home_page": "Explorer Home Page",
   "minedows.system_options.other.enable_classic_style": "Classic style",
+  "minedows.system_options.other.overwrite_light": "Overwrite Light font",
   "minedows.system_options.other.explorer.links": "Desktop Links",
 
   "minedows.system_options.for_arts": "Для художников",
@@ -134,6 +135,7 @@
   "minedows.theme.city": "Urban environment",
   "minedows.theme.sky": "Sky",
   "minedows.theme.catppuccin_mocha": "Catppuccin Mocha",
+  "minedows.theme.luna": "Luna",
   "minedows.theme.user": "Custom Theme",
 
   "minedows.themes.editor": "Theme editor",

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ARGB;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Cursor;
 import ru.kelcu.windows.components.Window;
@@ -134,6 +135,9 @@ public class ThemeEditorScreen extends Screen {
         addRenderableWidget(new ButtonBoolean(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.enable_classic_style"), false)
                 .setConfig(Windows.config, "ENABLE_CLASSIC_STYLE").setPosition(x, y).setSize(145, 18).setStyle(minedowsStyle)));
         y+=23;
+        addRenderableWidget(new ButtonBoolean(new ButtonBooleanBuilder(Component.translatable("minedows.system_options.other.overwrite_light"), false)
+                .setConfig(Windows.config, "THEME.OVERWRITE_LIGHT").setPosition(x, y).setSize(145, 18).setStyle(minedowsStyle)));
+        y+=23;
         TextBox t = (TextBox) new TextBuilder(Component.translatable("minedows.control.colors_tips")).setType(TextBuilder.TYPE.BLOCKQUOTE).setStyle(Windows.minedowsStyle).setPosition(x, y).setWidth(145).build();
         addRenderableWidget(t);
         y+=(t.getHeight()+5);
@@ -208,7 +212,9 @@ public class ThemeEditorScreen extends Screen {
             int xb = x + width - 5 - buttonSize;
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x+1, y+1, width, height, 0x2E000000);
             guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x+2, y+2, width, height, 0x1E000000);
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x, y, width, height, Math.min(WinColors.getWindowColors()[0] + (window.active ? 0 : 0x001E1E1E), 0xFFFFFFFF));
+            int wincolor = WinColors.getWindowColors()[0];
+            double p = window.active ? 1 : 1.275;
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), width, height, 0, 0, x, y, width, height, Math.min(ARGB.color(ARGB.alpha(wincolor), (int) (Math.min(ARGB.red(wincolor)*p, 255)), (int) (Math.min(ARGB.green(wincolor)*p, 255)), (int) (Math.min(ARGB.blue(wincolor)*p, 255))), 0xFFFFFFFF));
             if (window.getButtons() < 2) {
                 boolean b1 = xb < mouseX && mouseX < xb + buttonSize && y + buttonY < mouseY && mouseY < y + buttonY + buttonSize;
                 guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "button"), buttonSize, buttonSize, 0, 0, xb, y + buttonY, buttonSize, buttonSize, b1 ? SELFISH : GROUPIE);
