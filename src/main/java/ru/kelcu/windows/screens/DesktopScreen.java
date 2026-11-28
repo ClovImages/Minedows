@@ -10,6 +10,8 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -26,6 +28,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 //#endif
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -62,6 +65,7 @@ import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static ru.kelcuprum.alinlib.gui.Colors.*;
 import static ru.kelcuprum.alinlib.gui.GuiUtils.interpolate;
@@ -313,56 +317,104 @@ public class DesktopScreen extends Screen {
     public int taskbarSize = 20;
     int startMenuWidth = 150;
     int startMenuHeight = 150;
-    public HashMap<String, ArrayList<Action>> getActionsMainMenu(){
+    // TODO: Windows XP Style
+    public HashMap<String, ArrayList<Action>> getAppsActionMainMenu(){
         HashMap<String, ArrayList<Action>> links = new HashMap<>();
         if(minecraft == null) return links;
-        ArrayList<Action> system = new ArrayList<>();
-        system.add(new Action(Action.Type.STOP_GAME, Component.translatable("minedows.start.stop"), GuiUtils.getResourceLocation("windows", "textures/start/icons/shutdown.png")));
-        if(Minecraft.getInstance().level != null) {
-            system.add(new Action(Action.Type.DISCONNECT, Component.translatable("minedows.start.disconnect"), GuiUtils.getResourceLocation("windows", "textures/start/icons/key_world.png")));
-            system.add(new Action(Action.Type.UNPAUSE_GAME, Component.translatable("minedows.start.resume"), GuiUtils.getResourceLocation("windows", "textures/start/icons/pwgoodstore.png")));
-        }
-        links.put("0", system);
-        ArrayList<Action> config = new ArrayList<>();
-        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.accessibility"), GuiUtils.getResourceLocation("windows", "textures/start/icons/accessibility.png"), new AccessibilityOptionsScreen(null, minecraft.options)));
-        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.language"), GuiUtils.getResourceLocation("windows", "textures/start/icons/language.png"), new LanguageSelectScreen(null, minecraft.options, minecraft.getLanguageManager())));
-        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.options"), GuiUtils.getResourceLocation("windows", "textures/start/icons/options.png"), new OptionsScreen(null, minecraft.options)));
-        config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
-        links.put("1", config);
-        ArrayList<Action> title = new ArrayList<>();
-        if(Minecraft.getInstance().level != null) {
-            title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.stats"), GuiUtils.getResourceLocation("windows", "textures/start/icons/stats.png"), new StatsScreen(null, Minecraft.getInstance().player.getStats())));
-            title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.advancements"), GuiUtils.getResourceLocation("windows", "textures/start/icons/advancements.png"), new AdvancementsScreen(Minecraft.getInstance().player.connection.getAdvancements(), null)));
-//            if(this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished()) title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.shareToLan"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new MultiplayerOptionsScreen(null)));
-        } else {
-            title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.online"), GuiUtils.getResourceLocation("windows", "textures/start/icons/realms.png"), new RealmsMainScreen(null)));
-            title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("multiplayer.title"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new JoinMultiplayerScreen(null)));
-            title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("title.singleplayer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world.png"), new SelectWorldScreen(null)));
-        }
-        links.put("2", title);
         ArrayList<Action> apps = new ArrayList<>();
-        if(Windows.isModMenuInstalled() || Windows.isCatalogueInstalled()){
+        if (Windows.isModMenuInstalled() || Windows.isCatalogueInstalled()) {
             apps.add(new Action(Action.Type.OPEN_SCREEN, (Windows.isModMenuInstalled() ? ModMenuActions.getModText() : Windows.isCatalogueInstalled() ? Component.translatable("catalogue.gui.mod_list") : Component.empty()), GuiUtils.getResourceLocation("windows", "textures/start/icons/cmd.png"), ModMenuActions.getScreen()));
         }
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
         apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
-        if(FabricLoader.getInstance().isModLoaded("rinku")) apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
-        if(FabricLoader.getInstance().isDevelopmentEnvironment()) {
+        if (FabricLoader.getInstance().isModLoaded("rinku"))
+            apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
+        apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.wordpad"), GuiUtils.getResourceLocation("windows", "textures/start/icons/wordpad.png"), new WindowBuilder().setScreen(new WordPad()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/wordpad.png"))));
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
             apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new DebugScreen()));
         }
         apps.addAll(ModManager.getActions(true));
-        links.put("3", apps);
-        if(Windows.config.getBoolean("enable_art_programms", false)){
+        links.put("0", apps);
+        if (Windows.config.getBoolean("enable_art_programms", false)) {
             ArrayList<Action> art = new ArrayList<>();
             art.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.audio_player"), GuiUtils.getResourceLocation("windows", "textures/start/icons/media_player.png"), new WindowBuilder().setScreen(new FakeAudioPlayerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/media_player.png"))));
-            links.put("4", art);
+            links.put("1", art);
         }
         return links;
     }
+    public HashMap<String, ArrayList<Action>> getActionsMainMenu(){
+        HashMap<String, ArrayList<Action>> links = new HashMap<>();
+        if(minecraft == null) return links;
 
-
-
+        if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+            ArrayList<Action> system = new ArrayList<>();
+            system.add(new Action(Action.Type.STOP_GAME, Component.translatable("minedows.start.stop"), GuiUtils.getResourceLocation("windows", "textures/start/icons/shutdown.png")));
+            if (Minecraft.getInstance().level != null) {
+                system.add(new Action(Action.Type.DISCONNECT, Component.translatable("minedows.start.disconnect"), GuiUtils.getResourceLocation("windows", "textures/start/icons/key_world.png")));
+                system.add(new Action(Action.Type.UNPAUSE_GAME, Component.translatable("minedows.start.resume"), GuiUtils.getResourceLocation("windows", "textures/start/icons/pwgoodstore.png")));
+            }
+            links.put("0", system);
+            ArrayList<Action> config = new ArrayList<>();
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.accessibility"), GuiUtils.getResourceLocation("windows", "textures/start/icons/accessibility.png"), new AccessibilityOptionsScreen(null, minecraft.options)));
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.language"), GuiUtils.getResourceLocation("windows", "textures/start/icons/language.png"), new LanguageSelectScreen(null, minecraft.options, minecraft.getLanguageManager())));
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.options"), GuiUtils.getResourceLocation("windows", "textures/start/icons/options.png"), new OptionsScreen(null, minecraft.options)));
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
+            links.put("1", config);
+            ArrayList<Action> title = new ArrayList<>();
+            if (Minecraft.getInstance().level != null) {
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.stats"), GuiUtils.getResourceLocation("windows", "textures/start/icons/stats.png"), new StatsScreen(null, Minecraft.getInstance().player.getStats())));
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.advancements"), GuiUtils.getResourceLocation("windows", "textures/start/icons/advancements.png"), new AdvancementsScreen(Minecraft.getInstance().player.connection.getAdvancements(), null)));
+                if(this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished())
+                    title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.worldOptions.title"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new WorldOptionsScreen(null, minecraft.level)));
+            } else {
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.online"), GuiUtils.getResourceLocation("windows", "textures/start/icons/realms.png"), new RealmsMainScreen(null)));
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("multiplayer.title"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new JoinMultiplayerScreen(null)));
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("title.singleplayer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world.png"), new SelectWorldScreen(null)));
+            }
+            links.put("2", title);
+            ArrayList<Action> apps = new ArrayList<>();
+            if (Windows.isModMenuInstalled() || Windows.isCatalogueInstalled()) {
+                apps.add(new Action(Action.Type.OPEN_SCREEN, (Windows.isModMenuInstalled() ? ModMenuActions.getModText() : Windows.isCatalogueInstalled() ? Component.translatable("catalogue.gui.mod_list") : Component.empty()), GuiUtils.getResourceLocation("windows", "textures/start/icons/cmd.png"), ModMenuActions.getScreen()));
+            }
+            apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.paint"), GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/paint.png")).setScreen(new PaintScreen())));
+            apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.calc"), GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/calc.png")).setResizable(false).setSize(206, 165).setScreen(new CalcScreen())));
+            apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.explorer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"), new WindowBuilder().setScreen(new ExplorerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))));
+            if (FabricLoader.getInstance().isModLoaded("rinku"))
+                apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.browser"), GuiUtils.getResourceLocation("windows", "textures/browser/icon.png"), new WindowBuilder().setIcon(GuiUtils.getResourceLocation("windows", "textures/browser/icon.png")).setScreen(new BrowserScreen())));
+            apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.wordpad"), GuiUtils.getResourceLocation("windows", "textures/start/icons/wordpad.png"), new WindowBuilder().setScreen(new WordPad()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/wordpad.png"))));
+            if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+                apps.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.start.debug"), GuiUtils.getResourceLocation("windows", "textures/start/icons/debug.png"), new DebugScreen()));
+            }
+            apps.addAll(ModManager.getActions(true));
+            links.put("3", apps);
+            if (Windows.config.getBoolean("enable_art_programms", false)) {
+                ArrayList<Action> art = new ArrayList<>();
+                art.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.audio_player"), GuiUtils.getResourceLocation("windows", "textures/start/icons/media_player.png"), new WindowBuilder().setScreen(new FakeAudioPlayerScreen()).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/media_player.png"))));
+                links.put("4", art);
+            }
+        } else {
+            ArrayList<Action> config = new ArrayList<>();
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.accessibility"), GuiUtils.getResourceLocation("windows", "textures/start/icons/accessibility.png"), new AccessibilityOptionsScreen(null, minecraft.options)));
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.language"), GuiUtils.getResourceLocation("windows", "textures/start/icons/language.png"), new LanguageSelectScreen(null, minecraft.options, minecraft.getLanguageManager())));
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.options"), GuiUtils.getResourceLocation("windows", "textures/start/icons/options.png"), new OptionsScreen(null, minecraft.options)));
+            config.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("minedows.control"), GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"), new WindowBuilder().setSize(325, 240).setScreen(new ControlPanelScreen())));
+            links.put("0", config);
+            ArrayList<Action> title = new ArrayList<>();
+            if (Minecraft.getInstance().level != null) {
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.stats"), GuiUtils.getResourceLocation("windows", "textures/start/icons/stats.png"), new StatsScreen(null, Minecraft.getInstance().player.getStats())));
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("gui.advancements"), GuiUtils.getResourceLocation("windows", "textures/start/icons/advancements.png"), new AdvancementsScreen(Minecraft.getInstance().player.connection.getAdvancements(), null)));
+                if(this.minecraft.hasSingleplayerServer() && !this.minecraft.getSingleplayerServer().isPublished())
+                    title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("options.worldOptions.title"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new WorldOptionsScreen(null, minecraft.level)));
+            } else {
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("menu.online"), GuiUtils.getResourceLocation("windows", "textures/start/icons/realms.png"), new RealmsMainScreen(null)));
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("multiplayer.title"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world_network.png"), new JoinMultiplayerScreen(null)));
+                title.add(new Action(Action.Type.OPEN_SCREEN, Component.translatable("title.singleplayer"), GuiUtils.getResourceLocation("windows", "textures/start/icons/world.png"), new SelectWorldScreen(null)));
+            }
+            links.put("1", title);
+        }
+        return links;
+    }
     public void updateStartMenuSizes(HashMap<String, ArrayList<Action>> categories){
         startMenuWidth = startMenuHeight = 150;
         boolean isFirst = true;
@@ -383,6 +435,46 @@ public class DesktopScreen extends Screen {
         startMenuHeight = Math.max(150, yA);
         startMenuWidth = Math.max(150, xA);
     }
+    int categoryes = 0;
+    int appss = 0;
+    public void updateStartMenuSizes(HashMap<String, ArrayList<Action>> categories, HashMap<String, ArrayList<Action>> apps){
+        startMenuWidth = startMenuHeight = 150;
+        boolean isFirst = true;
+        int yA = 8;
+        int yL = 8;
+        int xA = 55;
+        int xL = 55;
+        for(String category : categories.keySet()){
+            ArrayList<Action> actions = categories.get(category);
+            if(actions.isEmpty()) continue;
+            if(isFirst) isFirst = false;
+            else {
+                yA +=8;
+            }
+            for(Action action : actions){
+                yA += 22;
+                xA = Math.max(55+font.width(action.title), xA);
+            }
+        }
+        isFirst = true;
+        for(String category : apps.keySet()){
+            ArrayList<Action> actions = categories.get(category);
+            if(actions.isEmpty()) continue;
+            if(isFirst) isFirst = false;
+            else {
+                yL +=8;
+            }
+            for(Action action : actions){
+                yL += 14;
+                xL = Math.max(6+font.width(action.title), xL);
+            }
+        }
+        categoryes = xA;
+        appss = xL;
+        startMenuHeight = Math.max(150, Math.max(yA, yL));
+        startMenuWidth = Math.max(150, xA+xL);
+    }
+    // -=-=-=-=-
     public int xWindowTask = 0;
     @Override
     public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -392,7 +484,7 @@ public class DesktopScreen extends Screen {
             int yG = height-11-taskbarSize-(font.lineHeight*2);
             for(FormattedCharSequence w : warning) yG -= (3 + font.lineHeight);
             String title = String.format("Minedows 2000 v%s", FabricLoader.getInstance().getModContainer("minedows").get().getMetadata().getVersion().getFriendlyString());
-            String copy = "@Clovisoft";
+            String copy = "@Kel_Cleverov";
             guiGraphics.text(font, title, width-5- font.width(title), yG, -1);
             yG+=(3+font.lineHeight);
             for(FormattedCharSequence formattedCharSequence : warning) {
@@ -444,29 +536,93 @@ public class DesktopScreen extends Screen {
 
         if(startMenuShowed){
             HashMap<String, ArrayList<Action>> categories = getActionsMainMenu();
-            updateStartMenuSizes(categories);
+            if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+                updateStartMenuSizes(categories);
+            } else {
+                updateStartMenuSizes(categories, getAppsActionMainMenu());
+            }
             int y = height - (taskbarSize-3) - startMenuHeight;
-            WindowUtils.renderPanel(guiGraphics, 0, y, startMenuWidth, y+startMenuHeight);
-            guiGraphics.fillGradient(3, y+3, 18, y-3+startMenuHeight, WinColors.getStartMenuGradient()[0], WinColors.getStartMenuGradient()[1]);
-            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/start/logo.png"), 3, y-111+startMenuHeight, 0, 0, 15, 108, 15, 108);
+            if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)){
+                WindowUtils.renderPanel(guiGraphics, 0, y, startMenuWidth, y+startMenuHeight);
+                guiGraphics.fillGradient(3, y+3, 18, y-3+startMenuHeight, WinColors.getStartMenuGradient()[0], WinColors.getStartMenuGradient()[1]);
+                guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "textures/start/logo.png"), 3, y-111+startMenuHeight, 0, 0, 15, 108, 15, 108);
+            } else {
+                int wincolor = WinColors.getWindowColors()[0];
+                y -= 64;
+                guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, GuiUtils.getResourceLocation("windows", "frame"), startMenuWidth, startMenuHeight+61, 0, 0, 0, y, startMenuWidth, startMenuHeight+61, wincolor);
+
+                try {
+                    guiGraphics.outline(4, y+6, 22, 22, WinColors.getTextColorWithMainColor());
+                    PlayerFaceExtractor.extractRenderState(guiGraphics, DefaultPlayerSkin.get(Minecraft.getInstance().getGameProfile()).body().texturePath(), 5, y+7, 20, true, false, -1);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                guiGraphics.text(font, minecraft.getGameProfile().name(), 32, y+9+(20-font.lineHeight)/2, WinColors.getTextColorWithMainColor(), false);
+                y+= 34;
+                guiGraphics.fill(0, y, appss, y+startMenuHeight, 0xFFFFFFFF);
+                guiGraphics.fill(appss, y, appss+categoryes, y+startMenuHeight, 0xFFccdef3);
+            }
             boolean isFirst = true;
             int yA = y+startMenuHeight-3;
-            for(String category : categories.keySet()){
-                ArrayList<Action> actions = categories.get(category);
-                if(actions.isEmpty()) continue;
-                if(isFirst) isFirst = false;
-                else {
-                    yA -=5;
-                    guiGraphics.fill(20, yA, startMenuWidth-4, yA+2, hcolors[0]);
-                    guiGraphics.fill(20, yA, startMenuWidth-4, yA+1, hcolors[1]);
-                    yA -=3;
+            int yAp = y+startMenuHeight-3;
+
+            if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+                for (String category : categories.keySet()) {
+                    ArrayList<Action> actions = categories.get(category);
+                    if (actions.isEmpty()) continue;
+                    if (isFirst) isFirst = false;
+                    else {
+                        yA -= 5;
+                        guiGraphics.fill(20, yA, startMenuWidth - 4, yA + 2, hcolors[0]);
+                        guiGraphics.fill(20, yA, startMenuWidth - 4, yA + 1, hcolors[1]);
+                        yA -= 3;
+                    }
+                    for (Action action : actions) {
+                        yA -= 22;
+                        boolean focused = 20 < mouseX && mouseX < startMenuWidth - 4 && yA < mouseY && mouseY < yA + 20;
+                        if (focused) cursorType = CursorTypes.POINTING_HAND;
+                        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, 23, yA, 0, 0, 20, 20, 20, 20, -1);
+                        guiGraphics.text(font, Component.empty().append(action.title).withStyle(Style.EMPTY.withUnderlined(focused)), 48, yA + (10 - (font.lineHeight / 2)), WinColors.getTextColorWithMainColor(), false);
+                    }
                 }
-                for(Action action : actions){
-                    yA -= 22;
-                    boolean focused = 20 < mouseX && mouseX < startMenuWidth - 4 && yA < mouseY && mouseY < yA + 20;
-                    if(focused) cursorType = CursorTypes.POINTING_HAND;
-                    guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, 23, yA, 0, 0, 20, 20, 20, 20, -1);
-                    guiGraphics.text(font, Component.empty().append(action.title).withStyle(Style.EMPTY.withUnderlined(focused)),48, yA+(10-(font.lineHeight/2)), WinColors.getTextColorWithMainColor(), false);
+            } else {
+                HashMap<String, ArrayList<Action>> apps = getAppsActionMainMenu();
+                for (String category : apps.keySet()) {
+                    ArrayList<Action> actions = apps.get(category);
+                    if (actions.isEmpty()) continue;
+                    if (isFirst) isFirst = false;
+                    else {
+                        yAp -= 5;
+                        guiGraphics.fill(5+appss, yA, startMenuWidth - 4, yA + 2, 0x1E1E1E1E);
+                        guiGraphics.fill(5+appss, yA, startMenuWidth - 4, yA + 1, 0x1E1E1E1E);
+                        yAp -= 3;
+                    }
+                    for (Action action : actions) {
+                        yAp -= 14;
+                        boolean focused = 3 < mouseX && mouseX < 3 + appss - 4 && yAp < mouseY && mouseY < yAp + 12;
+                        if (focused) cursorType = CursorTypes.POINTING_HAND;
+                        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, 3, yAp, 0, 0, 12, 12, 12, 12, -1);
+                        guiGraphics.text(font, Component.empty().append(action.title).withStyle(Style.EMPTY.withUnderlined(focused)), 20, yAp + (6 - (font.lineHeight / 2)), ControlPanelScreen.nothingStyle.getTextColor(true), false);
+                    }
+                }
+                isFirst = true;
+                for (String category : categories.keySet()) {
+                    ArrayList<Action> actions = categories.get(category);
+                    if (actions.isEmpty()) continue;
+                    if (isFirst) isFirst = false;
+                    else {
+                        yA -= 5;
+                        guiGraphics.fill(5+appss, yA, startMenuWidth - 4, yA + 2, 0x1E1E1E1E);
+                        guiGraphics.fill(5+appss, yA, startMenuWidth - 4, yA + 1, 0x1E1E1E1E);
+                        yA -= 3;
+                    }
+                    for (Action action : actions) {
+                        yA -= 22;
+                        boolean focused = (5+appss) < mouseX && mouseX < startMenuWidth - 4 && yA < mouseY && mouseY < yA + 20;
+                        if (focused) cursorType = CursorTypes.POINTING_HAND;
+                        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, action.icon, 8+appss, yA, 0, 0, 20, 20, 20, 20, -1);
+                        guiGraphics.text(font, Component.empty().append(action.title).withStyle(Style.EMPTY.withUnderlined(focused)), 32+appss, yA + (10 - (font.lineHeight / 2)), ControlPanelScreen.nothingStyle.getTextColor(true), false);
+                    }
                 }
             }
         }
@@ -545,25 +701,6 @@ public class DesktopScreen extends Screen {
         if(Windows.isStoppedShitGame){
             guiGraphics.fill(0, 0, width, height, 0x7F000000);
         }
-    }
-
-    public int[] getMouseForLabels(int x, int y){
-        int[] coordinates = new int[]{x, y};
-        for(Window window : windows){
-            if(window.active && window.visible){
-                if(window.x < x && x < window.x+window.width && window.y < y && y < window.y+window.height){
-                    coordinates = new int[]{width, height};
-                    break;
-                }
-            }
-        }
-        if(startMenuShowed){
-            HashMap<String, ArrayList<Action>> categories = getActionsMainMenu();
-            updateStartMenuSizes(categories);
-            int yw = height - (taskbarSize-3) - startMenuHeight;
-            if(0 < x && x < startMenuWidth && yw<y && y < yw+startMenuHeight) coordinates = new int[]{width, height};
-        }
-        return coordinates;
     }
 
     static int buttonSize = 10;
@@ -1073,28 +1210,77 @@ public class DesktopScreen extends Screen {
                 xA-=taskbarSize;
             }
         }
-        int yS = height - (taskbarSize-3) - startMenuHeight;
+        int yS = height - (taskbarSize-3) - startMenuHeight-30;
         if(startMenuShowed && 0 < d && d < startMenuWidth && yS < e && e < yS+startMenuHeight){
             HashMap<String, ArrayList<Action>> categories = getActionsMainMenu();
-            updateStartMenuSizes(categories);
+            HashMap<String, ArrayList<Action>> apps = getAppsActionMainMenu();
+            if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+                updateStartMenuSizes(categories);
+            } else {
+                updateStartMenuSizes(categories, apps);
+            }
             int y = height - (taskbarSize-3) - startMenuHeight;
-            int x = 20;
-            boolean isFirst = true;
-            int yA = y+startMenuHeight-3;
-            for(String category : categories.keySet()){
-                ArrayList<Action> actions = categories.get(category);
-                if(actions.isEmpty()) continue;
-                if(isFirst) isFirst = false;
-                else {
-                    yA -=8;
+
+            if(Windows.config.getBoolean("ENABLE_CLASSIC_STYLE", false)) {
+                int x = 20;
+                boolean isFirst = true;
+                int yA = y + startMenuHeight - 3;
+                for (String category : categories.keySet()) {
+                    ArrayList<Action> actions = categories.get(category);
+                    if (actions.isEmpty()) continue;
+                    if (isFirst) isFirst = false;
+                    else {
+                        yA -= 8;
+                    }
+                    for (Action action : actions) {
+                        yA -= 22;
+                        if (x < d && d < startMenuWidth - 4 && yA < e && e < yA + 20) {
+                            SoundUtils.click();
+                            startMenuShowed = false;
+                            Windows.executeAction(action);
+                            return true;
+                        }
+                    }
                 }
-                for(Action action : actions){
-                    yA -= 22;
-                    if(x < d && d < startMenuWidth-4 && yA < e && e < yA+20){
-                        SoundUtils.click();
-                        startMenuShowed = false;
-                        Windows.executeAction(action);
-                        return true;
+            } else {
+                int xa = 3;
+                int x =(5+appss);
+                boolean isFirst = true;
+                int yA = y + startMenuHeight - 33;
+                int yAp = y + startMenuHeight - 33;
+                for (String category : apps.keySet()) {
+                    ArrayList<Action> actions = apps.get(category);
+                    if (actions.isEmpty()) continue;
+                    if (isFirst) isFirst = false;
+                    else {
+                        yAp -= 8;
+                    }
+                    for (Action action : actions) {
+                        yAp -= 14;
+                        if (xa < d && d < xa+appss - 4 && yAp < e && e < yAp + 12) {
+                            SoundUtils.click();
+                            startMenuShowed = false;
+                            Windows.executeAction(action);
+                            return true;
+                        }
+                    }
+                }
+                isFirst = true;
+                for (String category : categories.keySet()) {
+                    ArrayList<Action> actions = categories.get(category);
+                    if (actions.isEmpty()) continue;
+                    if (isFirst) isFirst = false;
+                    else {
+                        yA -= 8;
+                    }
+                    for (Action action : actions) {
+                        yA -= 22;
+                        if (x < d && d < x+categoryes - 4 && yA < e && e < yA + 20) {
+                            SoundUtils.click();
+                            startMenuShowed = false;
+                            Windows.executeAction(action);
+                            return true;
+                        }
                     }
                 }
             }

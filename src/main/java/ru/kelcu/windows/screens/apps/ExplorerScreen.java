@@ -4,7 +4,6 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -14,25 +13,19 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 //#endif
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Util;
 import ru.kelcu.windows.Windows;
 import ru.kelcu.windows.components.Action;
 import ru.kelcu.windows.screens.components.LabelWidget;
-import ru.kelcu.windows.screens.options.LabelsPanelScreen;
+import ru.kelcu.windows.screens.options.ControlPanelScreen;
 import ru.kelcu.windows.utils.MediaType;
 import ru.kelcu.windows.utils.SoundUtils;
 import ru.kelcu.windows.utils.WinColors;
 import ru.kelcu.windows.utils.WindowUtils;
-import ru.kelcuprum.alinlib.AlinLib;
 import ru.kelcuprum.alinlib.gui.GuiUtils;
 import ru.kelcuprum.alinlib.gui.components.ConfigureScrolWidget;
-import ru.kelcuprum.alinlib.gui.components.Resetable;
 import ru.kelcuprum.alinlib.gui.components.builder.button.ButtonBuilder;
 import ru.kelcuprum.alinlib.gui.components.builder.editbox.EditBoxBuilder;
 import ru.kelcuprum.alinlib.gui.components.editbox.EditBox;
@@ -47,7 +40,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 // TODO: Переделать дизайн
@@ -147,11 +139,11 @@ public class ExplorerScreen extends Screen {
                 other = new XPCategoryBox(x, 5 + yForFolder, 160, 20, true, Component.translatable("minedows.explorer.other_places"));
                 other.addValue(new ButtonBuilder(Component.translatable("minedows.explorer.user_folder"), (b) -> changePath(Windows.config.getString("EXPLORER.DEFAULT_PAGE", System.getProperty("user.home")))).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/folder.png"))
                         .setCentered(false)
-                        .setStyle(LabelsPanelScreen.nothingStyle)
+                        .setStyle(ControlPanelScreen.nothingStyle)
                         .setSize(150, 16));
                 other.addValue(new ButtonBuilder(Component.translatable("minedows.explorer.this_computer"), (b) -> changePath("")).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/computer_gear.png"))
                         .setCentered(false)
-                        .setStyle(LabelsPanelScreen.nothingStyle)
+                        .setStyle(ControlPanelScreen.nothingStyle)
                         .setSize(150, 16));
             }
             panel_widgetss.add(other);
@@ -161,7 +153,7 @@ public class ExplorerScreen extends Screen {
                 for (File f : File.listRoots()) {
                     drives.addValue(new ButtonBuilder(Component.literal(fsv.getSystemDisplayName(f)), (b) -> changePath(f.toPath().toString())).setIcon(GuiUtils.getResourceLocation("windows", "textures/start/icons/drive/hard_disk_drive_cool.png"))
                             .setCentered(false)
-                            .setStyle(LabelsPanelScreen.nothingStyle)
+                            .setStyle(ControlPanelScreen.nothingStyle)
                             .setSize(150, 16));
                 }
             }
@@ -310,7 +302,7 @@ public class ExplorerScreen extends Screen {
     public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
         WindowUtils.welcomeToWhiteSpace(guiGraphics, 0, yForFolder, width, height-yForFolder);
-        for(int i = yForFolder; i<height-1; i++){
+        for(int i = yForFolder; i<height-2; i++){
             guiGraphics.fill(1, 1+i, 180, 2+i, GuiUtils.interpolate(0xFF7ca3e8, 0xFF677eda, i/(float) (height-2)));
         }
     }
